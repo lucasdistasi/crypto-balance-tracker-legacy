@@ -21,7 +21,7 @@ public class JsonSchemaValidationService<T> implements EntityValidation<T> {
 
             schema.validate(jsonObject);
         } catch (ValidationException ex) {
-            throw new ApiValidationException(ex.getCausingExceptions(), "Error validating Json Schema");
+            throw new ApiValidationException(ex.getCausingExceptions(), ex.getErrorMessage(), "Error validating Json Schema");
         }
     }
 }

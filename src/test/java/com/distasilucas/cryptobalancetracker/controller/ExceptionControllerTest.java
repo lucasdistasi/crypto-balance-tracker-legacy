@@ -1,6 +1,7 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
+import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
@@ -14,9 +15,7 @@ import org.springframework.mock.http.client.MockClientHttpResponse;
 import java.io.IOException;
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ExceptionControllerTest {
 
@@ -26,11 +25,25 @@ class ExceptionControllerTest {
     ExceptionController exceptionController = new ExceptionController();
 
     @Test
+    void shouldHandleCoinNotFoundException() {
+        var coinNotFoundException = new CoinNotFoundException("Coin not found");
+        var responseEntity = exceptionController.handleCoinNotFoundException(coinNotFoundException);
+
+        assertNotNull(responseEntity.getBody());
+        assertAll("coinNotFoundException",
+                () -> assertEquals(responseEntity.getStatusCode(), HttpStatus.NOT_FOUND),
+                () -> assertEquals(responseEntity.getStatusCodeValue(), HttpStatus.NOT_FOUND.value()),
+                () -> assertEquals(responseEntity.getBody().getErrors().size(), 1),
+                () -> assertEquals(responseEntity.getBody().getErrors().get(0).errorMessage(), coinNotFoundException.getErrorMessage())
+        );
+    }
+
+    @Test
     void shouldHandleApiValidationException() {
         var schema = new ObjectSchema(new ObjectSchema.Builder());
         var validationException = new ValidationException(schema, "message", "keyword", "schemaLocation");
         var apiValidationException = new ApiValidationException(
-                Collections.singletonList(validationException), "ApiValidationException"
+                Collections.singletonList(validationException), "errorMessage", "message"
         );
 
         var responseEntity = exceptionController.handleApiValidationException(apiValidationException);
@@ -48,7 +61,7 @@ class ExceptionControllerTest {
     @Test
     void shouldHandleApiValidationExceptionWithEmptyCausingExceptions() {
         var apiValidationException = new ApiValidationException(
-                Collections.emptyList(), "ApiValidationException"
+                Collections.emptyList(), "errorMessage", "message"
         );
 
         var responseEntity = exceptionController.handleApiValidationException(apiValidationException);
@@ -60,6 +73,26 @@ class ExceptionControllerTest {
                 () -> assertEquals(responseEntityBody.getStatusCode(), BAD_REQUEST_VALUE),
                 () -> assertEquals(responseEntityBody.getErrors().size(), 1),
                 () -> assertEquals(responseEntityBody.getErrors().get(0).errorMessage(), apiValidationException.getErrorMessage())
+        );
+    }
+
+    @Test
+    void shouldHandleApiValidationExceptionWithNullErrorMessage() {
+        var schema = new ObjectSchema(new ObjectSchema.Builder());
+        var validationException = new ValidationException(schema, "message", "keyword", "schemaLocation");
+        var apiValidationException = new ApiValidationException(
+                Collections.singletonList(validationException), null, "message"
+        );
+
+        var responseEntity = exceptionController.handleApiValidationException(apiValidationException);
+        var responseEntityBody = responseEntity.getBody();
+
+        assertNotNull(responseEntityBody);
+        assertAll("apiValidationException",
+                () -> assertEquals(responseEntity.getStatusCode(), BAD_REQUEST),
+                () -> assertEquals(responseEntityBody.getStatusCode(), BAD_REQUEST_VALUE),
+                () -> assertEquals(responseEntityBody.getErrors().size(), 1),
+                () -> assertEquals(responseEntityBody.getErrors().get(0).errorMessage(), validationException.getErrorMessage())
         );
     }
 
