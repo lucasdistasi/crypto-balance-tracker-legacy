@@ -38,9 +38,9 @@ public class QuantityValueValidator implements EntityValidation<CryptoDTO> {
 
     private boolean validateLength(BigDecimal quantity) {
         String[] quantityValue = String.valueOf(quantity).split("\\.");
-        int wholePart = quantityValue[0].length();
-        int fractionalPart = quantityValue[1].length();
 
-        return wholePart <= QUANTITY_WHOLE_MAX_LENGTH && fractionalPart <= QUANTITY_FRACTIONAL_MAX_LENGTH;
+        return (quantityValue.length == 1) ||
+                quantityValue[0].length() <= QUANTITY_WHOLE_MAX_LENGTH &&
+                        quantityValue[1].length() <= QUANTITY_FRACTIONAL_MAX_LENGTH;
     }
 }

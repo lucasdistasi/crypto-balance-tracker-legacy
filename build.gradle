@@ -5,6 +5,15 @@ plugins {
     id "org.owasp.dependencycheck" version "8.0.2"
 }
 
+ext {
+    gitHubErosbVersion = "1.14.1"
+    orgJsonVersion = "20220924"
+    googleCodeGsonVersion = "2.10.1"
+    springFrameworkVersion = "2.7.8"
+    javaxCacheVersion = "1.1.1"
+    orgEhcacheVersion = "3.10.8"
+}
+
 group = 'com.distasilucas'
 version = '1.0.0-SNAPSHOT'
 sourceCompatibility = '17'
@@ -20,15 +29,23 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-webflux'
-    implementation group: 'com.github.erosb', name: 'everit-json-schema', version: '1.14.1'
-    implementation group: 'org.json', name: 'json', version: '20220924'
-    implementation group: 'com.google.code.gson', name: 'gson', version: '2.10.1'
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "org.springframework.boot:spring-boot-starter-webflux"
+    implementation "com.github.erosb:everit-json-schema:${gitHubErosbVersion}"
+    implementation "org.json:json:${orgJsonVersion}"
+    implementation "com.google.code.gson:gson:${googleCodeGsonVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-webflux:${springFrameworkVersion}"
+    implementation "javax.cache:cache-api:${javaxCacheVersion}"
+    implementation "org.ehcache:ehcache:${orgEhcacheVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-cache:${springFrameworkVersion}"
+
     compileOnly 'org.projectlombok:lombok'
+
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+
     annotationProcessor 'org.projectlombok:lombok'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
 }

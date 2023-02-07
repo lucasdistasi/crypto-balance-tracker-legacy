@@ -4,6 +4,7 @@ import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.model.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,8 +20,9 @@ public class CryptoController {
 
     @PostMapping
     public ResponseEntity<Crypto> addCrypto(@RequestBody CryptoDTO cryptoDTO) {
-        Crypto crypto = cryptoService.add(cryptoDTO);
+        Crypto crypto = cryptoService.addCrypto(cryptoDTO);
 
-        return ResponseEntity.ok(crypto);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(crypto);
     }
 }

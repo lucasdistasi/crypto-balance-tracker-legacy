@@ -1,6 +1,7 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
+import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.Error;
 import com.distasilucas.cryptobalancetracker.model.ErrorResponse;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -25,17 +26,35 @@ public class ExceptionController {
 
     private static final String UNKNOWN_ERROR = "Unknown Error";
 
+    @ExceptionHandler(value = CoinNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCoinNotFoundException(CoinNotFoundException coinNotFoundException) {
+        log.warn("An CoinNotFoundException has occurred: ", coinNotFoundException);
+
+        Error error = new Error(coinNotFoundException.getErrorMessage());
+
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setErrors(Collections.singletonList(error));
+        errorResponse.setStatusCode(HttpStatus.NOT_FOUND.value());
+        errorResponse.setTimeStamp(LocalDateTime.now());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+
     @ExceptionHandler(value = ApiValidationException.class)
     public ResponseEntity<ErrorResponse> handleApiValidationException(ApiValidationException apiValidationException) {
         log.warn("An ApiValidationException has occurred: ", apiValidationException);
 
+        String apiValidationExceptionErrorMessage = apiValidationException.getErrorMessage();
+        String message = apiValidationExceptionErrorMessage != null ?
+                apiValidationExceptionErrorMessage :
+                apiValidationException.getMessage();
         List<ValidationException> causingExceptions = apiValidationException.getCausingExceptions();
-        List<Error> errors = causingExceptions.stream()
-                .map(validationException -> new Error(validationException.getErrorMessage()))
-                .collect(Collectors.toList());
-
-        errors = CollectionUtils.isNotEmpty(causingExceptions) ? errors :
-                Collections.singletonList(new Error(apiValidationException.getErrorMessage()));
+        List<Error> errors = CollectionUtils.isNotEmpty(causingExceptions) ?
+                causingExceptions.stream()
+                        .map(validationException -> new Error(validationException.getErrorMessage()))
+                        .collect(Collectors.toList()) :
+                Collections.singletonList(new Error(message));
 
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setStatusCode(HttpStatus.BAD_REQUEST.value());
@@ -74,7 +93,7 @@ public class ExceptionController {
 
     @ExceptionHandler(value = Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception exception) {
-        log.warn("An Exception has occurred: ", exception);
+        log.warn("An Unhandled Exception has occurred: ", exception);
 
         HttpStatus internalServerError = HttpStatus.INTERNAL_SERVER_ERROR;
         ErrorResponse errorResponse = ErrorResponse.builder()
