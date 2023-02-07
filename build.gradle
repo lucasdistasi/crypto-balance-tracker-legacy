@@ -12,6 +12,7 @@ ext {
     springFrameworkVersion = "2.7.8"
     javaxCacheVersion = "1.1.1"
     orgEhcacheVersion = "3.10.8"
+    springDocVersion = "1.6.14"
 }
 
 group = 'com.distasilucas'
@@ -39,6 +40,7 @@ dependencies {
     implementation "javax.cache:cache-api:${javaxCacheVersion}"
     implementation "org.ehcache:ehcache:${orgEhcacheVersion}"
     implementation "org.springframework.boot:spring-boot-starter-cache:${springFrameworkVersion}"
+    implementation "org.springdoc:springdoc-openapi-ui:${springDocVersion}"
 
     compileOnly 'org.projectlombok:lombok'
 

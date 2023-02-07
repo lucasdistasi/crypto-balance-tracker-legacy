@@ -14,3 +14,7 @@ spring:
 
 coingecko:
   url: "https://api.coingecko.com/api/v3"
+
+springdoc:
+  swagger-ui:
+    defaultModelsExpandDepth: -1
