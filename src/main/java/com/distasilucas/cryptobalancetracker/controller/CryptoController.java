@@ -1,5 +1,6 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
+import com.distasilucas.cryptobalancetracker.controller.swagger.CryptoControllerApi;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.model.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
@@ -14,10 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/crypto")
-public class CryptoController {
+public class CryptoController implements CryptoControllerApi {
 
     private final CryptoService<Crypto, CryptoDTO> cryptoService;
 
+    @Override
     @PostMapping
     public ResponseEntity<Crypto> addCrypto(@RequestBody CryptoDTO cryptoDTO) {
         Crypto crypto = cryptoService.addCrypto(cryptoDTO);
