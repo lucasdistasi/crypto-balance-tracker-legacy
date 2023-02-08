@@ -2,8 +2,12 @@ package com.distasilucas.cryptobalancetracker.service.impl;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
-import com.distasilucas.cryptobalancetracker.model.CryptoDTO;
+import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
+import com.distasilucas.cryptobalancetracker.model.coingecko.CurrentPrice;
+import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
+import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
+import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
@@ -55,7 +59,7 @@ class CryptoServiceImplTest {
                 .build();
 
         doNothing().when(addCryptoValidationMock).validate(cryptoDTO);
-        when(coingeckoServiceMock.retrieveAllCryptos()).thenReturn(coins);
+        when(coingeckoServiceMock.retrieveAllCoins()).thenReturn(coins);
 
         var actualCrypto = cryptoService.addCrypto(cryptoDTO);
 
@@ -73,7 +77,7 @@ class CryptoServiceImplTest {
                 .build();
 
         doNothing().when(addCryptoValidationMock).validate(cryptoDTO);
-        when(coingeckoServiceMock.retrieveAllCryptos()).thenReturn(coins);
+        when(coingeckoServiceMock.retrieveAllCoins()).thenReturn(coins);
 
         var coinNotFoundException = assertThrows(
                 CoinNotFoundException.class,
@@ -85,9 +89,72 @@ class CryptoServiceImplTest {
         );
     }
 
+    @Test
+    void shouldRetrieveCryptoBalances() {
+        var coinInfo = getCoinInfo();
+
+        when(cryptoRepositoryMock.findAll()).thenReturn(getCryptos());
+        when(coingeckoServiceMock.retrieveCoinInfo("bitcoin")).thenReturn(coinInfo);
+
+        var cryptoBalanceResponses = cryptoService.retrieveCoinsBalances();
+        var cryptoBalanceResponse = cryptoBalanceResponses.get(0);
+        var expectedBalance = getTotalMoney(Collections.singletonList(cryptoBalanceResponse));
+
+        assertAll(
+                () -> assertEquals(cryptoBalanceResponse.getBalance(), expectedBalance),
+                () -> assertEquals(cryptoBalanceResponse.getQuantity(), BigDecimal.valueOf(1.15)),
+                () -> assertEquals(cryptoBalanceResponse.getPercentage(), 100),
+                () -> assertEquals(cryptoBalanceResponse.getCoinInfo(), coinInfo)
+        );
+    }
+
+    @Test
+    void shouldReturnEmptyListIfNoCryptosAreSaved() {
+        when(cryptoRepositoryMock.findAll()).thenReturn(Collections.emptyList());
+
+        var cryptoBalanceResponses = cryptoService.retrieveCoinsBalances();
+
+        assertAll(
+                () -> assertEquals(cryptoBalanceResponses.size(), 0)
+        );
+    }
+
     private List<Coin> getCoins() {
         Coin coin = new Coin("bitcoin", "btc", "Bitcoin");
 
         return Collections.singletonList(coin);
+    }
+
+    private List<Crypto> getCryptos() {
+        var crypto = Crypto.builder()
+                .ticker("btc")
+                .name("Bitcoin")
+                .coinId("bitcoin")
+                .quantity(BigDecimal.valueOf(1.15))
+                .build();
+
+        return Collections.singletonList(crypto);
+    }
+
+    private CoinInfo getCoinInfo() {
+        var currentPrice = new CurrentPrice();
+        currentPrice.setUsd(BigDecimal.valueOf(150000));
+
+        var marketData = new MarketData();
+        marketData.setCurrentPrice(currentPrice);
+
+        var coinInfo = new CoinInfo();
+        coinInfo.setMarketData(marketData);
+        coinInfo.setSymbol("btc");
+        coinInfo.setName("Bitcoin");
+        coinInfo.setId("bitcoin");
+
+        return coinInfo;
+    }
+
+    private static BigDecimal getTotalMoney(List<CryptoBalanceResponse> cryptoBalanceResponse) {
+        return cryptoBalanceResponse.stream()
+                .map(CryptoBalanceResponse::getBalance)
+                .reduce(BigDecimal.valueOf(0), BigDecimal::add);
     }
 }

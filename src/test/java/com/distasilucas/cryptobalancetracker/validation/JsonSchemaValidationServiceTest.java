@@ -1,7 +1,7 @@
 package com.distasilucas.cryptobalancetracker.validation;
 
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
-import com.distasilucas.cryptobalancetracker.model.CryptoDTO;
+import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.junit.jupiter.api.BeforeEach;

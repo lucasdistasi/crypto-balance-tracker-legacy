@@ -1,6 +1,6 @@
 package com.distasilucas.cryptobalancetracker.validation;
 
-import com.distasilucas.cryptobalancetracker.model.CryptoDTO;
+import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.validation.crypto.QuantityValueValidator;
 import lombok.RequiredArgsConstructor;
 import org.everit.json.schema.Schema;
