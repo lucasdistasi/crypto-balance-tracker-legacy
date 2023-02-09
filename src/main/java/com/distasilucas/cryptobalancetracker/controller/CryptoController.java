@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/crypto")
@@ -34,7 +32,7 @@ public class CryptoController implements CryptoControllerApi {
 
     @Override
     @GetMapping
-    public ResponseEntity<List<CryptoBalanceResponse>> retrieveCoinsBalance() {
+    public ResponseEntity<CryptoBalanceResponse> retrieveCoinsBalance() {
         return ResponseEntity.ok(cryptoService.retrieveCoinsBalances());
     }
 }

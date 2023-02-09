@@ -7,6 +7,7 @@ import com.distasilucas.cryptobalancetracker.model.coingecko.CurrentPrice;
 import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
+import com.distasilucas.cryptobalancetracker.model.response.CoinsResponse;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
@@ -99,7 +100,7 @@ class CryptoServiceImplTest {
         when(coingeckoServiceMock.retrieveCoinInfo("bitcoin")).thenReturn(coinInfo);
 
         var cryptoBalanceResponses = cryptoService.retrieveCoinsBalances();
-        var cryptoBalanceResponse = cryptoBalanceResponses.get(0);
+        var cryptoBalanceResponse = cryptoBalanceResponses.getCoins().get(0);
         var expectedBalance = getTotalMoney(Collections.singletonList(cryptoBalanceResponse));
 
         assertAll(
@@ -117,7 +118,7 @@ class CryptoServiceImplTest {
         var cryptoBalanceResponses = cryptoService.retrieveCoinsBalances();
 
         assertAll(
-                () -> assertEquals(cryptoBalanceResponses.size(), 0)
+                () -> assertEquals(cryptoBalanceResponses, null)
         );
     }
 
@@ -154,9 +155,9 @@ class CryptoServiceImplTest {
         return coinInfo;
     }
 
-    private static BigDecimal getTotalMoney(List<CryptoBalanceResponse> cryptoBalanceResponse) {
-        return cryptoBalanceResponse.stream()
-                .map(CryptoBalanceResponse::getBalance)
+    private static BigDecimal getTotalMoney(List<CoinsResponse> coinsResponse) {
+        return coinsResponse.stream()
+                .map(CoinsResponse::getBalance)
                 .reduce(BigDecimal.valueOf(0), BigDecimal::add);
     }
 }

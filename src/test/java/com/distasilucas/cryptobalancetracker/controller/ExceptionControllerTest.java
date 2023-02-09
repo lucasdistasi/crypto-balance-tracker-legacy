@@ -32,7 +32,6 @@ class ExceptionControllerTest {
         assertNotNull(responseEntity.getBody());
         assertAll("coinNotFoundException",
                 () -> assertEquals(responseEntity.getStatusCode(), HttpStatus.NOT_FOUND),
-                () -> assertEquals(responseEntity.getStatusCodeValue(), HttpStatus.NOT_FOUND.value()),
                 () -> assertEquals(responseEntity.getBody().getErrors().size(), 1),
                 () -> assertEquals(responseEntity.getBody().getErrors().get(0).errorMessage(), coinNotFoundException.getErrorMessage())
         );
