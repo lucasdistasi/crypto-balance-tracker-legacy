@@ -11,5 +11,5 @@ public class CryptoDTO {
 
     private BigDecimal quantity;
 
-    private String ticker;
+    private String name;
 }

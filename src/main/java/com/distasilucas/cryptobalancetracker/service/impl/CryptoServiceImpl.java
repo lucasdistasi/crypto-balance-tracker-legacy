@@ -37,7 +37,7 @@ public class CryptoServiceImpl implements CryptoService<Crypto, CryptoDTO> {
         Crypto crypto = new Crypto();
         List<Coin> coins = coingeckoService.retrieveAllCoins();
         coins.stream()
-                .filter(coin -> coin.getSymbol().equalsIgnoreCase(cryptoDTO.getTicker()))
+                .filter(coin -> coin.getName().equalsIgnoreCase(cryptoDTO.getName()))
                 .findFirst()
                 .ifPresentOrElse(coin -> {
                             crypto.setCoinId(coin.getId());
@@ -45,7 +45,7 @@ public class CryptoServiceImpl implements CryptoService<Crypto, CryptoDTO> {
                             crypto.setTicker(coin.getSymbol());
                             crypto.setQuantity(cryptoDTO.getQuantity());
                         }, () -> {
-                            String message = String.format("Coin not found for ticker %s", cryptoDTO.getTicker());
+                            String message = String.format("Coin not found with name %s", cryptoDTO.getName());
 
                             throw new CoinNotFoundException(message);
                         }

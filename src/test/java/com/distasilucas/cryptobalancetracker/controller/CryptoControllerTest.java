@@ -38,7 +38,7 @@ class CryptoControllerTest {
     @Test
     void shouldReturnCreatedCrypto() {
         var cryptoDTO = CryptoDTO.builder()
-                .ticker("btc")
+                .name("btc")
                 .build();
         var crypto = Crypto.builder()
                 .ticker("btc")
@@ -52,7 +52,7 @@ class CryptoControllerTest {
         assertAll("cryptoResponseEntity",
                 () -> assertEquals(cryptoResponseEntity.getStatusCode(), HttpStatus.CREATED),
                 () -> assertEquals(cryptoResponseEntity.getStatusCodeValue(), HttpStatus.CREATED.value()),
-                () -> assertEquals(cryptoResponseEntity.getBody().getTicker(), cryptoDTO.getTicker())
+                () -> assertEquals(cryptoResponseEntity.getBody().getTicker(), cryptoDTO.getName())
         );
     }
 
