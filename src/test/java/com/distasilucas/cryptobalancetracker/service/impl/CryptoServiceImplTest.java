@@ -48,7 +48,7 @@ class CryptoServiceImplTest {
     void shouldAddCrypto() {
         var coins = getCoins();
         var cryptoDTO = CryptoDTO.builder()
-                .ticker("btc")
+                .name("Bitcoin")
                 .quantity(BigDecimal.valueOf(2))
                 .build();
         var expectedCrypto = Crypto.builder()
@@ -73,7 +73,7 @@ class CryptoServiceImplTest {
     void shouldThrowCoinNotFoundExceptionForUnknownCoin() {
         var coins = getCoins();
         var cryptoDTO = CryptoDTO.builder()
-                .ticker("xyz")
+                .name("xyz")
                 .build();
 
         doNothing().when(addCryptoValidationMock).validate(cryptoDTO);
@@ -85,7 +85,7 @@ class CryptoServiceImplTest {
         );
 
         assertAll(
-                () -> assertEquals(coinNotFoundException.getErrorMessage(), "Coin not found for ticker xyz")
+                () -> assertEquals(coinNotFoundException.getErrorMessage(), "Coin not found with name xyz")
         );
     }
 

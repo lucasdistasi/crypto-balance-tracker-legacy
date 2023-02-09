@@ -28,10 +28,9 @@ public class Crypto {
 
     @Id
     @Column
-    private String ticker;
-
-    @Column(nullable = false)
     private String name;
+    @Column
+    private String ticker;
 
     @Column(nullable = false)
     private String coinId;
