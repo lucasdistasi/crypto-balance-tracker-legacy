@@ -8,7 +8,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class WebClientConfig {
 
-    @Value("coingecko.url")
+    @Value("${coingecko.url}")
     private String coingeckoUrl;
 
     @Bean
@@ -16,7 +16,7 @@ public class WebClientConfig {
         return WebClient.builder()
                 .codecs(clientCodecConfigurer -> clientCodecConfigurer.defaultCodecs()
                         .maxInMemorySize(700 * 1024))
-                .baseUrl("https://api.coingecko.com/api/v3")
+                .baseUrl(coingeckoUrl)
                 .build();
     }
 }

@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
+import static com.distasilucas.cryptobalancetracker.constant.Constants.COIN_NAME_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -84,8 +85,9 @@ class CryptoServiceImplTest {
                 () -> cryptoService.addCrypto(cryptoDTO)
         );
 
+        var expectedMessage = String.format(COIN_NAME_NOT_FOUND, cryptoDTO.getName());
         assertAll(
-                () -> assertEquals(coinNotFoundException.getErrorMessage(), "Coin not found with name xyz")
+                () -> assertEquals(coinNotFoundException.getErrorMessage(), expectedMessage)
         );
     }
 

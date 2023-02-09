@@ -10,7 +10,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.distasilucas.cryptobalancetracker.constant.Constants.ERROR_VALIDATING_JSON_SCHEMA;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 
@@ -40,17 +43,19 @@ class JsonSchemaValidationServiceTest {
     }
 
     @Test
-    void shouldThrowApiValidationExceptionIfJsonSchemaIsinvalid() {
+    void shouldThrowApiValidationExceptionIfJsonSchemaIsInvalid() {
         var cryptoDTO = CryptoDTO.builder()
                 .build();
+        var validationException = new ValidationException(schemaMock, "required key [name] not found", "keyword", "schemaLocation");
 
-        doThrow(ValidationException.class).when(schemaMock).validate(any());
+        doThrow(validationException).when(schemaMock).validate(any());
 
-        var validationException = assertThrows(ApiValidationException.class,
+        var apiValidationException = assertThrows(ApiValidationException.class,
                 () -> cryptoDTOEntityValidation.validate(cryptoDTO)
         );
 
-        assertEquals(validationException.getMessage(), "Error validating Json Schema");
+        var expectedMessage = String.format(ERROR_VALIDATING_JSON_SCHEMA, validationException.getMessage());
+        assertEquals(apiValidationException.getMessage(), expectedMessage);
     }
 
 }

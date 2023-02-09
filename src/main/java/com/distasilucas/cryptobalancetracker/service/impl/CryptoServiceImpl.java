@@ -21,6 +21,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.distasilucas.cryptobalancetracker.constant.Constants.COIN_NAME_NOT_FOUND;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -45,7 +47,7 @@ public class CryptoServiceImpl implements CryptoService<Crypto, CryptoDTO> {
                             crypto.setTicker(coin.getSymbol());
                             crypto.setQuantity(cryptoDTO.getQuantity());
                         }, () -> {
-                            String message = String.format("Coin not found with name %s", cryptoDTO.getName());
+                            String message = String.format(COIN_NAME_NOT_FOUND, cryptoDTO.getName());
 
                             throw new CoinNotFoundException(message);
                         }
