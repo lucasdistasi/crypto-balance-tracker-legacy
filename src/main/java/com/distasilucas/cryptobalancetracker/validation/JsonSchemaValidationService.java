@@ -7,6 +7,8 @@ import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.json.JSONObject;
 
+import static com.distasilucas.cryptobalancetracker.constant.Constants.ERROR_VALIDATING_JSON_SCHEMA;
+
 @RequiredArgsConstructor
 public class JsonSchemaValidationService<T> implements EntityValidation<T> {
 
@@ -21,7 +23,9 @@ public class JsonSchemaValidationService<T> implements EntityValidation<T> {
 
             schema.validate(jsonObject);
         } catch (ValidationException ex) {
-            throw new ApiValidationException(ex.getCausingExceptions(), ex.getErrorMessage(), "Error validating Json Schema");
+            String message = String.format(ERROR_VALIDATING_JSON_SCHEMA, ex.getMessage());
+
+            throw new ApiValidationException(ex.getCausingExceptions(), ex.getErrorMessage(), message);
         }
     }
 }

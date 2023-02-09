@@ -20,11 +20,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN_ERROR;
+
 @Slf4j
 @RestControllerAdvice
 public class ExceptionController {
-
-    private static final String UNKNOWN_ERROR = "Unknown Error";
 
     @ExceptionHandler(value = CoinNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleCoinNotFoundException(CoinNotFoundException coinNotFoundException) {
