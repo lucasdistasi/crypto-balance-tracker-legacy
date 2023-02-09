@@ -1,7 +1,7 @@
 package com.distasilucas.cryptobalancetracker.validation.crypto;
 
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
-import com.distasilucas.cryptobalancetracker.model.CryptoDTO;
+import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.validation.EntityValidation;
 import org.springframework.stereotype.Component;
 

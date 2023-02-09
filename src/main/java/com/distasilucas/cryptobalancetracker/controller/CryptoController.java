@@ -2,15 +2,19 @@ package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.controller.swagger.CryptoControllerApi;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
-import com.distasilucas.cryptobalancetracker.model.CryptoDTO;
+import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
+import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,5 +30,11 @@ public class CryptoController implements CryptoControllerApi {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(crypto);
+    }
+
+    @Override
+    @GetMapping
+    public ResponseEntity<List<CryptoBalanceResponse>> retrieveCoinsBalance() {
+        return ResponseEntity.ok(cryptoService.retrieveCoinsBalances());
     }
 }
