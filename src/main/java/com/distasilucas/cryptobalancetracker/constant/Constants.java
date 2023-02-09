@@ -15,4 +15,6 @@ public class Constants {
     public static final String ERROR_VALIDATING_JSON_SCHEMA = "Error validating Json Schema %s";
     public static final String UNKNOWN_ERROR = "Unknown Error";
     public static final String COIN_NAME_NOT_FOUND = "Coin with name %s not found";
+    public static final String COINGECKO_CRYPTOS_CACHE = "coingeckoCryptos";
+    public static final String CRYPTO_PRICE_CACHE = "cryptoPrice";
 }
