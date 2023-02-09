@@ -5,6 +5,7 @@ import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
+import com.distasilucas.cryptobalancetracker.model.response.CoinsResponse;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
@@ -17,9 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.distasilucas.cryptobalancetracker.constant.Constants.COIN_NAME_NOT_FOUND;
 
@@ -60,45 +59,44 @@ public class CryptoServiceImpl implements CryptoService<Crypto, CryptoDTO> {
     }
 
     @Override
-    public List<CryptoBalanceResponse> retrieveCoinsBalances() {
+    public CryptoBalanceResponse retrieveCoinsBalances() {
         log.info("Retrieving coins balances");
         List<Crypto> allCoins = cryptoRepository.findAll();
 
-        return CollectionUtils.isEmpty(allCoins) ?
-                Collections.emptyList() :
-                getCryptoBalanceResponse(allCoins);
+        return CollectionUtils.isEmpty(allCoins) ? null : getCryptoBalanceResponse(allCoins);
     }
 
-    private List<CryptoBalanceResponse> getCryptoBalanceResponse(List<Crypto> allCoins) {
-        List<CryptoBalanceResponse> cryptoBalanceResponse = allCoins.stream()
+    private CryptoBalanceResponse getCryptoBalanceResponse(List<Crypto> allCoins) {
+        List<CoinsResponse> coins = allCoins.stream()
                 .map(coin -> {
                     CoinInfo coinInfo = coingeckoService.retrieveCoinInfo(coin.getCoinId());
                     BigDecimal quantity = coin.getQuantity();
                     BigDecimal balance = coinInfo.getMarketData().getCurrentPrice().getUsd().multiply(quantity);
 
-                    return new CryptoBalanceResponse(coinInfo, quantity, balance);
+                    return new CoinsResponse(coinInfo, quantity, balance);
                 })
-                .collect(Collectors.toList());
+                .toList();
 
-        BigDecimal totalMoney = getTotalMoney(cryptoBalanceResponse);
-        cryptoBalanceResponse.forEach(crypto -> setPercentage(totalMoney, crypto));
+        BigDecimal totalMoney = getTotalMoney(coins);
+        coins.forEach(crypto -> setPercentage(totalMoney, crypto));
+        BigDecimal totalBalance = totalMoney.setScale(2, RoundingMode.HALF_UP);
 
-        return cryptoBalanceResponse;
+        return new CryptoBalanceResponse(totalBalance, coins);
     }
 
-    private static void setPercentage(BigDecimal totalMoney, CryptoBalanceResponse crypto) {
-        double percentage = crypto.getBalance()
+    private static void setPercentage(BigDecimal totalMoney, CoinsResponse coinsResponse) {
+        double percentage = coinsResponse.getBalance()
                 .setScale(2, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(100))
                 .divide(totalMoney, RoundingMode.HALF_UP)
                 .doubleValue();
 
-        crypto.setPercentage(percentage);
+        coinsResponse.setPercentage(percentage);
     }
 
-    private static BigDecimal getTotalMoney(List<CryptoBalanceResponse> cryptoBalanceResponse) {
-        return cryptoBalanceResponse.stream()
-                .map(CryptoBalanceResponse::getBalance)
+    private static BigDecimal getTotalMoney(List<CoinsResponse> coins) {
+        return coins.stream()
+                .map(CoinsResponse::getBalance)
                 .reduce(BigDecimal.valueOf(0), BigDecimal::add);
     }
 }

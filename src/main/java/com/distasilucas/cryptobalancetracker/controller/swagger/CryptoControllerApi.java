@@ -56,5 +56,5 @@ public interface CryptoControllerApi {
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-    ResponseEntity<List<CryptoBalanceResponse>> retrieveCoinsBalance();
+    ResponseEntity<CryptoBalanceResponse> retrieveCoinsBalance();
 }

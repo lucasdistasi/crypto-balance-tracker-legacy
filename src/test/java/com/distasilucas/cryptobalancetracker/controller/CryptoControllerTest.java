@@ -5,6 +5,7 @@ import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CurrentPrice;
 import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
+import com.distasilucas.cryptobalancetracker.model.response.CoinsResponse;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,7 +52,6 @@ class CryptoControllerTest {
         assertNotNull(cryptoResponseEntity.getBody());
         assertAll("cryptoResponseEntity",
                 () -> assertEquals(cryptoResponseEntity.getStatusCode(), HttpStatus.CREATED),
-                () -> assertEquals(cryptoResponseEntity.getStatusCodeValue(), HttpStatus.CREATED.value()),
                 () -> assertEquals(cryptoResponseEntity.getBody().getTicker(), cryptoDTO.getName())
         );
     }
@@ -70,18 +70,18 @@ class CryptoControllerTest {
         coinInfo.setSymbol("btc");
         coinInfo.setMarketData(marketData);
 
-        var cryptoBalanceResponse = new CryptoBalanceResponse(coinInfo, BigDecimal.valueOf(2), BigDecimal.valueOf(10));
+        var coinsResponse = new CoinsResponse(coinInfo, BigDecimal.valueOf(2), BigDecimal.valueOf(10));
+        var cryptoCoinsResponse = new CryptoBalanceResponse(BigDecimal.valueOf(150), Collections.singletonList(coinsResponse));
 
-        when(cryptoServiceMocK.retrieveCoinsBalances()).thenReturn(Collections.singletonList(cryptoBalanceResponse));
+        when(cryptoServiceMocK.retrieveCoinsBalances()).thenReturn(cryptoCoinsResponse);
 
         var responseEntity = cryptoController.retrieveCoinsBalance();
 
         assertNotNull(responseEntity.getBody());
         assertAll("cryptoResponseEntity",
                 () -> assertEquals(responseEntity.getStatusCode(), HttpStatus.OK),
-                () -> assertEquals(responseEntity.getStatusCodeValue(), HttpStatus.OK.value()),
-                () -> assertEquals(responseEntity.getBody().get(0).getBalance(), cryptoBalanceResponse.getBalance()),
-                () -> assertEquals(responseEntity.getBody().get(0).getCoinInfo().getSymbol(), "btc")
+                () -> assertEquals(responseEntity.getBody().getCoins().get(0).getBalance(), coinsResponse.getBalance()),
+                () -> assertEquals(responseEntity.getBody().getCoins().get(0).getCoinInfo().getSymbol(), "btc")
         );
     }
 }
