@@ -1,7 +1,4 @@
 spring:
-  cache:
-    jcache:
-      config: classpath:ehcache.xml
   datasource:
     url: jdbc:mariadb://localhost:3306/${MARIADB_CRYPTO_DATABASE}
     username: ${MARIADB_USERNAME}
