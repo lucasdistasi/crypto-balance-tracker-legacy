@@ -48,7 +48,7 @@ class QuantityValueValidatorTest {
         );
 
         assertAll(
-                () -> assertEquals(apiValidationException.getMessage(), INVALID_CRYPTO_QUANTITY)
+                () -> assertEquals(INVALID_CRYPTO_QUANTITY, apiValidationException.getMessage())
         );
     }
 
@@ -63,7 +63,7 @@ class QuantityValueValidatorTest {
         );
 
         assertAll(
-                () -> assertEquals(apiValidationException.getMessage(), INVALID_CRYPTO_QUANTITY)
+                () -> assertEquals(INVALID_CRYPTO_QUANTITY, apiValidationException.getMessage())
         );
     }
 
@@ -77,7 +77,7 @@ class QuantityValueValidatorTest {
         );
 
         assertAll(
-                () -> assertEquals(apiValidationException.getMessage(), INVALID_CRYPTO_QUANTITY)
+                () -> assertEquals(INVALID_CRYPTO_QUANTITY, apiValidationException.getMessage())
         );
     }
 

@@ -53,7 +53,7 @@ public class ExceptionController {
         List<Error> errors = CollectionUtils.isNotEmpty(causingExceptions) ?
                 causingExceptions.stream()
                         .map(validationException -> new Error(validationException.getErrorMessage()))
-                        .collect(Collectors.toList()) :
+                        .toList() :
                 Collections.singletonList(new Error(message));
 
         ErrorResponse errorResponse = new ErrorResponse();

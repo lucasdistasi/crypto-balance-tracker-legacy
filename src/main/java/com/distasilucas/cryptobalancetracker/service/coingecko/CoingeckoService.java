@@ -3,7 +3,6 @@ package com.distasilucas.cryptobalancetracker.service.coingecko;
 import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 public interface CoingeckoService {
