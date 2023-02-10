@@ -104,10 +104,10 @@ class CryptoServiceImplTest {
         var expectedBalance = getTotalMoney(Collections.singletonList(cryptoBalanceResponse));
 
         assertAll(
-                () -> assertEquals(cryptoBalanceResponse.getBalance(), expectedBalance),
-                () -> assertEquals(cryptoBalanceResponse.getQuantity(), BigDecimal.valueOf(1.15)),
-                () -> assertEquals(cryptoBalanceResponse.getPercentage(), 100),
-                () -> assertEquals(cryptoBalanceResponse.getCoinInfo(), coinInfo)
+                () -> assertEquals(expectedBalance, cryptoBalanceResponse.getBalance()),
+                () -> assertEquals(BigDecimal.valueOf(1.15), cryptoBalanceResponse.getQuantity()),
+                () -> assertEquals(100, cryptoBalanceResponse.getPercentage()),
+                () -> assertEquals(coinInfo, cryptoBalanceResponse.getCoinInfo())
         );
     }
 
@@ -118,7 +118,7 @@ class CryptoServiceImplTest {
         var cryptoBalanceResponses = cryptoService.retrieveCoinsBalances();
 
         assertAll(
-                () -> assertEquals(cryptoBalanceResponses, null)
+                () -> assertNull(cryptoBalanceResponses)
         );
     }
 

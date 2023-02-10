@@ -51,8 +51,8 @@ class CryptoControllerTest {
 
         assertNotNull(cryptoResponseEntity.getBody());
         assertAll("cryptoResponseEntity",
-                () -> assertEquals(cryptoResponseEntity.getStatusCode(), HttpStatus.CREATED),
-                () -> assertEquals(cryptoResponseEntity.getBody().getTicker(), cryptoDTO.getName())
+                () -> assertEquals(HttpStatus.CREATED, cryptoResponseEntity.getStatusCode()),
+                () -> assertEquals(cryptoDTO.getName(), cryptoResponseEntity.getBody().getTicker())
         );
     }
 
@@ -79,9 +79,9 @@ class CryptoControllerTest {
 
         assertNotNull(responseEntity.getBody());
         assertAll("cryptoResponseEntity",
-                () -> assertEquals(responseEntity.getStatusCode(), HttpStatus.OK),
-                () -> assertEquals(responseEntity.getBody().getCoins().get(0).getBalance(), coinsResponse.getBalance()),
-                () -> assertEquals(responseEntity.getBody().getCoins().get(0).getCoinInfo().getSymbol(), "btc")
+                () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
+                () -> assertEquals(coinsResponse.getBalance(), responseEntity.getBody().getCoins().get(0).getBalance()),
+                () -> assertEquals("btc", responseEntity.getBody().getCoins().get(0).getCoinInfo().getSymbol())
         );
     }
 }
