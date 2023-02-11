@@ -8,7 +8,6 @@ import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
 import com.distasilucas.cryptobalancetracker.model.response.CoinsResponse;
-import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
@@ -22,10 +21,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.constant.Constants.COIN_NAME_NOT_FOUND;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CryptoServiceImplTest {
@@ -39,11 +45,15 @@ class CryptoServiceImplTest {
     @Mock
     Validation<CryptoDTO> addCryptoValidationMock;
 
+    @Mock
+    Validation<CryptoDTO> updateCryptoValidationMock;
+
     CryptoService<Crypto, CryptoDTO> cryptoService;
 
     @BeforeEach
     void setUp() {
-        cryptoService = new CryptoServiceImpl(coingeckoServiceMock, cryptoRepositoryMock, addCryptoValidationMock);
+        cryptoService = new CryptoServiceImpl(coingeckoServiceMock, cryptoRepositoryMock,
+                addCryptoValidationMock, updateCryptoValidationMock);
     }
 
     @Test
@@ -63,7 +73,7 @@ class CryptoServiceImplTest {
         doNothing().when(addCryptoValidationMock).validate(cryptoDTO);
         when(coingeckoServiceMock.retrieveAllCoins()).thenReturn(coins);
 
-        var actualCrypto = cryptoService.addCrypto(cryptoDTO);
+        var actualCrypto = cryptoService.addCoin(cryptoDTO);
 
         verify(cryptoRepositoryMock, times(1)).save(actualCrypto);
         assertAll(
@@ -83,7 +93,7 @@ class CryptoServiceImplTest {
 
         var coinNotFoundException = assertThrows(
                 CoinNotFoundException.class,
-                () -> cryptoService.addCrypto(cryptoDTO)
+                () -> cryptoService.addCoin(cryptoDTO)
         );
 
         var expectedMessage = String.format(COIN_NAME_NOT_FOUND, cryptoDTO.getName());
@@ -119,6 +129,48 @@ class CryptoServiceImplTest {
 
         assertAll(
                 () -> assertNull(cryptoBalanceResponses)
+        );
+    }
+
+    @Test
+    void shouldUpdateCoin() {
+        var cryptoDTO = CryptoDTO.builder()
+                .name("Bitcoin")
+                .quantity(BigDecimal.valueOf(2))
+                .build();
+        var crypto = Crypto.builder()
+                .name("Bitcoin")
+                .quantity(BigDecimal.valueOf(1))
+                .build();
+
+        doNothing().when(updateCryptoValidationMock).validate(cryptoDTO);
+        when(cryptoRepositoryMock.findByName(cryptoDTO.getName())).thenReturn(Optional.of(crypto));
+
+        var updatedCrypto = cryptoService.updateCoin(cryptoDTO, "Bitcoin");
+
+        assertAll(
+                () -> assertEquals(cryptoDTO.getQuantity(), updatedCrypto.getQuantity())
+        );
+        verify(cryptoRepositoryMock).save(crypto);
+    }
+
+    @Test
+    void shouldThrowCoinNotFoundExceptionWhenUpdatingNonExistentCoin() {
+        var cryptoDTO = CryptoDTO.builder()
+                .name("Dogecoin")
+                .build();
+
+        doNothing().when(updateCryptoValidationMock).validate(cryptoDTO);
+        when(cryptoRepositoryMock.findByName(cryptoDTO.getName())).thenReturn(Optional.empty());
+
+        var coinNotFoundException = assertThrows(
+                CoinNotFoundException.class,
+                () -> cryptoService.updateCoin(cryptoDTO, "Dogecoin")
+        );
+
+        var expectedMessage = String.format(COIN_NAME_NOT_FOUND, cryptoDTO.getName());
+        assertAll(
+                () -> assertEquals(coinNotFoundException.getErrorMessage(), expectedMessage)
         );
     }
 

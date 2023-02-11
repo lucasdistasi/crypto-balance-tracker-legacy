@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.constant.Constants.COIN_NAME_NOT_FOUND;
 
@@ -30,13 +31,63 @@ public class CryptoServiceImpl implements CryptoService<Crypto, CryptoDTO> {
     private final CoingeckoService coingeckoService;
     private final CryptoRepository cryptoRepository;
     private final Validation<CryptoDTO> addCryptoValidation;
+    private final Validation<CryptoDTO> updateCryptoValidation;
 
     @Override
-    public Crypto addCrypto(CryptoDTO cryptoDTO) {
+    public Crypto addCoin(CryptoDTO cryptoDTO) {
         addCryptoValidation.validate(cryptoDTO);
+        Crypto crypto = getCrypto(cryptoDTO);
 
+        cryptoRepository.save(crypto);
+        log.info("Saved Crypto {}", crypto);
+
+        return crypto;
+    }
+
+    @Override
+    public CryptoBalanceResponse retrieveCoinsBalances() {
+        log.info("Retrieving coins balances");
+        List<Crypto> allCoins = cryptoRepository.findAll();
+
+        return CollectionUtils.isEmpty(allCoins) ? null : getCryptoBalanceResponse(allCoins);
+    }
+
+    @Override
+    public Crypto updateCoin(CryptoDTO cryptoDTO, String coinName) {
+        log.info("Updating coin {}", coinName);
+        updateCryptoValidation.validate(cryptoDTO);
+
+        Optional<Crypto> cryptoOptional = cryptoRepository.findByName(coinName);
+
+        if (cryptoOptional.isEmpty()) {
+            String message = String.format(COIN_NAME_NOT_FOUND, coinName);
+
+            throw new CoinNotFoundException(message);
+        }
+
+        Crypto crypto = cryptoOptional.get();
+        crypto.setQuantity(cryptoDTO.getQuantity());
+        cryptoRepository.save(crypto);
+
+        return crypto;
+    }
+
+    @Override
+    public void deleteCoin(String coinName) {
+        cryptoRepository.findByName(coinName)
+                .ifPresentOrElse(cryptoRepository::delete, () -> {
+                    String message = String.format(COIN_NAME_NOT_FOUND, coinName);
+
+                    throw new CoinNotFoundException(message);
+                });
+
+        log.info("Deleted coin: {}", coinName);
+    }
+
+    private Crypto getCrypto(CryptoDTO cryptoDTO) {
         Crypto crypto = new Crypto();
         List<Coin> coins = coingeckoService.retrieveAllCoins();
+
         coins.stream()
                 .filter(coin -> coin.getName().equalsIgnoreCase(cryptoDTO.getName()))
                 .findFirst()
@@ -52,18 +103,7 @@ public class CryptoServiceImpl implements CryptoService<Crypto, CryptoDTO> {
                         }
                 );
 
-        cryptoRepository.save(crypto);
-        log.info("Saved Crypto {}", crypto);
-
         return crypto;
-    }
-
-    @Override
-    public CryptoBalanceResponse retrieveCoinsBalances() {
-        log.info("Retrieving coins balances");
-        List<Crypto> allCoins = cryptoRepository.findAll();
-
-        return CollectionUtils.isEmpty(allCoins) ? null : getCryptoBalanceResponse(allCoins);
     }
 
     private CryptoBalanceResponse getCryptoBalanceResponse(List<Crypto> allCoins) {

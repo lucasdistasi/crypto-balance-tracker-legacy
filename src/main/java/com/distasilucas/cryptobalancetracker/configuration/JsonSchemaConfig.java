@@ -14,13 +14,22 @@ import java.io.InputStream;
 public class JsonSchemaConfig {
 
     @Bean
-    public Schema cryptoJsonSchemaValidator() {
-        try (InputStream inputStream = getClass().getResourceAsStream("/schemas/cryptoSchema.json")) {
-            if (inputStream == null) {
+    public Schema addCryptoJsonSchemaValidator() {
+        return cryptoJsonSchemaValidator(getClass().getResourceAsStream("/schemas/addCryptoSchema.json"));
+    }
+
+    @Bean
+    public Schema updateCryptoJsonSchemaValidator() {
+        return cryptoJsonSchemaValidator(getClass().getResourceAsStream("/schemas/updateCryptoSchema.json"));
+    }
+
+    public Schema cryptoJsonSchemaValidator(InputStream schemaToValidate) {
+        try (schemaToValidate) {
+            if (schemaToValidate == null) {
                 throw new ApiException("Json Schema file not found");
             }
 
-            JSONTokener jsonTokener = new JSONTokener(inputStream);
+            JSONTokener jsonTokener = new JSONTokener(schemaToValidate);
             JSONObject jsonSchema = new JSONObject(jsonTokener);
 
             return SchemaLoader.load(jsonSchema);
