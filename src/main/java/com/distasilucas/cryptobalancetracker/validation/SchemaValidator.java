@@ -12,10 +12,19 @@ import org.springframework.stereotype.Component;
 public class SchemaValidator {
 
     @Bean
-    public Validation<CryptoDTO> addCryptoValidation(Schema cryptoJsonSchemaValidator,
+    public Validation<CryptoDTO> addCryptoValidation(Schema addCryptoJsonSchemaValidator,
                                                      QuantityValueValidator quantityValueValidator) {
         return new Validation<>(
-                new JsonSchemaValidationService<>(cryptoJsonSchemaValidator),
+                new JsonSchemaValidationService<>(addCryptoJsonSchemaValidator),
+                quantityValueValidator
+        );
+    }
+
+    @Bean
+    public Validation<CryptoDTO> updateCryptoValidation(Schema updateCryptoJsonSchemaValidator,
+                                                     QuantityValueValidator quantityValueValidator) {
+        return new Validation<>(
+                new JsonSchemaValidationService<>(updateCryptoJsonSchemaValidator),
                 quantityValueValidator
         );
     }

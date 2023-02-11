@@ -4,6 +4,8 @@ import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceRespons
 
 public interface CryptoService<T, U> {
 
-    T addCrypto(U input);
+    T addCoin(U input);
     CryptoBalanceResponse retrieveCoinsBalances();
+    void deleteCoin(String coinName);
+    T updateCoin(U input, String coinName);
 }

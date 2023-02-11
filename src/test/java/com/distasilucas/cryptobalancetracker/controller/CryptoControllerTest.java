@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -21,6 +22,7 @@ import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,15 +47,13 @@ class CryptoControllerTest {
                 .ticker("btc")
                 .build();
 
-        when(cryptoServiceMocK.addCrypto(cryptoDTO)).thenReturn(crypto);
+        when(cryptoServiceMocK.addCoin(cryptoDTO)).thenReturn(crypto);
 
-        var cryptoResponseEntity = cryptoController.addCrypto(cryptoDTO);
+        var cryptoResponseEntity = cryptoController.addCoin(cryptoDTO);
 
         assertNotNull(cryptoResponseEntity.getBody());
-        assertAll("cryptoResponseEntity",
-                () -> assertEquals(HttpStatus.CREATED, cryptoResponseEntity.getStatusCode()),
-                () -> assertEquals(cryptoDTO.getName(), cryptoResponseEntity.getBody().getTicker())
-        );
+        assertAll(() -> assertEquals(HttpStatus.CREATED, cryptoResponseEntity.getStatusCode()),
+                () -> assertEquals(cryptoDTO.getName(), cryptoResponseEntity.getBody().getTicker()));
     }
 
     @Test
@@ -78,10 +78,36 @@ class CryptoControllerTest {
         var responseEntity = cryptoController.retrieveCoinsBalance();
 
         assertNotNull(responseEntity.getBody());
-        assertAll("cryptoResponseEntity",
-                () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
+        assertAll(() -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
                 () -> assertEquals(coinsResponse.getBalance(), responseEntity.getBody().getCoins().get(0).getBalance()),
-                () -> assertEquals("btc", responseEntity.getBody().getCoins().get(0).getCoinInfo().getSymbol())
-        );
+                () -> assertEquals("btc", responseEntity.getBody().getCoins().get(0).getCoinInfo().getSymbol()));
+    }
+
+    @Test
+    void shouldUpdateCrypto() {
+        var cryptoDTO = CryptoDTO.builder()
+                .name("btc")
+                .quantity(BigDecimal.valueOf(2))
+                .build();
+        var crypto = Crypto.builder()
+                .quantity(BigDecimal.valueOf(2))
+                .build();
+
+        when(cryptoServiceMocK.updateCoin(cryptoDTO, "Bitcoin")).thenReturn(crypto);
+
+        var responseEntity = cryptoController.updateCrypto(cryptoDTO, "Bitcoin");
+
+        assertNotNull(responseEntity.getBody());
+        assertAll(() -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
+                () -> assertEquals(crypto.getQuantity(), responseEntity.getBody().getQuantity()));
+    }
+
+    @Test
+    void shouldDeleteCrypto() {
+        doNothing().when(cryptoServiceMocK).deleteCoin("Dogecoin");
+
+        var responseEntity = cryptoController.deleteCoin("Dogecoin");
+
+        assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
     }
 }
