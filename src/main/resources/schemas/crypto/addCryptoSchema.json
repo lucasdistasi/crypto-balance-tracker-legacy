@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "title": "Crypto",
+  "type": "object",
+  "properties": {
+    "quantity": {
+      "type": "number"
+    },
+    "coinName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "platform": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 24
+    }
+  },
+  "required": [
+    "quantity",
+    "coinName",
+    "platform"
+  ]
+}

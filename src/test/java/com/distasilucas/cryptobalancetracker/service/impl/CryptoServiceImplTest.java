@@ -2,15 +2,15 @@ package com.distasilucas.cryptobalancetracker.service.impl;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
+import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CurrentPrice;
 import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
-import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
-import com.distasilucas.cryptobalancetracker.model.response.CoinsResponse;
+import com.distasilucas.cryptobalancetracker.model.response.CoinResponse;
+import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
-import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +37,13 @@ import static org.mockito.Mockito.when;
 class CryptoServiceImplTest {
 
     @Mock
-    CoingeckoService coingeckoServiceMock;
+    EntityMapper<Crypto, CryptoDTO> cryptoMapperImplMock;
+
+    @Mock
+    EntityMapper<CryptoDTO, Crypto> cryptoDTOMapperImplMock;
+
+    @Mock
+    EntityMapper<CryptoBalanceResponse, List<Crypto>> cryptoBalanceResponseMapperImplMock;
 
     @Mock
     CryptoRepository cryptoRepositoryMock;
@@ -48,76 +54,56 @@ class CryptoServiceImplTest {
     @Mock
     Validation<CryptoDTO> updateCryptoValidationMock;
 
-    CryptoService<Crypto, CryptoDTO> cryptoService;
+    CryptoService<CryptoDTO> cryptoService;
 
     @BeforeEach
     void setUp() {
-        cryptoService = new CryptoServiceImpl(coingeckoServiceMock, cryptoRepositoryMock,
-                addCryptoValidationMock, updateCryptoValidationMock);
+        cryptoService = new CryptoServiceImpl(cryptoMapperImplMock, cryptoDTOMapperImplMock, cryptoBalanceResponseMapperImplMock,
+                cryptoRepositoryMock, addCryptoValidationMock, updateCryptoValidationMock);
     }
 
     @Test
     void shouldAddCrypto() {
-        var coins = getCoins();
         var cryptoDTO = CryptoDTO.builder()
-                .name("Bitcoin")
-                .quantity(BigDecimal.valueOf(2))
+                .coinName("Bitcoin")
                 .build();
-        var expectedCrypto = Crypto.builder()
-                .ticker("btc")
+        var cryptoEntity = Crypto.builder()
                 .name("Bitcoin")
-                .coinId("bitcoin")
-                .quantity(BigDecimal.valueOf(2))
                 .build();
 
         doNothing().when(addCryptoValidationMock).validate(cryptoDTO);
-        when(coingeckoServiceMock.retrieveAllCoins()).thenReturn(coins);
+        when(cryptoMapperImplMock.mapFrom(cryptoDTO)).thenReturn(cryptoEntity);
+        when(cryptoDTOMapperImplMock.mapFrom(cryptoEntity)).thenReturn(cryptoDTO);
 
         var actualCrypto = cryptoService.addCoin(cryptoDTO);
 
-        verify(cryptoRepositoryMock, times(1)).save(actualCrypto);
         assertAll(
-                () -> assertEquals(expectedCrypto.getName(), actualCrypto.getName())
-        );
-    }
-
-    @Test
-    void shouldThrowCoinNotFoundExceptionForUnknownCoin() {
-        var coins = getCoins();
-        var cryptoDTO = CryptoDTO.builder()
-                .name("xyz")
-                .build();
-
-        doNothing().when(addCryptoValidationMock).validate(cryptoDTO);
-        when(coingeckoServiceMock.retrieveAllCoins()).thenReturn(coins);
-
-        var coinNotFoundException = assertThrows(
-                CoinNotFoundException.class,
-                () -> cryptoService.addCoin(cryptoDTO)
-        );
-
-        var expectedMessage = String.format(COIN_NAME_NOT_FOUND, cryptoDTO.getName());
-        assertAll(
-                () -> assertEquals(coinNotFoundException.getErrorMessage(), expectedMessage)
+                () -> assertEquals(cryptoDTO.getCoinName(), actualCrypto.getCoinName()),
+                () -> verify(addCryptoValidationMock, times(1)).validate(cryptoDTO),
+                () -> verify(cryptoRepositoryMock, times(1)).save(cryptoEntity),
+                () -> verify(cryptoMapperImplMock, times(1)).mapFrom(cryptoDTO),
+                () -> verify(cryptoDTOMapperImplMock, times(1)).mapFrom(cryptoEntity)
         );
     }
 
     @Test
     void shouldRetrieveCryptoBalances() {
         var coinInfo = getCoinInfo();
+        var cryptos = getCryptos();
+        var balanceResponse = getCryptoBalanceResponse();
+        var firstCoin = balanceResponse.getCoins().get(0);
 
-        when(cryptoRepositoryMock.findAll()).thenReturn(getCryptos());
-        when(coingeckoServiceMock.retrieveCoinInfo("bitcoin")).thenReturn(coinInfo);
+        when(cryptoRepositoryMock.findAll()).thenReturn(cryptos);
+        when(cryptoBalanceResponseMapperImplMock.mapFrom(cryptos)).thenReturn(balanceResponse);
 
-        var cryptoBalanceResponses = cryptoService.retrieveCoinsBalances();
-        var cryptoBalanceResponse = cryptoBalanceResponses.getCoins().get(0);
-        var expectedBalance = getTotalMoney(Collections.singletonList(cryptoBalanceResponse));
+        var cryptoBalanceResponse = cryptoService.retrieveCoinsBalances();
+        var expectedBalance = getTotalMoney(Collections.singletonList(firstCoin));
 
         assertAll(
-                () -> assertEquals(expectedBalance, cryptoBalanceResponse.getBalance()),
-                () -> assertEquals(BigDecimal.valueOf(1.15), cryptoBalanceResponse.getQuantity()),
-                () -> assertEquals(100, cryptoBalanceResponse.getPercentage()),
-                () -> assertEquals(coinInfo, cryptoBalanceResponse.getCoinInfo())
+                () -> assertEquals(expectedBalance, cryptoBalanceResponse.getTotalBalance()),
+                () -> assertEquals(BigDecimal.valueOf(1), firstCoin.getQuantity()),
+                () -> assertEquals(100, firstCoin.getPercentage()),
+                () -> assertEquals(coinInfo, firstCoin.getCoinInfo())
         );
     }
 
@@ -135,7 +121,7 @@ class CryptoServiceImplTest {
     @Test
     void shouldUpdateCoin() {
         var cryptoDTO = CryptoDTO.builder()
-                .name("Bitcoin")
+                .coinName("Bitcoin")
                 .quantity(BigDecimal.valueOf(2))
                 .build();
         var crypto = Crypto.builder()
@@ -144,40 +130,60 @@ class CryptoServiceImplTest {
                 .build();
 
         doNothing().when(updateCryptoValidationMock).validate(cryptoDTO);
-        when(cryptoRepositoryMock.findByName(cryptoDTO.getName())).thenReturn(Optional.of(crypto));
+        when(cryptoRepositoryMock.findByName(cryptoDTO.getCoinName())).thenReturn(Optional.of(crypto));
+        when(cryptoDTOMapperImplMock.mapFrom(crypto)).thenReturn(cryptoDTO);
 
         var updatedCrypto = cryptoService.updateCoin(cryptoDTO, "Bitcoin");
 
         assertAll(
-                () -> assertEquals(cryptoDTO.getQuantity(), updatedCrypto.getQuantity())
+                () -> assertEquals(cryptoDTO.getQuantity(), updatedCrypto.getQuantity()),
+                () -> verify(cryptoRepositoryMock, times(1)).save(crypto)
         );
-        verify(cryptoRepositoryMock).save(crypto);
+
     }
 
     @Test
     void shouldThrowCoinNotFoundExceptionWhenUpdatingNonExistentCoin() {
         var cryptoDTO = CryptoDTO.builder()
-                .name("Dogecoin")
+                .coinName("Dogecoin")
                 .build();
 
         doNothing().when(updateCryptoValidationMock).validate(cryptoDTO);
-        when(cryptoRepositoryMock.findByName(cryptoDTO.getName())).thenReturn(Optional.empty());
+        when(cryptoRepositoryMock.findByName(cryptoDTO.getCoinName())).thenReturn(Optional.empty());
 
         var coinNotFoundException = assertThrows(
                 CoinNotFoundException.class,
                 () -> cryptoService.updateCoin(cryptoDTO, "Dogecoin")
         );
 
-        var expectedMessage = String.format(COIN_NAME_NOT_FOUND, cryptoDTO.getName());
+        var expectedMessage = String.format(COIN_NAME_NOT_FOUND, cryptoDTO.getCoinName());
         assertAll(
                 () -> assertEquals(coinNotFoundException.getErrorMessage(), expectedMessage)
         );
     }
 
-    private List<Coin> getCoins() {
-        Coin coin = new Coin("bitcoin", "btc", "Bitcoin");
+    @Test
+    void shouldDeleteCoin() {
+        var cryptoEntity = Crypto.builder()
+                .name("Shiba")
+                .build();
 
-        return Collections.singletonList(coin);
+        when(cryptoRepositoryMock.findByName("Shiba")).thenReturn(Optional.of(cryptoEntity));
+
+        cryptoService.deleteCoin("Shiba");
+
+        verify(cryptoRepositoryMock, times(1)).delete(cryptoEntity);
+    }
+
+    @Test
+    void shouldThrowCoinNotFoundExceptionWhenDeleting() {
+        when(cryptoRepositoryMock.findByName("Shiba")).thenReturn(Optional.empty());
+
+        var coinNotFoundException = assertThrows(CoinNotFoundException.class, () -> cryptoService.deleteCoin("Shiba"));
+
+        assertAll(
+                () -> assertEquals(String.format(COIN_NAME_NOT_FOUND, "Shiba"), coinNotFoundException.getErrorMessage())
+        );
     }
 
     private List<Crypto> getCryptos() {
@@ -189,6 +195,19 @@ class CryptoServiceImplTest {
                 .build();
 
         return Collections.singletonList(crypto);
+    }
+
+    private CryptoBalanceResponse getCryptoBalanceResponse() {
+        var coinInfo = getCoinInfo();
+        var coinResponse = new CoinResponse(coinInfo, BigDecimal.valueOf(1), BigDecimal.valueOf(1000), "Binance");
+        coinResponse.setPercentage(100);
+
+        var coins = Collections.singletonList(coinResponse);
+        var cryptoBalanceResponse = new CryptoBalanceResponse();
+        cryptoBalanceResponse.setTotalBalance(BigDecimal.valueOf(1000));
+        cryptoBalanceResponse.setCoins(coins);
+
+        return cryptoBalanceResponse;
     }
 
     private CoinInfo getCoinInfo() {
@@ -207,9 +226,9 @@ class CryptoServiceImplTest {
         return coinInfo;
     }
 
-    private static BigDecimal getTotalMoney(List<CoinsResponse> coinsResponse) {
+    private static BigDecimal getTotalMoney(List<CoinResponse> coinsResponse) {
         return coinsResponse.stream()
-                .map(CoinsResponse::getBalance)
+                .map(CoinResponse::getBalance)
                 .reduce(BigDecimal.valueOf(0), BigDecimal::add);
     }
 }
