@@ -1,6 +1,5 @@
 package com.distasilucas.cryptobalancetracker.controller.swagger;
 
-import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.model.ErrorResponse;
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
@@ -19,7 +18,7 @@ public interface CryptoControllerApi {
             @ApiResponse(responseCode = "201", description = "Added Crypto",
                     content = {
                             @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = Crypto.class))
+                                    schema = @Schema(implementation = CryptoDTO.class))
                     }),
             @ApiResponse(responseCode = "400", description = "Invalid data",
                     content = {
@@ -37,7 +36,7 @@ public interface CryptoControllerApi {
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-    ResponseEntity<Crypto> addCoin(CryptoDTO cryptoDTO);
+    ResponseEntity<CryptoDTO> addCoin(CryptoDTO cryptoDTO);
 
     @Operation(summary = "Retrieve Crypto Balances")
     @ApiResponses(value = {
@@ -61,7 +60,7 @@ public interface CryptoControllerApi {
             @ApiResponse(responseCode = "200", description = "Updated Crypto Quantity",
                     content = {
                             @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = Crypto.class))
+                                    schema = @Schema(implementation = CryptoDTO.class))
                     }),
             @ApiResponse(responseCode = "400", description = "Invalid data",
                     content = {
@@ -79,7 +78,7 @@ public interface CryptoControllerApi {
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-    ResponseEntity<Crypto> updateCrypto(CryptoDTO cryptoDTO, String coinName);
+    ResponseEntity<CryptoDTO> updateCrypto(CryptoDTO cryptoDTO, String coinName);
 
     @Operation(summary = "Delete Crypto")
     @ApiResponses(value = {

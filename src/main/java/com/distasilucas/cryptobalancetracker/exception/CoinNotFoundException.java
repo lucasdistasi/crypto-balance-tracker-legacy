@@ -1,6 +1,6 @@
 package com.distasilucas.cryptobalancetracker.exception;
 
-public class CoinNotFoundException extends ApiException {
+public class CoinNotFoundException extends ApiValidationException {
     public CoinNotFoundException(String message) {
         super(message);
     }

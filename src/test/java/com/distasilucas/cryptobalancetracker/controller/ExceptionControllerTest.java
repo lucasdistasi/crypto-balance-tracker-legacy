@@ -30,7 +30,7 @@ class ExceptionControllerTest {
         var responseEntity = exceptionController.handleCoinNotFoundException(coinNotFoundException);
 
         assertNotNull(responseEntity.getBody());
-        assertAll("coinNotFoundException",
+        assertAll(
                 () -> assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode()),
                 () -> assertEquals(1, responseEntity.getBody().getErrors().size()),
                 () -> assertEquals(coinNotFoundException.getErrorMessage(), responseEntity.getBody().getErrors().get(0).errorMessage())
@@ -49,7 +49,7 @@ class ExceptionControllerTest {
         var responseEntityBody = responseEntity.getBody();
 
         assertNotNull(responseEntityBody);
-        assertAll("apiValidationException",
+        assertAll(
                 () -> assertEquals(BAD_REQUEST, responseEntity.getStatusCode()),
                 () -> assertEquals(BAD_REQUEST_VALUE, responseEntityBody.getStatusCode()),
                 () -> assertEquals(1, responseEntityBody.getErrors().size()),
@@ -59,19 +59,17 @@ class ExceptionControllerTest {
 
     @Test
     void shouldHandleApiValidationExceptionWithEmptyCausingExceptions() {
-        var apiValidationException = new ApiValidationException(
-                Collections.emptyList(), "errorMessage", "message"
-        );
+        var apiValidationException = new ApiValidationException(Collections.emptyList(), "errorMessage", "message");
 
         var responseEntity = exceptionController.handleApiValidationException(apiValidationException);
         var responseEntityBody = responseEntity.getBody();
 
         assertNotNull(responseEntityBody);
-        assertAll("apiValidationException",
+        assertAll(
                 () -> assertEquals(BAD_REQUEST, responseEntity.getStatusCode()),
                 () -> assertEquals(BAD_REQUEST_VALUE, responseEntityBody.getStatusCode()),
                 () -> assertEquals(1, responseEntityBody.getErrors().size()),
-                () -> assertEquals(apiValidationException.getErrorMessage(), responseEntityBody.getErrors().get(0).errorMessage())
+                () -> assertEquals(apiValidationException.getMessage(), responseEntityBody.getErrors().get(0).errorMessage())
         );
     }
 
@@ -87,7 +85,7 @@ class ExceptionControllerTest {
         var responseEntityBody = responseEntity.getBody();
 
         assertNotNull(responseEntityBody);
-        assertAll("apiValidationException",
+        assertAll(
                 () -> assertEquals(BAD_REQUEST, responseEntity.getStatusCode()),
                 () -> assertEquals(BAD_REQUEST_VALUE, responseEntityBody.getStatusCode()),
                 () -> assertEquals(1, responseEntityBody.getErrors().size()),
@@ -106,7 +104,7 @@ class ExceptionControllerTest {
             var responseEntityBody = responseEntity.getBody();
 
             assertNotNull(responseEntityBody);
-            assertAll("apiValidationException",
+            assertAll(
                     () -> assertEquals(BAD_REQUEST, responseEntity.getStatusCode()),
                     () -> assertEquals(BAD_REQUEST_VALUE, responseEntityBody.getStatusCode()),
                     () -> assertEquals(1, responseEntityBody.getErrors().size()),
@@ -126,7 +124,7 @@ class ExceptionControllerTest {
             var responseEntityBody = responseEntity.getBody();
 
             assertNotNull(responseEntityBody);
-            assertAll("apiValidationException",
+            assertAll(
                     () -> assertEquals(BAD_REQUEST, responseEntity.getStatusCode()),
                     () -> assertEquals(BAD_REQUEST_VALUE, responseEntityBody.getStatusCode()),
                     () -> assertEquals(1, responseEntityBody.getErrors().size()),
@@ -141,7 +139,7 @@ class ExceptionControllerTest {
         var responseEntityBody = responseEntity.getBody();
 
         assertNotNull(responseEntityBody);
-        assertAll("apiValidationException",
+        assertAll(
                 () -> assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode()),
                 () -> assertEquals(responseEntityBody.getStatusCode(), HttpStatus.INTERNAL_SERVER_ERROR.value()),
                 () -> assertEquals(1, responseEntityBody.getErrors().size()),

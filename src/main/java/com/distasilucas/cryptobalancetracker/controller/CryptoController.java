@@ -1,7 +1,6 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.controller.swagger.CryptoControllerApi;
-import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
@@ -22,12 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/crypto")
 public class CryptoController implements CryptoControllerApi {
 
-    private final CryptoService<Crypto, CryptoDTO> cryptoService;
+    private final CryptoService<CryptoDTO> cryptoService;
 
     @Override
     @PostMapping
-    public ResponseEntity<Crypto> addCoin(@RequestBody CryptoDTO cryptoDTO) {
-        Crypto crypto = cryptoService.addCoin(cryptoDTO);
+    public ResponseEntity<CryptoDTO> addCoin(@RequestBody CryptoDTO cryptoDTO) {
+        CryptoDTO crypto = cryptoService.addCoin(cryptoDTO);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(crypto);
@@ -45,9 +44,10 @@ public class CryptoController implements CryptoControllerApi {
 
     @Override
     @PutMapping("/{coinName}")
-    public ResponseEntity<Crypto> updateCrypto(@RequestBody CryptoDTO cryptoDTO,
-                                               @PathVariable String coinName) {
-        return ResponseEntity.ok(cryptoService.updateCoin(cryptoDTO, coinName));
+    public ResponseEntity<CryptoDTO> updateCrypto(@RequestBody CryptoDTO cryptoDTO, @PathVariable String coinName) {
+        CryptoDTO updatedCrypto = cryptoService.updateCoin(cryptoDTO, coinName);
+
+        return ResponseEntity.ok(updatedCrypto);
     }
 
     @Override

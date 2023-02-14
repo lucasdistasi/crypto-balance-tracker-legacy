@@ -11,7 +11,7 @@ ext {
     googleCodeGsonVersion = "2.10.1"
     javaxCacheVersion = "1.1.1"
     orgEhcacheVersion = "3.10.8"
-    springDocVersion = "1.6.14"
+    springDocVersion = "2.0.2"
     jakartaPersistenceVersion = "3.1.0"
 }
 
@@ -41,7 +41,7 @@ dependencies {
     implementation "com.google.code.gson:gson:${googleCodeGsonVersion}"
     implementation "javax.cache:cache-api:${javaxCacheVersion}"
     implementation "org.ehcache:ehcache:${orgEhcacheVersion}"
-    implementation "org.springdoc:springdoc-openapi-ui:${springDocVersion}"
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocVersion}"
     implementation "jakarta.persistence:jakarta.persistence-api:${jakartaPersistenceVersion}"
 
     compileOnly "org.projectlombok:lombok"

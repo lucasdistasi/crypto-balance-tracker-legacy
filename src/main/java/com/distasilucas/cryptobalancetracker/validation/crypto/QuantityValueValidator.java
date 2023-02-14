@@ -9,8 +9,6 @@ import java.math.BigDecimal;
 
 import static com.distasilucas.cryptobalancetracker.constant.Constants.INVALID_CRYPTO_QUANTITY;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.MAX_CRYPTO_QUANTITY;
-import static com.distasilucas.cryptobalancetracker.constant.Constants.QUANTITY_FRACTIONAL_MAX_LENGTH;
-import static com.distasilucas.cryptobalancetracker.constant.Constants.QUANTITY_WHOLE_MAX_LENGTH;
 
 @Component
 public class QuantityValueValidator implements EntityValidation<CryptoDTO> {
@@ -40,7 +38,7 @@ public class QuantityValueValidator implements EntityValidation<CryptoDTO> {
         String[] quantityValue = String.valueOf(quantity).split("\\.");
 
         return (quantityValue.length == 1) ||
-                quantityValue[0].length() <= QUANTITY_WHOLE_MAX_LENGTH &&
-                        quantityValue[1].length() <= QUANTITY_FRACTIONAL_MAX_LENGTH;
+                quantityValue[0].length() <= 16 &&
+                        quantityValue[1].length() <= 12;
     }
 }

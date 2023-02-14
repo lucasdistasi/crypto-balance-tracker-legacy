@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN_ERROR;
 
@@ -45,10 +44,10 @@ public class ExceptionController {
     public ResponseEntity<ErrorResponse> handleApiValidationException(ApiValidationException apiValidationException) {
         log.warn("An ApiValidationException has occurred: ", apiValidationException);
 
-        String apiValidationExceptionErrorMessage = apiValidationException.getErrorMessage();
-        String message = apiValidationExceptionErrorMessage != null ?
-                apiValidationExceptionErrorMessage :
-                apiValidationException.getMessage();
+        String apiValidationExceptionMessage = apiValidationException.getMessage();
+        String message = apiValidationExceptionMessage != null ?
+                apiValidationExceptionMessage :
+                apiValidationException.getErrorMessage();
         List<ValidationException> causingExceptions = apiValidationException.getCausingExceptions();
         List<Error> errors = CollectionUtils.isNotEmpty(causingExceptions) ?
                 causingExceptions.stream()
