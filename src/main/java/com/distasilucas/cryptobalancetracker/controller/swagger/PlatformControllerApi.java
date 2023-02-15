@@ -2,14 +2,40 @@ package com.distasilucas.cryptobalancetracker.controller.swagger;
 
 import com.distasilucas.cryptobalancetracker.model.ErrorResponse;
 import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
+import com.distasilucas.cryptobalancetracker.model.response.CoinResponse;
+import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import java.util.List;
+import java.util.Optional;
 
 public interface PlatformControllerApi {
+
+    @Operation(summary = "Retrieve all coins for the given platform")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Platform coins",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = PlatformDTO.class))
+                    }),
+            @ApiResponse(responseCode = "400", description = "Invalid data",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    }),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    })
+    })
+    ResponseEntity<Optional<CryptoBalanceResponse>> getCoins(String platformName);
 
     @Operation(summary = "Add Platform")
     @ApiResponses(value = {

@@ -5,6 +5,7 @@ import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
+import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
@@ -28,6 +29,7 @@ public class PlatformServiceImpl implements PlatformService {
     private final CryptoRepository cryptoRepository;
     private final Validation<PlatformDTO> addPlatformValidation;
     private final EntityMapper<Platform, PlatformDTO> platformMapperImpl;
+    private final EntityMapper<CryptoBalanceResponse, List<Crypto>> cryptoBalanceResponseMapperImpl;
 
     @Override
     public PlatformDTO addPlatForm(PlatformDTO platformDTO) {
@@ -84,5 +86,20 @@ public class PlatformServiceImpl implements PlatformService {
 
         platformRepository.delete(platform);
         log.info("Deleted platform {}", platform.getName());
+    }
+
+    @Override
+    public Optional<CryptoBalanceResponse> getAllCoins(String platformName) {
+        log.info("Retrieving coins in platform {}", platformName);
+        Platform platform = findPlatform(platformName);
+        Optional<List<Crypto>> cryptos = cryptoRepository.findAllByPlatform(platform);
+
+        Optional<CryptoBalanceResponse> cryptoBalanceResponse = Optional.empty();
+
+        if (cryptos.isPresent() && CollectionUtils.isNotEmpty(cryptos.get())) {
+            cryptoBalanceResponse = Optional.of(cryptoBalanceResponseMapperImpl.mapFrom(cryptos.get()));
+        }
+
+        return cryptoBalanceResponse;
     }
 }

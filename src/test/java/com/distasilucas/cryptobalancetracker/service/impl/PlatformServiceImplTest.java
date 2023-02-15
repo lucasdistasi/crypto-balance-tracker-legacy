@@ -4,7 +4,10 @@ import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
+import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
+import com.distasilucas.cryptobalancetracker.model.response.CoinResponse;
+import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
@@ -15,6 +18,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +27,9 @@ import java.util.Optional;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.PLATFORM_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
@@ -44,12 +51,15 @@ class PlatformServiceImplTest {
     @Mock
     EntityMapper<Platform, PlatformDTO> platformMapperImplMock;
 
+    @Mock
+    EntityMapper<CryptoBalanceResponse, List<Crypto>> cryptoBalanceResponseMapperImplMock;
+
     PlatformService platformService;
 
     @BeforeEach
     void setUp() {
         platformService = new PlatformServiceImpl(platformRepositoryMock, cryptoRepositoryMock,
-                addPlatformValidationMock, platformMapperImplMock);
+                addPlatformValidationMock, platformMapperImplMock, cryptoBalanceResponseMapperImplMock);
     }
 
     @Test
@@ -138,9 +148,32 @@ class PlatformServiceImplTest {
         );
     }
 
+    @Test
+    void shouldRetrieveAllCoinsForPlatform() {
+        var platformEntity = Platform.builder()
+                .name("LEDGER")
+                .build();
+        var allCryptos = getAllCryptos();
+        var balanceResponse = getCryptoBalanceResponse();
+
+        when(platformRepositoryMock.findByName("LEDGER")).thenReturn(Optional.of(platformEntity));
+        when(cryptoRepositoryMock.findAllByPlatform(platformEntity)).thenReturn(Optional.of(allCryptos));
+        when(cryptoBalanceResponseMapperImplMock.mapFrom(allCryptos)).thenReturn(balanceResponse);
+
+        var cryptoBalanceResponse = platformService.getAllCoins("Ledger");
+
+        assertAll(
+                () -> assertNotNull(cryptoBalanceResponse),
+                () -> assertTrue(cryptoBalanceResponse.isPresent()),
+                () -> assertEquals(balanceResponse.getTotalBalance(), cryptoBalanceResponse.get().getTotalBalance()),
+                () -> assertEquals(1, cryptoBalanceResponse.get().getCoins().size()),
+                () -> assertEquals(platformEntity.getName(), cryptoBalanceResponse.get().getCoins().get(0).getPlatform())
+        );
+    }
+
     private List<Crypto> getAllCryptos() {
         var platform = Platform.builder()
-                .name("Ledger")
+                .name("LEDGER")
                 .build();
 
         return Collections.singletonList(
@@ -148,6 +181,19 @@ class PlatformServiceImplTest {
                         .platform(platform)
                         .build()
         );
+    }
+
+    private CryptoBalanceResponse getCryptoBalanceResponse() {
+        var coinInfo = new CoinInfo();
+        coinInfo.setSymbol("BTC");
+
+        var coinResponse = new CoinResponse(coinInfo, BigDecimal.valueOf(5), BigDecimal.valueOf(1000), "LEDGER");
+
+        var cryptoBalanceResponse = new CryptoBalanceResponse();
+        cryptoBalanceResponse.setTotalBalance(BigDecimal.valueOf(1000));
+        cryptoBalanceResponse.setCoins(Collections.singletonList(coinResponse));
+
+        return cryptoBalanceResponse;
     }
 
 }
