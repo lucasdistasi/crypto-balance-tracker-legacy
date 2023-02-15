@@ -70,12 +70,8 @@ class CryptoBalanceResponseMapperImplTest {
     }
 
     private CoinInfo getCoinInfo() {
-        var currentPrice = new CurrentPrice();
-        currentPrice.setUsd(BigDecimal.valueOf(21_500));
-
-        var marketData = new MarketData();
-        marketData.setCurrentPrice(currentPrice);
-
+        var currentPrice = new CurrentPrice(BigDecimal.valueOf(21_500));
+        var marketData = new MarketData(currentPrice);
         var coinInfo = new CoinInfo();
         coinInfo.setId("bitcoin");
         coinInfo.setName("bitcoin");

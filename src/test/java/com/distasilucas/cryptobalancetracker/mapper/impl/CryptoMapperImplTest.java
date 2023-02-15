@@ -43,7 +43,7 @@ class CryptoMapperImplTest {
     @Test
     void shouldMapSuccessfully() {
         var cryptoDTO = getCryptoDTO();
-        var platformName = cryptoDTO.getPlatform();
+        var platformName = cryptoDTO.platform();
         var platform = Platform.builder()
                 .name(platformName)
                 .build();
@@ -54,18 +54,18 @@ class CryptoMapperImplTest {
         var crypto = entityMapper.mapFrom(cryptoDTO);
 
         assertAll(
-                () -> assertEquals(cryptoDTO.getCoinName(), crypto.getName()),
-                () -> assertEquals(cryptoDTO.getCoinId(), crypto.getCoinId()),
-                () -> assertEquals(cryptoDTO.getTicker(), crypto.getTicker()),
-                () -> assertEquals(cryptoDTO.getPlatform(), crypto.getPlatform().getName()),
-                () -> assertEquals(cryptoDTO.getQuantity(), crypto.getQuantity())
+                () -> assertEquals(cryptoDTO.coin_name(), crypto.getName()),
+                () -> assertEquals(cryptoDTO.coinId(), crypto.getCoinId()),
+                () -> assertEquals(cryptoDTO.ticker(), crypto.getTicker()),
+                () -> assertEquals(cryptoDTO.platform(), crypto.getPlatform().getName()),
+                () -> assertEquals(cryptoDTO.quantity(), crypto.getQuantity())
         );
     }
 
     @Test
     void shouldThrowExceptionWhenMappingNonExistentCoin() {
         var cryptoDTO = getCryptoDTO();
-        var platformName = cryptoDTO.getPlatform();
+        var platformName = cryptoDTO.platform();
         var platform = Platform.builder()
                 .name(platformName)
                 .build();
@@ -76,14 +76,14 @@ class CryptoMapperImplTest {
         CoinNotFoundException coinNotFoundException = assertThrows(CoinNotFoundException.class,
                 () -> entityMapper.mapFrom(cryptoDTO));
 
-        var expectedMessage = String.format(COIN_NAME_NOT_FOUND, cryptoDTO.getCoinName());
+        var expectedMessage = String.format(COIN_NAME_NOT_FOUND, cryptoDTO.coin_name());
 
         assertEquals(expectedMessage, coinNotFoundException.getErrorMessage());
     }
 
     private static CryptoDTO getCryptoDTO() {
         return CryptoDTO.builder()
-                .coinName("Ethereum")
+                .coin_name("Ethereum")
                 .coinId("ethereum")
                 .ticker("ETH")
                 .platform("Ledger")

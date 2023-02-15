@@ -39,11 +39,11 @@ class CryptoControllerTest {
     @Test
     void shouldReturnCreatedCrypto() {
         var cryptoDTO = CryptoDTO.builder()
-                .coinName("Bitcoin")
+                .coin_name("Bitcoin")
                 .build();
 
         var cryptoDTOResponse = CryptoDTO.builder()
-                .coinName("Bitcoin")
+                .coin_name("Bitcoin")
                 .ticker("btc")
                 .build();
 
@@ -54,21 +54,17 @@ class CryptoControllerTest {
         assertNotNull(cryptoResponseEntity.getBody());
         assertAll(
                 () -> assertEquals(HttpStatus.CREATED, cryptoResponseEntity.getStatusCode()),
-                () -> assertEquals(cryptoDTO.getCoinName(), cryptoResponseEntity.getBody().getCoinName())
+                () -> assertEquals(cryptoDTO.coin_name(), cryptoResponseEntity.getBody().coin_name())
         );
     }
 
     @Test
     void shouldReturnCryptosBalances() {
-        var currentPrice = new CurrentPrice();
-        currentPrice.setUsd(BigDecimal.valueOf(100));
-
-        var marketData = new MarketData();
-        marketData.setCurrentPrice(currentPrice);
-
+        var currentPrice = new CurrentPrice(BigDecimal.valueOf(100));
+        var marketData = new MarketData(currentPrice);
         var coinInfo = new CoinInfo();
         coinInfo.setId("coinId");
-        coinInfo.setName("coinName");
+        coinInfo.setName("coin_name");
         coinInfo.setSymbol("btc");
         coinInfo.setMarketData(marketData);
 
@@ -90,11 +86,11 @@ class CryptoControllerTest {
     @Test
     void shouldUpdateCrypto() {
         var cryptoDTO = CryptoDTO.builder()
-                .coinName("btc")
+                .coin_name("btc")
                 .quantity(BigDecimal.valueOf(2))
                 .build();
         var cryptoDTOResponse = CryptoDTO.builder()
-                .coinName("btc")
+                .coin_name("btc")
                 .quantity(BigDecimal.valueOf(1))
                 .build();
 
@@ -105,7 +101,7 @@ class CryptoControllerTest {
         assertNotNull(responseEntity.getBody());
         assertAll(
                 () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
-                () -> assertEquals(cryptoDTOResponse.getQuantity(), responseEntity.getBody().getQuantity())
+                () -> assertEquals(cryptoDTOResponse.quantity(), responseEntity.getBody().quantity())
         );
     }
 

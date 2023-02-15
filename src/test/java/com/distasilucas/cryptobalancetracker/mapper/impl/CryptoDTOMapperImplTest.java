@@ -34,11 +34,11 @@ class CryptoDTOMapperImplTest {
         var cryptoDTO = cryptoDTOMapperImpl.mapFrom(crypto);
 
         assertAll(
-                () -> assertEquals(crypto.getName(), cryptoDTO.getCoinName()),
-                () -> assertEquals(crypto.getTicker(), cryptoDTO.getTicker()),
-                () -> assertEquals(crypto.getPlatform().getName(), cryptoDTO.getPlatform()),
-                () -> assertEquals(crypto.getQuantity(), cryptoDTO.getQuantity()),
-                () -> assertEquals(crypto.getCoinId(), cryptoDTO.getCoinId())
+                () -> assertEquals(crypto.getName(), cryptoDTO.coin_name()),
+                () -> assertEquals(crypto.getTicker(), cryptoDTO.ticker()),
+                () -> assertEquals(crypto.getPlatform().getName(), cryptoDTO.platform()),
+                () -> assertEquals(crypto.getQuantity(), cryptoDTO.quantity()),
+                () -> assertEquals(crypto.getCoinId(), cryptoDTO.coinId())
         );
     }
 

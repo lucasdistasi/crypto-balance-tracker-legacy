@@ -42,7 +42,7 @@ public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalan
     private CoinResponse getCoinResponse(Crypto coin) {
         CoinInfo coinInfo = coingeckoService.retrieveCoinInfo(coin.getCoinId());
         BigDecimal quantity = coin.getQuantity();
-        BigDecimal balance = coinInfo.getMarketData().getCurrentPrice().getUsd().multiply(quantity);
+        BigDecimal balance = coinInfo.getMarketData().currentPrice().usd().multiply(quantity);
         String platformName = coin.getPlatform().getName();
 
         return new CoinResponse(coinInfo, quantity, balance, platformName);

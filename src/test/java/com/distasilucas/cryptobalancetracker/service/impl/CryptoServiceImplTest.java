@@ -65,7 +65,7 @@ class CryptoServiceImplTest {
     @Test
     void shouldAddCrypto() {
         var cryptoDTO = CryptoDTO.builder()
-                .coinName("Bitcoin")
+                .coin_name("Bitcoin")
                 .build();
         var cryptoEntity = Crypto.builder()
                 .name("Bitcoin")
@@ -78,7 +78,7 @@ class CryptoServiceImplTest {
         var actualCrypto = cryptoService.addCoin(cryptoDTO);
 
         assertAll(
-                () -> assertEquals(cryptoDTO.getCoinName(), actualCrypto.getCoinName()),
+                () -> assertEquals(cryptoDTO.coin_name(), actualCrypto.coin_name()),
                 () -> verify(addCryptoValidationMock, times(1)).validate(cryptoDTO),
                 () -> verify(cryptoRepositoryMock, times(1)).save(cryptoEntity),
                 () -> verify(cryptoMapperImplMock, times(1)).mapFrom(cryptoDTO),
@@ -121,7 +121,7 @@ class CryptoServiceImplTest {
     @Test
     void shouldUpdateCoin() {
         var cryptoDTO = CryptoDTO.builder()
-                .coinName("Bitcoin")
+                .coin_name("Bitcoin")
                 .quantity(BigDecimal.valueOf(2))
                 .build();
         var crypto = Crypto.builder()
@@ -130,13 +130,13 @@ class CryptoServiceImplTest {
                 .build();
 
         doNothing().when(updateCryptoValidationMock).validate(cryptoDTO);
-        when(cryptoRepositoryMock.findByName(cryptoDTO.getCoinName())).thenReturn(Optional.of(crypto));
+        when(cryptoRepositoryMock.findByName(cryptoDTO.coin_name())).thenReturn(Optional.of(crypto));
         when(cryptoDTOMapperImplMock.mapFrom(crypto)).thenReturn(cryptoDTO);
 
         var updatedCrypto = cryptoService.updateCoin(cryptoDTO, "Bitcoin");
 
         assertAll(
-                () -> assertEquals(cryptoDTO.getQuantity(), updatedCrypto.getQuantity()),
+                () -> assertEquals(cryptoDTO.quantity(), updatedCrypto.quantity()),
                 () -> verify(cryptoRepositoryMock, times(1)).save(crypto)
         );
 
@@ -145,18 +145,18 @@ class CryptoServiceImplTest {
     @Test
     void shouldThrowCoinNotFoundExceptionWhenUpdatingNonExistentCoin() {
         var cryptoDTO = CryptoDTO.builder()
-                .coinName("Dogecoin")
+                .coin_name("Dogecoin")
                 .build();
 
         doNothing().when(updateCryptoValidationMock).validate(cryptoDTO);
-        when(cryptoRepositoryMock.findByName(cryptoDTO.getCoinName())).thenReturn(Optional.empty());
+        when(cryptoRepositoryMock.findByName(cryptoDTO.coin_name())).thenReturn(Optional.empty());
 
         var coinNotFoundException = assertThrows(
                 CoinNotFoundException.class,
                 () -> cryptoService.updateCoin(cryptoDTO, "Dogecoin")
         );
 
-        var expectedMessage = String.format(COIN_NAME_NOT_FOUND, cryptoDTO.getCoinName());
+        var expectedMessage = String.format(COIN_NAME_NOT_FOUND, cryptoDTO.coin_name());
         assertAll(
                 () -> assertEquals(coinNotFoundException.getErrorMessage(), expectedMessage)
         );
@@ -211,12 +211,8 @@ class CryptoServiceImplTest {
     }
 
     private CoinInfo getCoinInfo() {
-        var currentPrice = new CurrentPrice();
-        currentPrice.setUsd(BigDecimal.valueOf(150000));
-
-        var marketData = new MarketData();
-        marketData.setCurrentPrice(currentPrice);
-
+        var currentPrice = new CurrentPrice(BigDecimal.valueOf(150000));
+        var marketData = new MarketData(currentPrice);
         var coinInfo = new CoinInfo();
         coinInfo.setMarketData(marketData);
         coinInfo.setSymbol("btc");

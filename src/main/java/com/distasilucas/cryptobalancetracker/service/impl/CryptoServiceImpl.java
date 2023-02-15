@@ -64,7 +64,7 @@ public class CryptoServiceImpl implements CryptoService<CryptoDTO> {
         }
 
         Crypto crypto = cryptoOptional.get();
-        crypto.setQuantity(cryptoDTO.getQuantity());
+        crypto.setQuantity(cryptoDTO.quantity());
         cryptoRepository.save(crypto);
 
         CryptoDTO cryptoResponse = cryptoDTOMapperImpl.mapFrom(crypto);

@@ -26,6 +26,7 @@ import java.util.List;
 public class Platform {
 
     @Id
+    @Column(name = "platform_id")
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 

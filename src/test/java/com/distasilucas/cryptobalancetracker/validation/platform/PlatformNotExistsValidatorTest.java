@@ -33,8 +33,7 @@ class PlatformNotExistsValidatorTest {
 
     @Test
     void shouldValidateSuccessfully() {
-        var platformDTO = new PlatformDTO();
-        platformDTO.setName("TREZOR");
+        var platformDTO = new PlatformDTO("TREZOR");
 
         when(platformRepositoryMock.findByName(platformDTO.getName())).thenReturn(Optional.empty());
 
@@ -43,8 +42,7 @@ class PlatformNotExistsValidatorTest {
 
     @Test
     void shouldThrowApiValidationExceptionWhenDuplicatedPlatformName() {
-        var platformDTO = new PlatformDTO();
-        platformDTO.setName("TREZOR");
+        var platformDTO = new PlatformDTO("TREZOR");
 
         var platform = Platform.builder()
                 .name(platformDTO.getName())

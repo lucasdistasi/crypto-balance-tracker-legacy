@@ -26,8 +26,7 @@ class PlatformNameValidatorTest {
 
     @Test
     void shouldValidatePlatformDTOSuccessfully() {
-        var platformDTO = new PlatformDTO();
-        platformDTO.setName("Ledger");
+        var platformDTO = new PlatformDTO("Ledger");
 
         entityValidation.validate(platformDTO);
     }
@@ -35,8 +34,7 @@ class PlatformNameValidatorTest {
     @ParameterizedTest
     @ValueSource(strings = {" ", "1234", "@/!", "ABC123"})
     void shouldThrowApiValidationExceptionWhenInvalidPlatform(String platform) {
-        var platformDTO = new PlatformDTO();
-        platformDTO.setName(platform);
+        var platformDTO = new PlatformDTO(platform);
 
         var apiValidationException = assertThrows(ApiValidationException.class, () -> {
             entityValidation.validate(platformDTO);

@@ -17,7 +17,7 @@ public class PlatformNameValidator<T> implements EntityValidation<T> {
         String platformName = "";
 
         if (input instanceof CryptoDTO cryptoDTO)
-            platformName = cryptoDTO.getPlatform();
+            platformName = cryptoDTO.platform();
 
         if (input instanceof PlatformDTO platformDTO)
             platformName = platformDTO.getName();

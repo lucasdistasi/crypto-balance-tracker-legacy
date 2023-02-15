@@ -16,8 +16,7 @@ class PlatformMapperImplTest {
 
     @Test
     void shouldMapSuccessfully() {
-        var platformDTO = new PlatformDTO();
-        platformDTO.setName("Ledger");
+        var platformDTO = new PlatformDTO("Ledger");
 
         var platform = entityMapper.mapFrom(platformDTO);
 

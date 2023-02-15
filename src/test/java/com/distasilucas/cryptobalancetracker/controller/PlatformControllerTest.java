@@ -68,10 +68,8 @@ class PlatformControllerTest {
 
     @Test
     void shouldAddPlatform() {
-        var platformDTO = new PlatformDTO();
-        platformDTO.setName("LEDGER");
-        var addedPlatform = new PlatformDTO();
-        addedPlatform.setName("LEDGER");
+        var platformDTO = new PlatformDTO("LEDGER");
+        var addedPlatform = new PlatformDTO("LEDGER");
 
         when(platformServiceMock.addPlatForm(platformDTO)).thenReturn(addedPlatform);
 
@@ -86,10 +84,8 @@ class PlatformControllerTest {
 
     @Test
     void shouldUpdatePlatform() {
-        var platformDTO = new PlatformDTO();
-        platformDTO.setName("LEDGER");
-        var updatedPlatform = new PlatformDTO();
-        updatedPlatform.setName("LEDGER");
+        var platformDTO = new PlatformDTO("LEDGER");
+        var updatedPlatform = new PlatformDTO("LEDGER");
 
         when(platformServiceMock.updatePlatform(platformDTO, "Trezor")).thenReturn(updatedPlatform);
 

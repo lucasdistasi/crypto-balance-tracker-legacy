@@ -64,8 +64,7 @@ class PlatformServiceImplTest {
 
     @Test
     void shouldAddPlatform() {
-        var platformDTO = new PlatformDTO();
-        platformDTO.setName("Trezor");
+        var platformDTO = new PlatformDTO("Trezor");
 
         var platform = Platform.builder()
                 .name("Trezor")
@@ -111,8 +110,7 @@ class PlatformServiceImplTest {
 
     @Test
     void shouldUpdatePlatform() {
-        var platformDTO = new PlatformDTO();
-        platformDTO.setName("LEDGER");
+        var platformDTO = new PlatformDTO("LEDGER");
         var platformEntity = Platform.builder()
                 .name("TREZOR")
                 .build();
