@@ -2,6 +2,7 @@ package com.distasilucas.cryptobalancetracker.mapper.impl;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
+import com.distasilucas.cryptobalancetracker.mapper.DescendingPercentageComparator;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.model.response.CoinResponse;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -27,10 +29,11 @@ public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalan
 
         List<CoinResponse> coins = input.stream()
                 .map(this::getCoinResponse)
-                .toList();
+                .collect(Collectors.toList());
 
         BigDecimal totalMoney = getTotalMoney(coins);
         coins.forEach(crypto -> setPercentage(totalMoney, crypto));
+        coins.sort(new DescendingPercentageComparator());
         BigDecimal totalBalance = totalMoney.setScale(2, RoundingMode.HALF_UP);
 
         return new CryptoBalanceResponse(totalBalance, coins);

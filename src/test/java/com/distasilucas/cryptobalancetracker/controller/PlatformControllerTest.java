@@ -1,6 +1,9 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
+import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
+import com.distasilucas.cryptobalancetracker.model.response.CoinResponse;
+import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,10 +12,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
@@ -27,6 +35,35 @@ class PlatformControllerTest {
     @BeforeEach
     void setUp() {
         platformController = new PlatformController(platformServiceMock);
+    }
+
+    @Test
+    void shouldRetrieveAllCoinsForPlatform() {
+        var platformName = "Trezor";
+        var cryptoBalanceResponse = getCryptoBalanceResponse();
+
+        when(platformServiceMock.getAllCoins(platformName)).thenReturn(Optional.of(cryptoBalanceResponse));
+
+        var responseEntity = platformController.getCoins(platformName);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
+                () -> assertTrue(responseEntity.getBody().isPresent())
+        );
+    }
+
+    @Test
+    void shouldReturnNoContentWhenRetrievingAllCoinsForPlatform() {
+        var platformName = "Trezor";
+
+        when(platformServiceMock.getAllCoins(platformName)).thenReturn(Optional.empty());
+
+        var responseEntity = platformController.getCoins(platformName);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode()),
+                () -> assertTrue(responseEntity.getBody().isEmpty())
+        );
     }
 
     @Test
@@ -77,5 +114,18 @@ class PlatformControllerTest {
         assertAll(
                 () -> assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode())
         );
+    }
+
+    private CryptoBalanceResponse getCryptoBalanceResponse() {
+        var coinInfo = new CoinInfo();
+        coinInfo.setSymbol("BTC");
+
+        var coinResponse = new CoinResponse(coinInfo, BigDecimal.valueOf(5), BigDecimal.valueOf(1000), "LEDGER");
+
+        var cryptoBalanceResponse = new CryptoBalanceResponse();
+        cryptoBalanceResponse.setTotalBalance(BigDecimal.valueOf(1000));
+        cryptoBalanceResponse.setCoins(Collections.singletonList(coinResponse));
+
+        return cryptoBalanceResponse;
     }
 }
