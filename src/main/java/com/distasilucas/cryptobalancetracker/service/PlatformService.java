@@ -2,10 +2,8 @@ package com.distasilucas.cryptobalancetracker.service;
 
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
-import com.distasilucas.cryptobalancetracker.model.response.CoinResponse;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface PlatformService {

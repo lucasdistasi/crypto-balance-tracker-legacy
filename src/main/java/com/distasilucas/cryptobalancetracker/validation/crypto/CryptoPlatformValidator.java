@@ -20,14 +20,14 @@ public class CryptoPlatformValidator implements EntityValidation<CryptoDTO> {
 
     @Override
     public void validate(CryptoDTO cryptoDTO) {
-        Optional<Crypto> optionalCrypto = cryptoRepository.findByName(cryptoDTO.getCoinName());
+        Optional<Crypto> optionalCrypto = cryptoRepository.findByName(cryptoDTO.coin_name());
 
         if (optionalCrypto.isPresent()) {
             Crypto crypto = optionalCrypto.get();
             String platformName = crypto.getPlatform().getName();
             String coinName = crypto.getName();
 
-            if (platformName.equalsIgnoreCase(cryptoDTO.getPlatform())) {
+            if (platformName.equalsIgnoreCase(cryptoDTO.platform())) {
                 String message = String.format(DUPLICATED_PLATFORM_COIN, coinName, platformName);
 
                 throw new ApiValidationException(message);

@@ -2,7 +2,6 @@ package com.distasilucas.cryptobalancetracker.controller.swagger;
 
 import com.distasilucas.cryptobalancetracker.model.ErrorResponse;
 import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
-import com.distasilucas.cryptobalancetracker.model.response.CoinResponse;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -10,9 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface PlatformControllerApi {

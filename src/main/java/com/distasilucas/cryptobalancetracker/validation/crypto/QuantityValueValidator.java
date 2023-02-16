@@ -15,7 +15,7 @@ public class QuantityValueValidator implements EntityValidation<CryptoDTO> {
 
     @Override
     public void validate(CryptoDTO cryptoDTO) {
-        if (!isValid(cryptoDTO.getQuantity())) {
+        if (!isValid(cryptoDTO.quantity())) {
             throw new ApiValidationException(INVALID_CRYPTO_QUANTITY);
         }
     }

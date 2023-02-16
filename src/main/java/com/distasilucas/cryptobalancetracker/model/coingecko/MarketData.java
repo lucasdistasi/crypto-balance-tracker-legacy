@@ -1,14 +1,8 @@
 package com.distasilucas.cryptobalancetracker.model.coingecko;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 
-@Data
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class MarketData implements Serializable {
-
-    private CurrentPrice currentPrice;
+public record MarketData(@JsonProperty("current_price") CurrentPrice currentPrice) implements Serializable {
 }

@@ -21,7 +21,7 @@ public class CryptoDTOMapperImpl implements EntityMapper<CryptoDTO, Crypto> {
 
     private CryptoDTO getCryptoDTO(Crypto crypto) {
         return CryptoDTO.builder()
-                .coinName(crypto.getName())
+                .coin_name(crypto.getName())
                 .quantity(crypto.getQuantity())
                 .platform(crypto.getPlatform().getName())
                 .ticker(crypto.getTicker())
