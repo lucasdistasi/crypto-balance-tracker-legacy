@@ -1,11 +1,7 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
-import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
-import com.distasilucas.cryptobalancetracker.model.coingecko.CurrentPrice;
-import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
+import com.distasilucas.cryptobalancetracker.MockData;
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
-import com.distasilucas.cryptobalancetracker.model.response.CoinResponse;
-import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,9 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-
-import java.math.BigDecimal;
-import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,6 +24,9 @@ class CryptoControllerTest {
 
     CryptoController cryptoController;
 
+    private static final String DOGECOIN = "Dogecoin";
+    private static final String BITCOIN = "Bitcoin";
+
     @BeforeEach
     void setUp() {
         cryptoController = new CryptoController(cryptoServiceMocK);
@@ -38,14 +34,8 @@ class CryptoControllerTest {
 
     @Test
     void shouldReturnCreatedCrypto() {
-        var cryptoDTO = CryptoDTO.builder()
-                .coin_name("Bitcoin")
-                .build();
-
-        var cryptoDTOResponse = CryptoDTO.builder()
-                .coin_name("Bitcoin")
-                .ticker("btc")
-                .build();
+        var cryptoDTO = MockData.getCryptoDTO();
+        var cryptoDTOResponse = MockData.getCryptoDTO();
 
         when(cryptoServiceMocK.addCoin(cryptoDTO)).thenReturn(cryptoDTOResponse);
 
@@ -60,18 +50,11 @@ class CryptoControllerTest {
 
     @Test
     void shouldReturnCryptosBalances() {
-        var currentPrice = new CurrentPrice(BigDecimal.valueOf(100));
-        var marketData = new MarketData(currentPrice);
-        var coinInfo = new CoinInfo();
-        coinInfo.setId("coinId");
-        coinInfo.setName("coin_name");
-        coinInfo.setSymbol("btc");
-        coinInfo.setMarketData(marketData);
+        var coinInfo = MockData.getCoinInfo();
+        var coinsResponse = MockData.getCoinResponse(coinInfo);
+        var cryptoBalanceResponse = MockData.getCryptoBalanceResponse();
 
-        var coinsResponse = new CoinResponse(coinInfo, BigDecimal.valueOf(2), BigDecimal.valueOf(10), "Binance");
-        var cryptoCoinsResponse = new CryptoBalanceResponse(BigDecimal.valueOf(150), Collections.singletonList(coinsResponse));
-
-        when(cryptoServiceMocK.retrieveCoinsBalances()).thenReturn(cryptoCoinsResponse);
+        when(cryptoServiceMocK.retrieveCoinsBalances()).thenReturn(cryptoBalanceResponse);
 
         var responseEntity = cryptoController.retrieveCoinsBalance();
 
@@ -85,18 +68,12 @@ class CryptoControllerTest {
 
     @Test
     void shouldUpdateCrypto() {
-        var cryptoDTO = CryptoDTO.builder()
-                .coin_name("btc")
-                .quantity(BigDecimal.valueOf(2))
-                .build();
-        var cryptoDTOResponse = CryptoDTO.builder()
-                .coin_name("btc")
-                .quantity(BigDecimal.valueOf(1))
-                .build();
+        var cryptoDTO = MockData.getCryptoDTO();
+        var cryptoDTOResponse = MockData.getCryptoDTO();
 
-        when(cryptoServiceMocK.updateCoin(cryptoDTO, "Bitcoin")).thenReturn(cryptoDTOResponse);
+        when(cryptoServiceMocK.updateCoin(cryptoDTO, BITCOIN)).thenReturn(cryptoDTOResponse);
 
-        var responseEntity = cryptoController.updateCrypto(cryptoDTO, "Bitcoin");
+        var responseEntity = cryptoController.updateCrypto(cryptoDTO, BITCOIN);
 
         assertNotNull(responseEntity.getBody());
         assertAll(
@@ -107,9 +84,9 @@ class CryptoControllerTest {
 
     @Test
     void shouldDeleteCrypto() {
-        doNothing().when(cryptoServiceMocK).deleteCoin("Dogecoin");
+        doNothing().when(cryptoServiceMocK).deleteCoin(DOGECOIN);
 
-        var responseEntity = cryptoController.deleteCoin("Dogecoin");
+        var responseEntity = cryptoController.deleteCoin(DOGECOIN);
 
         assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
     }

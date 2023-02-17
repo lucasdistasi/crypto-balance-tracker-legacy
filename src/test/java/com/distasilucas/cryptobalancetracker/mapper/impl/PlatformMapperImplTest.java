@@ -3,6 +3,7 @@ package com.distasilucas.cryptobalancetracker.mapper.impl;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
+import com.distasilucas.cryptobalancetracker.MockData;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -16,8 +17,7 @@ class PlatformMapperImplTest {
 
     @Test
     void shouldMapSuccessfully() {
-        var platformDTO = new PlatformDTO("Ledger");
-
+        var platformDTO = MockData.getPlatformDTO("Ledger");
         var platform = entityMapper.mapFrom(platformDTO);
 
         assertEquals(platformDTO.getName().toUpperCase(), platform.getName());

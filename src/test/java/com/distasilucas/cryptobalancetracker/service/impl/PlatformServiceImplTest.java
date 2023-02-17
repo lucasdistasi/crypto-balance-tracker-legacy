@@ -4,13 +4,12 @@ import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
-import com.distasilucas.cryptobalancetracker.model.response.CoinResponse;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
+import com.distasilucas.cryptobalancetracker.MockData;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,9 +17,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -110,10 +106,8 @@ class PlatformServiceImplTest {
 
     @Test
     void shouldUpdatePlatform() {
-        var platformDTO = new PlatformDTO("LEDGER");
-        var platformEntity = Platform.builder()
-                .name("TREZOR")
-                .build();
+        var platformDTO = MockData.getPlatformDTO("Ledger");
+        var platformEntity = MockData.getPlatform("Trezor");
 
         when(platformRepositoryMock.findByName("TREZOR")).thenReturn(Optional.of(platformEntity));
 
@@ -127,10 +121,8 @@ class PlatformServiceImplTest {
 
     @Test
     void shouldDeletePlatform() {
-        var platformEntity = Platform.builder()
-                .name("LEDGER")
-                .build();
-        var allCryptos = getAllCryptos();
+        var platformEntity = MockData.getPlatform("Ledger");
+        var allCryptos = MockData.getAllCryptos();
         var cryptoIds = allCryptos.stream()
                 .map(Crypto::getName)
                 .toList();
@@ -148,11 +140,9 @@ class PlatformServiceImplTest {
 
     @Test
     void shouldRetrieveAllCoinsForPlatform() {
-        var platformEntity = Platform.builder()
-                .name("LEDGER")
-                .build();
-        var allCryptos = getAllCryptos();
-        var balanceResponse = getCryptoBalanceResponse();
+        var platformEntity = MockData.getPlatform("Ledger");
+        var allCryptos = MockData.getAllCryptos();
+        var balanceResponse = MockData.getCryptoBalanceResponse();
 
         when(platformRepositoryMock.findByName("LEDGER")).thenReturn(Optional.of(platformEntity));
         when(cryptoRepositoryMock.findAllByPlatform(platformEntity)).thenReturn(Optional.of(allCryptos));
@@ -168,30 +158,4 @@ class PlatformServiceImplTest {
                 () -> assertEquals(platformEntity.getName(), cryptoBalanceResponse.get().getCoins().get(0).getPlatform())
         );
     }
-
-    private List<Crypto> getAllCryptos() {
-        var platform = Platform.builder()
-                .name("LEDGER")
-                .build();
-
-        return Collections.singletonList(
-                Crypto.builder()
-                        .platform(platform)
-                        .build()
-        );
-    }
-
-    private CryptoBalanceResponse getCryptoBalanceResponse() {
-        var coinInfo = new CoinInfo();
-        coinInfo.setSymbol("BTC");
-
-        var coinResponse = new CoinResponse(coinInfo, BigDecimal.valueOf(5), BigDecimal.valueOf(1000), "LEDGER");
-
-        var cryptoBalanceResponse = new CryptoBalanceResponse();
-        cryptoBalanceResponse.setTotalBalance(BigDecimal.valueOf(1000));
-        cryptoBalanceResponse.setCoins(Collections.singletonList(coinResponse));
-
-        return cryptoBalanceResponse;
-    }
-
 }

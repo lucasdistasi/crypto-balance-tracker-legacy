@@ -1,22 +1,17 @@
 package com.distasilucas.cryptobalancetracker.mapper.impl;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
-import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
-import com.distasilucas.cryptobalancetracker.model.coingecko.CurrentPrice;
-import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
+import com.distasilucas.cryptobalancetracker.MockData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -38,8 +33,8 @@ class CryptoBalanceResponseMapperImplTest {
 
     @Test
     void shouldMapSuccessfully() {
-        var cryptos = getCryptos();
-        var coinInfo = getCoinInfo();
+        var cryptos = MockData.getAllCryptos();
+        var coinInfo = MockData.getCoinInfo();
 
         when(coingeckoServiceImplMock.retrieveCoinInfo("bitcoin")).thenReturn(coinInfo);
 
@@ -52,33 +47,4 @@ class CryptoBalanceResponseMapperImplTest {
                 () -> assertEquals(expectedBalance, totalBalance)
         );
     }
-
-    private List<Crypto> getCryptos() {
-        var platform = Platform.builder()
-                .name("Ledger")
-                .build();
-
-        return Collections.singletonList(
-                Crypto.builder()
-                        .name("Bitcoin")
-                        .ticker("BTC")
-                        .coinId("bitcoin")
-                        .quantity(BigDecimal.valueOf(1))
-                        .platform(platform)
-                        .build()
-        );
-    }
-
-    private CoinInfo getCoinInfo() {
-        var currentPrice = new CurrentPrice(BigDecimal.valueOf(21_500));
-        var marketData = new MarketData(currentPrice);
-        var coinInfo = new CoinInfo();
-        coinInfo.setId("bitcoin");
-        coinInfo.setName("bitcoin");
-        coinInfo.setSymbol("btc");
-        coinInfo.setMarketData(marketData);
-
-        return coinInfo;
-    }
-
 }

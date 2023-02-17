@@ -3,14 +3,11 @@ package com.distasilucas.cryptobalancetracker.service.impl;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
-import com.distasilucas.cryptobalancetracker.model.coingecko.CurrentPrice;
-import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
-import com.distasilucas.cryptobalancetracker.model.response.CoinResponse;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
+import com.distasilucas.cryptobalancetracker.MockData;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -88,20 +85,20 @@ class CryptoServiceImplTest {
 
     @Test
     void shouldRetrieveCryptoBalances() {
-        var coinInfo = getCoinInfo();
-        var cryptos = getCryptos();
-        var balanceResponse = getCryptoBalanceResponse();
+        var coinInfo = MockData.getCoinInfo();
+        var cryptos = MockData.getAllCryptos();
+        var balanceResponse = MockData.getCryptoBalanceResponse();
         var firstCoin = balanceResponse.getCoins().get(0);
 
         when(cryptoRepositoryMock.findAll()).thenReturn(cryptos);
         when(cryptoBalanceResponseMapperImplMock.mapFrom(cryptos)).thenReturn(balanceResponse);
 
         var cryptoBalanceResponse = cryptoService.retrieveCoinsBalances();
-        var expectedBalance = getTotalMoney(Collections.singletonList(firstCoin));
+        var expectedBalance = MockData.getTotalMoney(Collections.singletonList(firstCoin));
 
         assertAll(
                 () -> assertEquals(expectedBalance, cryptoBalanceResponse.getTotalBalance()),
-                () -> assertEquals(BigDecimal.valueOf(1), firstCoin.getQuantity()),
+                () -> assertEquals(BigDecimal.valueOf(5), firstCoin.getQuantity()),
                 () -> assertEquals(100, firstCoin.getPercentage()),
                 () -> assertEquals(coinInfo, firstCoin.getCoinInfo())
         );
@@ -184,47 +181,5 @@ class CryptoServiceImplTest {
         assertAll(
                 () -> assertEquals(String.format(COIN_NAME_NOT_FOUND, "Shiba"), coinNotFoundException.getErrorMessage())
         );
-    }
-
-    private List<Crypto> getCryptos() {
-        var crypto = Crypto.builder()
-                .ticker("btc")
-                .name("Bitcoin")
-                .coinId("bitcoin")
-                .quantity(BigDecimal.valueOf(1.15))
-                .build();
-
-        return Collections.singletonList(crypto);
-    }
-
-    private CryptoBalanceResponse getCryptoBalanceResponse() {
-        var coinInfo = getCoinInfo();
-        var coinResponse = new CoinResponse(coinInfo, BigDecimal.valueOf(1), BigDecimal.valueOf(1000), "Binance");
-        coinResponse.setPercentage(100);
-
-        var coins = Collections.singletonList(coinResponse);
-        var cryptoBalanceResponse = new CryptoBalanceResponse();
-        cryptoBalanceResponse.setTotalBalance(BigDecimal.valueOf(1000));
-        cryptoBalanceResponse.setCoins(coins);
-
-        return cryptoBalanceResponse;
-    }
-
-    private CoinInfo getCoinInfo() {
-        var currentPrice = new CurrentPrice(BigDecimal.valueOf(150000));
-        var marketData = new MarketData(currentPrice);
-        var coinInfo = new CoinInfo();
-        coinInfo.setMarketData(marketData);
-        coinInfo.setSymbol("btc");
-        coinInfo.setName("Bitcoin");
-        coinInfo.setId("bitcoin");
-
-        return coinInfo;
-    }
-
-    private static BigDecimal getTotalMoney(List<CoinResponse> coinsResponse) {
-        return coinsResponse.stream()
-                .map(CoinResponse::getBalance)
-                .reduce(BigDecimal.valueOf(0), BigDecimal::add);
     }
 }
