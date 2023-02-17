@@ -4,19 +4,17 @@ import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
+import com.distasilucas.cryptobalancetracker.MockData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
 import java.util.Collections;
-import java.util.List;
 
 import static com.distasilucas.cryptobalancetracker.constant.Constants.COIN_NAME_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -42,14 +40,15 @@ class CryptoMapperImplTest {
 
     @Test
     void shouldMapSuccessfully() {
-        var cryptoDTO = getCryptoDTO();
+        var cryptoDTO = MockData.getCryptoDTO();
         var platformName = cryptoDTO.platform();
         var platform = Platform.builder()
                 .name(platformName)
                 .build();
+        var allCoins = MockData.getAllCoins();
 
         when(platformServiceMock.findPlatform(platformName)).thenReturn(platform);
-        when(coingeckoServiceMock.retrieveAllCoins()).thenReturn(getAllCoins());
+        when(coingeckoServiceMock.retrieveAllCoins()).thenReturn(allCoins);
 
         var crypto = entityMapper.mapFrom(cryptoDTO);
 
@@ -64,11 +63,9 @@ class CryptoMapperImplTest {
 
     @Test
     void shouldThrowExceptionWhenMappingNonExistentCoin() {
-        var cryptoDTO = getCryptoDTO();
+        var cryptoDTO = MockData.getCryptoDTO();
         var platformName = cryptoDTO.platform();
-        var platform = Platform.builder()
-                .name(platformName)
-                .build();
+        var platform = MockData.getPlatform(platformName);
 
         when(platformServiceMock.findPlatform(platformName)).thenReturn(platform);
         when(coingeckoServiceMock.retrieveAllCoins()).thenReturn(Collections.emptyList());
@@ -80,24 +77,4 @@ class CryptoMapperImplTest {
 
         assertEquals(expectedMessage, coinNotFoundException.getErrorMessage());
     }
-
-    private static CryptoDTO getCryptoDTO() {
-        return CryptoDTO.builder()
-                .coin_name("Ethereum")
-                .coinId("ethereum")
-                .ticker("ETH")
-                .platform("Ledger")
-                .quantity(BigDecimal.valueOf(1))
-                .build();
-    }
-
-    private List<Coin> getAllCoins() {
-        var coin = new Coin();
-        coin.setId("ethereum");
-        coin.setSymbol("ETH");
-        coin.setName("Ethereum");
-
-        return Collections.singletonList(coin);
-    }
-
 }

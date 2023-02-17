@@ -1,9 +1,6 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
-import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
-import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
-import com.distasilucas.cryptobalancetracker.model.response.CoinResponse;
-import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
+import com.distasilucas.cryptobalancetracker.MockData;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,8 +9,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
-import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -32,6 +27,8 @@ class PlatformControllerTest {
 
     PlatformController platformController;
 
+    private static final String PLATFORM_NAME = "Trezor";
+
     @BeforeEach
     void setUp() {
         platformController = new PlatformController(platformServiceMock);
@@ -39,8 +36,8 @@ class PlatformControllerTest {
 
     @Test
     void shouldRetrieveAllCoinsForPlatform() {
-        var platformName = "Trezor";
-        var cryptoBalanceResponse = getCryptoBalanceResponse();
+        var platformName = PLATFORM_NAME;
+        var cryptoBalanceResponse = MockData.getCryptoBalanceResponse();
 
         when(platformServiceMock.getAllCoins(platformName)).thenReturn(Optional.of(cryptoBalanceResponse));
 
@@ -54,7 +51,7 @@ class PlatformControllerTest {
 
     @Test
     void shouldReturnNoContentWhenRetrievingAllCoinsForPlatform() {
-        var platformName = "Trezor";
+        var platformName = PLATFORM_NAME;
 
         when(platformServiceMock.getAllCoins(platformName)).thenReturn(Optional.empty());
 
@@ -68,39 +65,37 @@ class PlatformControllerTest {
 
     @Test
     void shouldAddPlatform() {
-        var platformDTO = new PlatformDTO("LEDGER");
-        var addedPlatform = new PlatformDTO("LEDGER");
+        var platformDTO = MockData.getPlatformDTO("LEDGER");
 
-        when(platformServiceMock.addPlatForm(platformDTO)).thenReturn(addedPlatform);
+        when(platformServiceMock.addPlatForm(platformDTO)).thenReturn(platformDTO);
 
        var responseEntity = platformController.addPlatform(platformDTO);
 
        assertNotNull(responseEntity.getBody());
        assertAll(
-               () -> assertEquals(addedPlatform.getName(), responseEntity.getBody().getName()),
+               () -> assertEquals(platformDTO.getName(), responseEntity.getBody().getName()),
                () -> assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode())
        );
     }
 
     @Test
     void shouldUpdatePlatform() {
-        var platformDTO = new PlatformDTO("LEDGER");
-        var updatedPlatform = new PlatformDTO("LEDGER");
+        var platformDTO = MockData.getPlatformDTO("LEDGER");
 
-        when(platformServiceMock.updatePlatform(platformDTO, "Trezor")).thenReturn(updatedPlatform);
+        when(platformServiceMock.updatePlatform(platformDTO, PLATFORM_NAME)).thenReturn(platformDTO);
 
-        var responseEntity = platformController.updatePlatform("Trezor", platformDTO);
+        var responseEntity = platformController.updatePlatform(PLATFORM_NAME, platformDTO);
 
         assertNotNull(responseEntity.getBody());
         assertAll(
-                () -> assertEquals(updatedPlatform.getName(), responseEntity.getBody().getName()),
+                () -> assertEquals(platformDTO.getName(), responseEntity.getBody().getName()),
                 () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode())
         );
     }
 
     @Test
     void shouldDeletePlatform() {
-        var platformName = "Trezor";
+        var platformName = PLATFORM_NAME;
 
         doNothing().when(platformServiceMock).deletePlatform(platformName);
 
@@ -110,18 +105,5 @@ class PlatformControllerTest {
         assertAll(
                 () -> assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode())
         );
-    }
-
-    private CryptoBalanceResponse getCryptoBalanceResponse() {
-        var coinInfo = new CoinInfo();
-        coinInfo.setSymbol("BTC");
-
-        var coinResponse = new CoinResponse(coinInfo, BigDecimal.valueOf(5), BigDecimal.valueOf(1000), "LEDGER");
-
-        var cryptoBalanceResponse = new CryptoBalanceResponse();
-        cryptoBalanceResponse.setTotalBalance(BigDecimal.valueOf(1000));
-        cryptoBalanceResponse.setCoins(Collections.singletonList(coinResponse));
-
-        return cryptoBalanceResponse;
     }
 }

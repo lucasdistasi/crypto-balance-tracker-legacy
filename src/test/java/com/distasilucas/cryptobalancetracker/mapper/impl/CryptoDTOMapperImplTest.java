@@ -1,14 +1,12 @@
 package com.distasilucas.cryptobalancetracker.mapper.impl;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
-import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
+import com.distasilucas.cryptobalancetracker.MockData;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,16 +18,8 @@ class CryptoDTOMapperImplTest {
 
     @Test
     void shouldMapSuccessfully() {
-        var platform = Platform.builder()
-                .name("Ledger")
-                .build();
-        var crypto = Crypto.builder()
-                .name("Bitcoin")
-                .ticker("BTC")
-                .platform(platform)
-                .quantity(BigDecimal.valueOf(1))
-                .coinId("bitcoin")
-                .build();
+        var platform = MockData.getPlatform("Ledger");
+        var crypto = MockData.getCrypto(platform);
 
         var cryptoDTO = cryptoDTOMapperImpl.mapFrom(crypto);
 
