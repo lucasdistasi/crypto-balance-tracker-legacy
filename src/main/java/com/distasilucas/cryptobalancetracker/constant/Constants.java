@@ -8,6 +8,17 @@ import java.math.BigDecimal;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Constants {
 
+    public static final String APPLICATION_JSON = "application/json";
+    public static final String OK_CODE = "200";
+    public static final String RESOURCE_CREATED_CODE = "201";
+    public static final String NO_CONTENT_CODE = "204";
+    public static final String BAD_REQUEST_CODE = "400";
+    public static final String NOT_FOUND_CODE = "404";
+    public static final String INTERNAL_SERVER_ERROR_CODE = "500";
+    public static final String INVALID_DATA = "Invalid data";
+    public static final String INTERNAL_SERVER_ERROR = "Internal Server Error";
+    public static final String PLATFORM_NOT_FOUND_DESCRIPTION = "Platform not found";
+    public static final String CRYPTO_NOT_FOUND_DESCRIPTION = "Crypto not found";
     public static final int QUANTITY_FRACTIONAL_MAX_LENGTH = 12;
     public static final int QUANTITY_WHOLE_MAX_LENGTH = 28;
     public static final BigDecimal MAX_CRYPTO_QUANTITY = BigDecimal.valueOf(9999999999999999.999999999999);
