@@ -12,23 +12,40 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Optional;
 
+import static com.distasilucas.cryptobalancetracker.constant.Constants.APPLICATION_JSON;
+import static com.distasilucas.cryptobalancetracker.constant.Constants.BAD_REQUEST_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.Constants.INTERNAL_SERVER_ERROR;
+import static com.distasilucas.cryptobalancetracker.constant.Constants.INTERNAL_SERVER_ERROR_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.Constants.INVALID_DATA;
+import static com.distasilucas.cryptobalancetracker.constant.Constants.NOT_FOUND_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.Constants.NO_CONTENT_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.Constants.OK_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.Constants.PLATFORM_NOT_FOUND_DESCRIPTION;
+import static com.distasilucas.cryptobalancetracker.constant.Constants.RESOURCE_CREATED_CODE;
+
 public interface PlatformControllerApi {
 
     @Operation(summary = "Retrieve all coins for the given platform")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Platform coins",
+            @ApiResponse(responseCode = OK_CODE, description = "Platform coins",
                     content = {
-                            @Content(mediaType = "application/json",
+                            @Content(mediaType = APPLICATION_JSON,
                                     schema = @Schema(implementation = PlatformDTO.class))
                     }),
-            @ApiResponse(responseCode = "400", description = "Invalid data",
+            @ApiResponse(responseCode = NO_CONTENT_CODE, description = "No coins saved for the given platform"),
+            @ApiResponse(responseCode = BAD_REQUEST_CODE, description = INVALID_DATA,
                     content = {
-                            @Content(mediaType = "application/json",
+                            @Content(mediaType = APPLICATION_JSON,
                                     schema = @Schema(implementation = ErrorResponse.class))
                     }),
-            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+            @ApiResponse(responseCode = NOT_FOUND_CODE, description = PLATFORM_NOT_FOUND_DESCRIPTION,
                     content = {
-                            @Content(mediaType = "application/json",
+                            @Content(mediaType = APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    }),
+            @ApiResponse(responseCode = INTERNAL_SERVER_ERROR_CODE, description = INTERNAL_SERVER_ERROR,
+                    content = {
+                            @Content(mediaType = APPLICATION_JSON,
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
@@ -36,19 +53,19 @@ public interface PlatformControllerApi {
 
     @Operation(summary = "Add Platform")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Added Platform",
+            @ApiResponse(responseCode = RESOURCE_CREATED_CODE, description = "Added Platform",
                     content = {
-                            @Content(mediaType = "application/json",
+                            @Content(mediaType = APPLICATION_JSON,
                                     schema = @Schema(implementation = PlatformDTO.class))
                     }),
-            @ApiResponse(responseCode = "400", description = "Invalid data",
+            @ApiResponse(responseCode = BAD_REQUEST_CODE, description = INVALID_DATA,
                     content = {
-                            @Content(mediaType = "application/json",
+                            @Content(mediaType = APPLICATION_JSON,
                                     schema = @Schema(implementation = ErrorResponse.class))
                     }),
-            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+            @ApiResponse(responseCode = INTERNAL_SERVER_ERROR_CODE, description = INTERNAL_SERVER_ERROR,
                     content = {
-                            @Content(mediaType = "application/json",
+                            @Content(mediaType = APPLICATION_JSON,
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
@@ -56,19 +73,24 @@ public interface PlatformControllerApi {
 
     @Operation(summary = "Update Platform. This will also modify the platform name for those cryptos stored in the specified platform")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Updated Platform Name",
+            @ApiResponse(responseCode = OK_CODE, description = "Updated Platform Name",
                     content = {
-                            @Content(mediaType = "application/json",
+                            @Content(mediaType = APPLICATION_JSON,
                                     schema = @Schema(implementation = PlatformDTO.class))
                     }),
-            @ApiResponse(responseCode = "400", description = "Invalid data",
+            @ApiResponse(responseCode = BAD_REQUEST_CODE, description = INVALID_DATA,
                     content = {
-                            @Content(mediaType = "application/json",
+                            @Content(mediaType = APPLICATION_JSON,
                                     schema = @Schema(implementation = ErrorResponse.class))
                     }),
-            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+            @ApiResponse(responseCode = NOT_FOUND_CODE, description = PLATFORM_NOT_FOUND_DESCRIPTION,
                     content = {
-                            @Content(mediaType = "application/json",
+                            @Content(mediaType = APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    }),
+            @ApiResponse(responseCode = INTERNAL_SERVER_ERROR_CODE, description = INTERNAL_SERVER_ERROR,
+                    content = {
+                            @Content(mediaType = APPLICATION_JSON,
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
@@ -76,15 +98,20 @@ public interface PlatformControllerApi {
 
     @Operation(summary = "Delete Platform. This will also delete all cryptos in the specified platform")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Deleted Platform"),
-            @ApiResponse(responseCode = "400", description = "Invalid data",
+            @ApiResponse(responseCode = NO_CONTENT_CODE, description = "Deleted Platform"),
+            @ApiResponse(responseCode = BAD_REQUEST_CODE, description = INVALID_DATA,
                     content = {
-                            @Content(mediaType = "application/json",
+                            @Content(mediaType = APPLICATION_JSON,
                                     schema = @Schema(implementation = ErrorResponse.class))
                     }),
-            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+            @ApiResponse(responseCode = NOT_FOUND_CODE, description = PLATFORM_NOT_FOUND_DESCRIPTION,
                     content = {
-                            @Content(mediaType = "application/json",
+                            @Content(mediaType = APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    }),
+            @ApiResponse(responseCode = INTERNAL_SERVER_ERROR_CODE, description = INTERNAL_SERVER_ERROR,
+                    content = {
+                            @Content(mediaType = APPLICATION_JSON,
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
