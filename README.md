@@ -18,47 +18,29 @@ Feel free to star, fork or study from the code :).
 - Java 17
 - Spring 6 & Spring Boot 3
   - Spring WebFlux
-  - JPA - Hibernate
+  - Hibernate
   - OpenAPI
 - Ehcache
-- MariaDB
+- MongoDB
 - Lombok
 - JUnit 5 - Mockito
 
 You can access to Swagger Docs after starting the application and going to the following URL
 > http://localhost:8080/swagger-ui/index.html
 
+Anyways, I'll add most of the docs here so you can take a look at what can you do without lookint at the code or downloading the project.
+
 ### I want to try this API on my local machine. What should I do?
 
 ---
 
-1. You must have **MariaDB** installed in your machine.
+1. You must have **MongoDB** installed in your machine.
 2. Download the project.
-3. Create the database with the tables. You can use a custom database name if you want.
-~~~~mariadb
-CREATE DATABASE crypto_db;
-
-CREATE TABLE platforms
-(
-  platform_id   VARCHAR(255) NOT NULL PRIMARY KEY,
-  name VARCHAR(24)  NOT NULL,
-  UNIQUE (name)
-);
-
-CREATE TABLE cryptos
-(
-  name     VARCHAR(255)    NOT NULL PRIMARY KEY,
-  coin_id  VARCHAR(255)    NOT NULL,
-  quantity DECIMAL(28, 12) NOT NULL,
-  ticker   VARCHAR(255)    NOT NULL,
-  platform_id VARCHAR(255)    NULL,
-  FOREIGN KEY (platform_id) REFERENCES platforms (platform_id)
-);
-~~~~
+3. Create the database. You can use a custom database name if you want.
 4. Once you downloaded the project, you need to set up some environment variables.
-   1. _MARIADB_CRYPTO_DATABASE_. The database name. 
-   2. _MARIADB_USERNAME_. The username of your database.
-   3. _MARIADB_PASSWORD_. The password of your user.
+   1. _MONGODB_DATABASE_. The database name. 
+   2. _MONGODB_USERNAME_. The username of your database.
+   3. _MONGODB_PASSWORD_. The password of your user.
 5. Start the program in your favourite IDE or run the following command from the CLI.
 >./gradlew bootRun
 
