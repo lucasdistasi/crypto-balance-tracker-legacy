@@ -3,6 +3,8 @@
 Crypto Balance Tracker it's a Java-Spring application that works like a portfolio where you can track, monitor your assets and retrieve data like the percentage owned of each coin, the amount of money, the price of each coin, etc.
 Crypto Balance Tracker makes use of [Coingecko](https://www.coingecko.com/) API in order to retrieve all information about the coins.
 <br>
+Please bear in mind that Coingecko has a [rate limit for the Free Plan](https://www.coingecko.com/en/api/pricing). 
+<br>
 I might add new features in the future alongside with a front-end application in order to display all the data with graphics.
 <br>
 Feel free to star, fork or study from the code :).
@@ -28,7 +30,18 @@ Feel free to star, fork or study from the code :).
 You can access to Swagger Docs after starting the application and going to the following URL
 > http://localhost:8080/swagger-ui/index.html
 
-Anyways, I'll add most of the docs here so you can take a look at what can you do without lookint at the code or downloading the project.
+### What can I do with Crypto Balance Tracker?
+
+---
+
+- Add a Platform
+- Edit a Platform
+- Remove a Platform
+- Retrieve all coins from the given Platform
+- Update a Platform coin
+- Delete a platform coin
+- Add a coin
+- Retrieve all coins balance
 
 ### I want to try this API on my local machine. What should I do?
 
