@@ -16,7 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -94,12 +93,34 @@ class PlatformControllerTest {
     }
 
     @Test
+    void shouldUpdatePlatformCoin() {
+        var cryptoDTO = MockData.getCryptoDTO();
+
+        when(platformServiceMock.updatePlatformCoin(cryptoDTO, "Safepal", "bitcoin")).thenReturn(cryptoDTO);
+
+        var responseEntity = platformController.updatePlatformCoin(cryptoDTO, "Safepal", "bitcoin");
+
+        assertNotNull(responseEntity.getBody());
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
+                () -> assertEquals(cryptoDTO.platform(), responseEntity.getBody().platform()),
+                () -> assertEquals(cryptoDTO.coinId(), responseEntity.getBody().coinId())
+        );
+    }
+
+    @Test
     void shouldDeletePlatform() {
-        var platformName = PLATFORM_NAME;
+        var responseEntity = platformController.deletePlatform(PLATFORM_NAME);
 
-        doNothing().when(platformServiceMock).deletePlatform(platformName);
+        assertNull(responseEntity.getBody());
+        assertAll(
+                () -> assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode())
+        );
+    }
 
-        var responseEntity = platformController.deletePlatform(platformName);
+    @Test
+    void shouldDeletePlatformCoin() {
+        var responseEntity = platformController.deletePlatformCoin(PLATFORM_NAME, "bitcoin");
 
         assertNull(responseEntity.getBody());
         assertAll(

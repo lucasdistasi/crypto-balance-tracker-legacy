@@ -10,7 +10,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.math.BigDecimal;
 
 import static com.distasilucas.cryptobalancetracker.constant.Constants.INVALID_CRYPTO_QUANTITY;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class QuantityValueValidatorTest {
 
@@ -20,22 +22,14 @@ class QuantityValueValidatorTest {
     void shouldValidateQuantitySuccessfully() {
         var cryptoDTO = getCryptoDTO(BigDecimal.valueOf(123.456));
 
-        try {
-            entityValidation.validate(cryptoDTO);
-        } catch (Exception ex) {
-            fail("Should not fail");
-        }
+        entityValidation.validate(cryptoDTO);
     }
 
     @Test
     void shouldValidateQuantitySuccessfullyWithoutDecimals() {
         var cryptoDTO = getCryptoDTO(BigDecimal.valueOf(123));
 
-        try {
-            entityValidation.validate(cryptoDTO);
-        } catch (Exception ex) {
-            fail("Should not fail");
-        }
+        entityValidation.validate(cryptoDTO);
     }
 
     @Test

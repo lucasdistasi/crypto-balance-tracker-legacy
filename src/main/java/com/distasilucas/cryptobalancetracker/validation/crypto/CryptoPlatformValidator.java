@@ -16,6 +16,7 @@ import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.constant.Constants.DUPLICATED_PLATFORM_COIN;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.PLATFORM_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.constant.Constants.PLATFORM_NOT_FOUND_DESCRIPTION;
 
 @Slf4j
 @Service
@@ -33,7 +34,7 @@ public class CryptoPlatformValidator implements EntityValidation<CryptoDTO> {
         if (optionalPlatform.isEmpty()) {
             log.info("Platform with id {} does not exists", cryptoDTO.platform());
 
-            throw new PlatformNotFoundException("Platform not found");
+            throw new PlatformNotFoundException(PLATFORM_NOT_FOUND_DESCRIPTION);
         }
 
         Platform platform = optionalPlatform.get();

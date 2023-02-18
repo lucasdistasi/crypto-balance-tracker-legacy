@@ -2,6 +2,7 @@ package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
 import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformCoinException;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
@@ -15,7 +16,9 @@ import org.springframework.mock.http.client.MockClientHttpResponse;
 import java.io.IOException;
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ExceptionControllerTest {
 
@@ -131,6 +134,19 @@ class ExceptionControllerTest {
                     () -> assertEquals(invalidFormatException.getOriginalMessage(), responseEntityBody.getErrors().get(0).errorMessage())
             );
         }
+    }
+
+    @Test
+    void shouldHandleDuplicatedPlatformCoinException() {
+        var duplicatedPlatformCoinException = new DuplicatedPlatformCoinException("Duplicated platform");
+        var responseEntity = exceptionController.handleDuplicatedPlatformCoinException(duplicatedPlatformCoinException);
+
+        assertNotNull(responseEntity.getBody());
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode()),
+                () -> assertEquals(1, responseEntity.getBody().getErrors().size()),
+                () -> assertEquals(duplicatedPlatformCoinException.getErrorMessage(), responseEntity.getBody().getErrors().get(0).errorMessage())
+        );
     }
 
     @Test

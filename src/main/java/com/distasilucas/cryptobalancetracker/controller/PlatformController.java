@@ -1,6 +1,7 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.controller.swagger.PlatformControllerApi;
+import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
@@ -54,9 +55,28 @@ public class PlatformController implements PlatformControllerApi {
     }
 
     @Override
+    @PutMapping("/{platformName}/{coinId}")
+    public ResponseEntity<CryptoDTO> updatePlatformCoin(@RequestBody CryptoDTO cryptoDTO,
+                                                        @PathVariable String platformName,
+                                                        @PathVariable String coinId) {
+        CryptoDTO updatedCrypto = platformService.updatePlatformCoin(cryptoDTO, platformName, coinId);
+
+        return ResponseEntity.ok(updatedCrypto);
+    }
+
+    @Override
     @DeleteMapping("/{platformName}")
     public ResponseEntity<Void> deletePlatform(@PathVariable String platformName) {
         platformService.deletePlatform(platformName);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    @DeleteMapping("/{platformName}/{coinId}")
+    public ResponseEntity<Void> deletePlatformCoin(@PathVariable String platformName,
+                                                   @PathVariable String coinId) {
+        platformService.deletePlatformCoin(platformName, coinId);
 
         return ResponseEntity.noContent().build();
     }

@@ -48,15 +48,12 @@ class CryptoServiceImplTest {
     @Mock
     Validation<CryptoDTO> addCryptoValidationMock;
 
-    @Mock
-    Validation<CryptoDTO> updateCryptoValidationMock;
-
     CryptoService<CryptoDTO> cryptoService;
 
     @BeforeEach
     void setUp() {
         cryptoService = new CryptoServiceImpl(cryptoMapperImplMock, cryptoDTOMapperImplMock, cryptoBalanceResponseMapperImplMock,
-                cryptoRepositoryMock, addCryptoValidationMock, updateCryptoValidationMock);
+                cryptoRepositoryMock, addCryptoValidationMock);
     }
 
     @Test
@@ -112,74 +109,6 @@ class CryptoServiceImplTest {
 
         assertAll(
                 () -> assertNull(cryptoBalanceResponses)
-        );
-    }
-
-    @Test
-    void shouldUpdateCoin() {
-        var cryptoDTO = CryptoDTO.builder()
-                .coin_name("Bitcoin")
-                .quantity(BigDecimal.valueOf(2))
-                .build();
-        var crypto = Crypto.builder()
-                .name("Bitcoin")
-                .quantity(BigDecimal.valueOf(1))
-                .build();
-
-        doNothing().when(updateCryptoValidationMock).validate(cryptoDTO);
-        when(cryptoRepositoryMock.findByName(cryptoDTO.coin_name())).thenReturn(Optional.of(crypto));
-        when(cryptoDTOMapperImplMock.mapFrom(crypto)).thenReturn(cryptoDTO);
-
-        var updatedCrypto = cryptoService.updateCoin(cryptoDTO, "Bitcoin");
-
-        assertAll(
-                () -> assertEquals(cryptoDTO.quantity(), updatedCrypto.quantity()),
-                () -> verify(cryptoRepositoryMock, times(1)).save(crypto)
-        );
-
-    }
-
-    @Test
-    void shouldThrowCoinNotFoundExceptionWhenUpdatingNonExistentCoin() {
-        var cryptoDTO = CryptoDTO.builder()
-                .coin_name("Dogecoin")
-                .build();
-
-        doNothing().when(updateCryptoValidationMock).validate(cryptoDTO);
-        when(cryptoRepositoryMock.findByName(cryptoDTO.coin_name())).thenReturn(Optional.empty());
-
-        var coinNotFoundException = assertThrows(
-                CoinNotFoundException.class,
-                () -> cryptoService.updateCoin(cryptoDTO, "Dogecoin")
-        );
-
-        var expectedMessage = String.format(COIN_NAME_NOT_FOUND, cryptoDTO.coin_name());
-        assertAll(
-                () -> assertEquals(coinNotFoundException.getErrorMessage(), expectedMessage)
-        );
-    }
-
-    @Test
-    void shouldDeleteCoin() {
-        var cryptoEntity = Crypto.builder()
-                .name("Shiba")
-                .build();
-
-        when(cryptoRepositoryMock.findByName("Shiba")).thenReturn(Optional.of(cryptoEntity));
-
-        cryptoService.deleteCoin("Shiba");
-
-        verify(cryptoRepositoryMock, times(1)).delete(cryptoEntity);
-    }
-
-    @Test
-    void shouldThrowCoinNotFoundExceptionWhenDeleting() {
-        when(cryptoRepositoryMock.findByName("Shiba")).thenReturn(Optional.empty());
-
-        var coinNotFoundException = assertThrows(CoinNotFoundException.class, () -> cryptoService.deleteCoin("Shiba"));
-
-        assertAll(
-                () -> assertEquals(String.format(COIN_NAME_NOT_FOUND, "Shiba"), coinNotFoundException.getErrorMessage())
         );
     }
 }
