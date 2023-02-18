@@ -52,18 +52,15 @@ public class MockData {
     }
 
     public static List<Crypto> getAllCryptos() {
-        var platform = Platform.builder()
-                .name("LEDGER")
-                .build();
-        var crypto = Crypto.builder()
-                .ticker("btc")
-                .name("Bitcoin")
-                .coinId("bitcoin")
-                .quantity(BigDecimal.valueOf(1.15))
-                .platform(platform)
-                .build();
-
-        return Collections.singletonList(crypto);
+        return Collections.singletonList(
+                Crypto.builder()
+                        .ticker("btc")
+                        .name("Bitcoin")
+                        .coinId("bitcoin")
+                        .quantity(BigDecimal.valueOf(1.15))
+                        .platformId("1234")
+                        .build()
+        );
     }
 
     public static BigDecimal getTotalMoney(List<CoinResponse> coinsResponse) {
@@ -77,7 +74,10 @@ public class MockData {
     }
 
     public static Platform getPlatform(String platformName) {
-        return new Platform(platformName);
+        return Platform.builder()
+                .id("1234")
+                .name(platformName)
+                .build();
     }
 
     public static List<Coin> getAllCoins() {
@@ -99,11 +99,11 @@ public class MockData {
                 .build();
     }
 
-    public static Crypto getCrypto(Platform platform) {
+    public static Crypto getCrypto(String platformId) {
         return Crypto.builder()
                 .name("Bitcoin")
                 .ticker("BTC")
-                .platform(platform)
+                .platformId(platformId)
                 .quantity(BigDecimal.valueOf(1))
                 .coinId("bitcoin")
                 .build();

@@ -43,11 +43,12 @@ class CryptoMapperImplTest {
         var cryptoDTO = MockData.getCryptoDTO();
         var platformName = cryptoDTO.platform();
         var platform = Platform.builder()
+                .id("1234")
                 .name(platformName)
                 .build();
         var allCoins = MockData.getAllCoins();
 
-        when(platformServiceMock.findPlatform(platformName)).thenReturn(platform);
+        when(platformServiceMock.findPlatformByName(platformName)).thenReturn(platform);
         when(coingeckoServiceMock.retrieveAllCoins()).thenReturn(allCoins);
 
         var crypto = entityMapper.mapFrom(cryptoDTO);
@@ -56,8 +57,8 @@ class CryptoMapperImplTest {
                 () -> assertEquals(cryptoDTO.coin_name(), crypto.getName()),
                 () -> assertEquals(cryptoDTO.coinId(), crypto.getCoinId()),
                 () -> assertEquals(cryptoDTO.ticker(), crypto.getTicker()),
-                () -> assertEquals(cryptoDTO.platform(), crypto.getPlatform().getName()),
-                () -> assertEquals(cryptoDTO.quantity(), crypto.getQuantity())
+                () -> assertEquals(cryptoDTO.quantity(), crypto.getQuantity()),
+                () -> assertEquals(platform.getId(), crypto.getPlatformId())
         );
     }
 
@@ -67,7 +68,7 @@ class CryptoMapperImplTest {
         var platformName = cryptoDTO.platform();
         var platform = MockData.getPlatform(platformName);
 
-        when(platformServiceMock.findPlatform(platformName)).thenReturn(platform);
+        when(platformServiceMock.findPlatformByName(platformName)).thenReturn(platform);
         when(coingeckoServiceMock.retrieveAllCoins()).thenReturn(Collections.emptyList());
 
         CoinNotFoundException coinNotFoundException = assertThrows(CoinNotFoundException.class,

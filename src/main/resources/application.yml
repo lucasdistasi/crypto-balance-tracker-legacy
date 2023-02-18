@@ -1,9 +1,8 @@
 spring:
-  datasource:
-    url: jdbc:mariadb://localhost:3306/${MARIADB_CRYPTO_DATABASE}
-    username: ${MARIADB_USERNAME}
-    password: ${MARIADB_PASSWORD}
-    driver-class-name: org.mariadb.jdbc.Driver
+  data:
+    mongodb:
+      uri: mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@localhost:27017
+      database: ${MONGODB_DATABASE}
 
 coingecko:
   url: "https://api.coingecko.com/api/v3"

@@ -1,16 +1,23 @@
 package com.distasilucas.cryptobalancetracker.mapper.impl;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
+import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class CryptoDTOMapperImpl implements EntityMapper<CryptoDTO, Crypto> {
+
+    private final PlatformRepository platformRepository;
 
     @Override
     public CryptoDTO mapFrom(Crypto input) {
@@ -20,10 +27,13 @@ public class CryptoDTOMapperImpl implements EntityMapper<CryptoDTO, Crypto> {
     }
 
     private CryptoDTO getCryptoDTO(Crypto crypto) {
+        Optional<Platform> platform = platformRepository.findById(crypto.getPlatformId());
+        String platformName = platform.isPresent() ? platform.get().getName() : "Unknown";
+
         return CryptoDTO.builder()
                 .coin_name(crypto.getName())
                 .quantity(crypto.getQuantity())
-                .platform(crypto.getPlatform().getName())
+                .platform(platformName)
                 .ticker(crypto.getTicker())
                 .coinId(crypto.getCoinId())
                 .build();

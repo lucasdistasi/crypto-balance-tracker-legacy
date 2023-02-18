@@ -87,7 +87,7 @@ class PlatformServiceImplTest {
 
         when(platformRepositoryMock.findByName(platformName)).thenReturn(Optional.of(platform));
 
-        var platformEntity = platformService.findPlatform(platformName);
+        var platformEntity = platformService.findPlatformByName(platformName);
 
         assertEquals(platformName, platformEntity.getName());
     }
@@ -99,7 +99,7 @@ class PlatformServiceImplTest {
 
         when(platformRepositoryMock.findByName(platformName)).thenReturn(Optional.empty());
 
-        var platformNotFoundException = assertThrows(PlatformNotFoundException.class, () -> platformService.findPlatform(platformName));
+        var platformNotFoundException = assertThrows(PlatformNotFoundException.class, () -> platformService.findPlatformByName(platformName));
 
         assertEquals(message, platformNotFoundException.getErrorMessage());
     }
@@ -128,7 +128,7 @@ class PlatformServiceImplTest {
                 .toList();
 
         when(platformRepositoryMock.findByName("LEDGER")).thenReturn(Optional.of(platformEntity));
-        when(cryptoRepositoryMock.findAllByPlatform(platformEntity)).thenReturn(Optional.of(allCryptos));
+        when(cryptoRepositoryMock.findAllByPlatformId("1234")).thenReturn(Optional.of(allCryptos));
 
         platformService.deletePlatform("Ledger");
 
@@ -140,12 +140,12 @@ class PlatformServiceImplTest {
 
     @Test
     void shouldRetrieveAllCoinsForPlatform() {
-        var platformEntity = MockData.getPlatform("Ledger");
+        var platformEntity = MockData.getPlatform("LEDGER");
         var allCryptos = MockData.getAllCryptos();
         var balanceResponse = MockData.getCryptoBalanceResponse();
 
         when(platformRepositoryMock.findByName("LEDGER")).thenReturn(Optional.of(platformEntity));
-        when(cryptoRepositoryMock.findAllByPlatform(platformEntity)).thenReturn(Optional.of(allCryptos));
+        when(cryptoRepositoryMock.findAllByPlatformId("1234")).thenReturn(Optional.of(allCryptos));
         when(cryptoBalanceResponseMapperImplMock.mapFrom(allCryptos)).thenReturn(balanceResponse);
 
         var cryptoBalanceResponse = platformService.getAllCoins("Ledger");

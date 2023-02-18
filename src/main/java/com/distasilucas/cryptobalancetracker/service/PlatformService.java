@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface PlatformService {
 
     PlatformDTO addPlatForm(PlatformDTO platform);
-    Platform findPlatform(String platformName);
+    Platform findPlatformByName(String platformName);
     PlatformDTO updatePlatform(PlatformDTO platformDTO, String platformName);
     void deletePlatform(String platformName);
     Optional<CryptoBalanceResponse> getAllCoins(String platformName);
