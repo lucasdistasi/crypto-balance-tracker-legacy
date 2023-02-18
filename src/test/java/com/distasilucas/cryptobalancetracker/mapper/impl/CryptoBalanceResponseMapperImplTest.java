@@ -3,6 +3,7 @@ package com.distasilucas.cryptobalancetracker.mapper.impl;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
+import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import com.distasilucas.cryptobalancetracker.MockData;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,11 +25,14 @@ class CryptoBalanceResponseMapperImplTest {
     @Mock
     CoingeckoService coingeckoServiceImplMock;
 
+    @Mock
+    PlatformRepository platformRepositoryMock;
+
     EntityMapper<CryptoBalanceResponse, List<Crypto>> cryptoBalanceResponseMapperImpl;
 
     @BeforeEach
     void setUp() {
-        cryptoBalanceResponseMapperImpl = new CryptoBalanceResponseMapperImpl(coingeckoServiceImplMock);
+        cryptoBalanceResponseMapperImpl = new CryptoBalanceResponseMapperImpl(coingeckoServiceImplMock, platformRepositoryMock);
     }
 
     @Test

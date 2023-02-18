@@ -43,7 +43,7 @@ public class PlatformServiceImpl implements PlatformService {
     }
 
     @Override
-    public Platform findPlatform(String platformName) {
+    public Platform findPlatformByName(String platformName) {
         platformName = platformName.toUpperCase();
         log.info("Checking if {} it's an existing platform", platformName);
         Optional<Platform> platform = platformRepository.findByName(platformName);
@@ -59,7 +59,7 @@ public class PlatformServiceImpl implements PlatformService {
 
     @Override
     public PlatformDTO updatePlatform(PlatformDTO platformDTO, String platformName) {
-        Platform platform = findPlatform(platformName);
+        Platform platform = findPlatformByName(platformName);
         String newPlatformName = platformDTO.getName();
         platform.setName(newPlatformName);
 
@@ -72,8 +72,8 @@ public class PlatformServiceImpl implements PlatformService {
 
     @Override
     public void deletePlatform(String platformName) {
-        Platform platform = findPlatform(platformName);
-        Optional<List<Crypto>> cryptos = cryptoRepository.findAllByPlatform(platform);
+        Platform platform = findPlatformByName(platformName);
+        Optional<List<Crypto>> cryptos = cryptoRepository.findAllByPlatformId(platform.getId());
 
         if (cryptos.isPresent() && CollectionUtils.isNotEmpty(cryptos.get())) {
             List<String> cryptoIds = cryptos.get().stream()
@@ -91,8 +91,8 @@ public class PlatformServiceImpl implements PlatformService {
     @Override
     public Optional<CryptoBalanceResponse> getAllCoins(String platformName) {
         log.info("Retrieving coins in platform {}", platformName);
-        Platform platform = findPlatform(platformName);
-        Optional<List<Crypto>> cryptos = cryptoRepository.findAllByPlatform(platform);
+        Platform platform = findPlatformByName(platformName);
+        Optional<List<Crypto>> cryptos = cryptoRepository.findAllByPlatformId(platform.getId());
 
         Optional<CryptoBalanceResponse> cryptoBalanceResponse = Optional.empty();
 

@@ -25,7 +25,7 @@ public class CryptoMapperImpl implements EntityMapper<Crypto, CryptoDTO> {
     @Override
     public Crypto mapFrom(CryptoDTO input) {
         Crypto crypto = new Crypto();
-        Platform platform = platformService.findPlatform(input.platform());
+        Platform platform = platformService.findPlatformByName(input.platform());
         List<Coin> coins = coingeckoService.retrieveAllCoins();
         String coinName = input.coin_name();
 
@@ -37,7 +37,7 @@ public class CryptoMapperImpl implements EntityMapper<Crypto, CryptoDTO> {
                             crypto.setName(coin.getName());
                             crypto.setTicker(coin.getSymbol());
                             crypto.setQuantity(input.quantity());
-                            crypto.setPlatform(platform);
+                            crypto.setPlatformId(platform.getId());
                         }, () -> {
                             String message = String.format(COIN_NAME_NOT_FOUND, coinName);
 
