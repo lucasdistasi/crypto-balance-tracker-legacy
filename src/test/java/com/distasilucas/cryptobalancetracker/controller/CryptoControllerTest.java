@@ -24,9 +24,6 @@ class CryptoControllerTest {
 
     CryptoController cryptoController;
 
-    private static final String DOGECOIN = "Dogecoin";
-    private static final String BITCOIN = "Bitcoin";
-
     @BeforeEach
     void setUp() {
         cryptoController = new CryptoController(cryptoServiceMocK);
@@ -64,30 +61,5 @@ class CryptoControllerTest {
                 () -> assertEquals(coinsResponse.getBalance(), responseEntity.getBody().getCoins().get(0).getBalance()),
                 () -> assertEquals("btc", responseEntity.getBody().getCoins().get(0).getCoinInfo().getSymbol())
         );
-    }
-
-    @Test
-    void shouldUpdateCrypto() {
-        var cryptoDTO = MockData.getCryptoDTO();
-        var cryptoDTOResponse = MockData.getCryptoDTO();
-
-        when(cryptoServiceMocK.updateCoin(cryptoDTO, BITCOIN)).thenReturn(cryptoDTOResponse);
-
-        var responseEntity = cryptoController.updateCrypto(cryptoDTO, BITCOIN);
-
-        assertNotNull(responseEntity.getBody());
-        assertAll(
-                () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
-                () -> assertEquals(cryptoDTOResponse.quantity(), responseEntity.getBody().quantity())
-        );
-    }
-
-    @Test
-    void shouldDeleteCrypto() {
-        doNothing().when(cryptoServiceMocK).deleteCoin(DOGECOIN);
-
-        var responseEntity = cryptoController.deleteCoin(DOGECOIN);
-
-        assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
     }
 }

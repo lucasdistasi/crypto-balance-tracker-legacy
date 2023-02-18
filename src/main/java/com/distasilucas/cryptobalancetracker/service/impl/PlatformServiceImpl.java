@@ -2,8 +2,11 @@ package com.distasilucas.cryptobalancetracker.service.impl;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
+import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformCoinException;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
+import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
@@ -16,8 +19,12 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import static com.distasilucas.cryptobalancetracker.constant.Constants.DUPLICATED_PLATFORM_COIN;
+import static com.distasilucas.cryptobalancetracker.constant.Constants.NO_COIN_IN_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.PLATFORM_NOT_FOUND;
 
 @Slf4j
@@ -28,8 +35,10 @@ public class PlatformServiceImpl implements PlatformService {
     private final PlatformRepository platformRepository;
     private final CryptoRepository cryptoRepository;
     private final Validation<PlatformDTO> addPlatformValidation;
+    private final Validation<CryptoDTO> updateCryptoValidation;
     private final EntityMapper<Platform, PlatformDTO> platformMapperImpl;
     private final EntityMapper<CryptoBalanceResponse, List<Crypto>> cryptoBalanceResponseMapperImpl;
+    private final EntityMapper<CryptoDTO, Crypto> cryptoDTOMapperImpl;
 
     @Override
     public PlatformDTO addPlatForm(PlatformDTO platformDTO) {
@@ -40,6 +49,108 @@ public class PlatformServiceImpl implements PlatformService {
         log.info("Saved platform {}", platformEntity.getName());
 
         return platformDTO;
+    }
+
+    @Override
+    public PlatformDTO updatePlatform(PlatformDTO platformDTO, String platformName) {
+        addPlatformValidation.validate(platformDTO);
+        Platform platform = findPlatformByName(platformName);
+        String newPlatformName = platformDTO.getName();
+        platform.setName(newPlatformName);
+
+        platformRepository.save(platform);
+
+        log.info("Updated {} to {}", newPlatformName, platform.getName());
+
+        return platformDTO;
+    }
+
+    @Override
+    public CryptoDTO updatePlatformCoin(CryptoDTO cryptoDTO, String platformName, String coinId) {
+        updateCryptoValidation.validate(cryptoDTO);
+        Platform platform = findPlatformByName(platformName);
+        Optional<Crypto> optionalExistingCrypto = cryptoRepository.findByCoinIdAndPlatformId(coinId, platform.getId());
+
+        if (optionalExistingCrypto.isEmpty()) {
+            String message = String.format(NO_COIN_IN_PLATFORM, coinId, platformName);
+
+            throw new CoinNotFoundException(message);
+        }
+
+        Crypto existingCrypto = optionalExistingCrypto.get();
+        Platform newPlatform = findPlatformByName(cryptoDTO.platform());
+        Optional<Crypto> newCrypto = cryptoRepository.findByNameAndPlatformId(existingCrypto.getName(), newPlatform.getId());
+
+        if (newCrypto.isPresent() && isDifferentPlatform(platformName, newPlatform)) {
+            String message = String.format(DUPLICATED_PLATFORM_COIN, coinId, newPlatform.getName());
+
+            throw new DuplicatedPlatformCoinException(message);
+        }
+
+        existingCrypto.setQuantity(cryptoDTO.quantity());
+        existingCrypto.setPlatformId(newPlatform.getId());
+        cryptoRepository.save(existingCrypto);
+
+        CryptoDTO cryptoResponse = cryptoDTOMapperImpl.mapFrom(existingCrypto);
+        log.info("Updated coin {} to {}", cryptoDTO, cryptoResponse);
+
+        return cryptoResponse;
+    }
+
+    @Override
+    public void deletePlatform(String platformName) {
+        Platform platform = findPlatformByName(platformName);
+        Optional<List<Crypto>> cryptos = cryptoRepository.findAllByPlatformId(platform.getId());
+
+        if (cryptos.isPresent() && CollectionUtils.isNotEmpty(cryptos.get())) {
+            Map<String, String> cryptoIds = cryptos.get()
+                    .stream()
+                    .collect(Collectors.toMap(Crypto::getId, Crypto::getName));
+
+            cryptoRepository.deleteAllById(cryptoIds.keySet());
+            log.info("Deleted {} in platform {}", cryptoIds.values(), platformName);
+        }
+
+        platformRepository.delete(platform);
+        log.info("Deleted platform {}", platform.getName());
+    }
+
+    @Override
+    public void deletePlatformCoin(String platformName, String coinId) {
+        Optional<Platform> optionalPlatform = platformRepository.findByName(platformName.toUpperCase());
+
+        if (optionalPlatform.isEmpty()) {
+            String message = String.format(PLATFORM_NOT_FOUND, platformName);
+
+            throw new PlatformNotFoundException(message);
+        }
+
+        Platform platform = optionalPlatform.get();
+        cryptoRepository.findByCoinIdAndPlatformId(coinId, platform.getId())
+                .ifPresentOrElse(crypto -> {
+                    log.info("Deleted coin {} from {}", crypto.getName(), platform.getName());
+
+                    cryptoRepository.delete(crypto);
+                }, () -> {
+                    String message = String.format(NO_COIN_IN_PLATFORM, coinId, platform.getName());
+
+                    throw new CoinNotFoundException(message);
+                });
+    }
+
+    @Override
+    public Optional<CryptoBalanceResponse> getAllCoins(String platformName) {
+        log.info("Retrieving coins in platform {}", platformName);
+        Platform platform = findPlatformByName(platformName);
+        Optional<List<Crypto>> cryptos = cryptoRepository.findAllByPlatformId(platform.getId());
+
+        Optional<CryptoBalanceResponse> cryptoBalanceResponse = Optional.empty();
+
+        if (cryptos.isPresent() && CollectionUtils.isNotEmpty(cryptos.get())) {
+            cryptoBalanceResponse = Optional.of(cryptoBalanceResponseMapperImpl.mapFrom(cryptos.get()));
+        }
+
+        return cryptoBalanceResponse;
     }
 
     @Override
@@ -57,49 +168,7 @@ public class PlatformServiceImpl implements PlatformService {
         return platform.get();
     }
 
-    @Override
-    public PlatformDTO updatePlatform(PlatformDTO platformDTO, String platformName) {
-        Platform platform = findPlatformByName(platformName);
-        String newPlatformName = platformDTO.getName();
-        platform.setName(newPlatformName);
-
-        platformRepository.save(platform);
-
-        log.info("Updated {} to {}", newPlatformName, platform.getName());
-
-        return platformDTO;
-    }
-
-    @Override
-    public void deletePlatform(String platformName) {
-        Platform platform = findPlatformByName(platformName);
-        Optional<List<Crypto>> cryptos = cryptoRepository.findAllByPlatformId(platform.getId());
-
-        if (cryptos.isPresent() && CollectionUtils.isNotEmpty(cryptos.get())) {
-            List<String> cryptoIds = cryptos.get().stream()
-                    .map(Crypto::getName)
-                    .toList();
-
-            cryptoRepository.deleteAllById(cryptoIds);
-            log.info("Deleted {} in platform {}", cryptoIds, platformName);
-        }
-
-        platformRepository.delete(platform);
-        log.info("Deleted platform {}", platform.getName());
-    }
-
-    @Override
-    public Optional<CryptoBalanceResponse> getAllCoins(String platformName) {
-        log.info("Retrieving coins in platform {}", platformName);
-        Platform platform = findPlatformByName(platformName);
-        Optional<List<Crypto>> cryptos = cryptoRepository.findAllByPlatformId(platform.getId());
-
-        Optional<CryptoBalanceResponse> cryptoBalanceResponse = Optional.empty();
-
-        if (cryptos.isPresent() && CollectionUtils.isNotEmpty(cryptos.get())) {
-            cryptoBalanceResponse = Optional.of(cryptoBalanceResponseMapperImpl.mapFrom(cryptos.get()));
-        }
-
-        return cryptoBalanceResponse;
+    private static boolean isDifferentPlatform(String platformName, Platform newPlatform) {
+        return !platformName.equalsIgnoreCase(newPlatform.getName());
     }
 }

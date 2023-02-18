@@ -65,45 +65,4 @@ public interface CryptoControllerApi {
                     })
     })
     ResponseEntity<CryptoBalanceResponse> retrieveCoinsBalance();
-
-    @Operation(summary = "Update Crypto Quantity")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = OK_CODE, description = "Updated Crypto Quantity",
-                    content = {
-                            @Content(mediaType = APPLICATION_JSON,
-                                    schema = @Schema(implementation = CryptoDTO.class))
-                    }),
-            @ApiResponse(responseCode = BAD_REQUEST_CODE, description = INVALID_DATA,
-                    content = {
-                            @Content(mediaType = APPLICATION_JSON,
-                                    schema = @Schema(implementation = ErrorResponse.class))
-                    }),
-            @ApiResponse(responseCode = NOT_FOUND_CODE, description = CRYPTO_NOT_FOUND_DESCRIPTION,
-                    content = {
-                            @Content(mediaType = APPLICATION_JSON,
-                                    schema = @Schema(implementation = ErrorResponse.class))
-                    }),
-            @ApiResponse(responseCode = INTERNAL_SERVER_ERROR_CODE, description = INTERNAL_SERVER_ERROR,
-                    content = {
-                            @Content(mediaType = APPLICATION_JSON,
-                                    schema = @Schema(implementation = ErrorResponse.class))
-                    })
-    })
-    ResponseEntity<CryptoDTO> updateCrypto(CryptoDTO cryptoDTO, String coinName);
-
-    @Operation(summary = "Delete Crypto")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = NO_CONTENT_CODE, description = "Crypto Deleted"),
-            @ApiResponse(responseCode = NOT_FOUND_CODE, description = CRYPTO_NOT_FOUND_DESCRIPTION,
-                    content = {
-                            @Content(mediaType = APPLICATION_JSON,
-                                    schema = @Schema(implementation = ErrorResponse.class))
-                    }),
-            @ApiResponse(responseCode = INTERNAL_SERVER_ERROR_CODE, description = INTERNAL_SERVER_ERROR,
-                    content = {
-                            @Content(mediaType = APPLICATION_JSON,
-                                    schema = @Schema(implementation = ErrorResponse.class))
-                    })
-    })
-    ResponseEntity<Void> deleteCoin(String coinName);
 }

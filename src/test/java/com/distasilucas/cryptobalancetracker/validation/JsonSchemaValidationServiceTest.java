@@ -13,7 +13,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.ERROR_VALIDATING_JSON_SCHEMA;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 
@@ -35,11 +34,7 @@ class JsonSchemaValidationServiceTest {
         var cryptoDTO = CryptoDTO.builder()
                 .build();
 
-        try {
-            cryptoDTOEntityValidation.validate(cryptoDTO);
-        } catch (Exception ex) {
-            fail("Should not fail");
-        }
+        cryptoDTOEntityValidation.validate(cryptoDTO);
     }
 
     @Test

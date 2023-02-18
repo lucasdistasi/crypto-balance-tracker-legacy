@@ -1,6 +1,7 @@
 package com.distasilucas.cryptobalancetracker.service;
 
 import com.distasilucas.cryptobalancetracker.entity.Platform;
+import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 
@@ -11,6 +12,8 @@ public interface PlatformService {
     PlatformDTO addPlatForm(PlatformDTO platform);
     Platform findPlatformByName(String platformName);
     PlatformDTO updatePlatform(PlatformDTO platformDTO, String platformName);
+    CryptoDTO updatePlatformCoin(CryptoDTO cryptoDTO, String platformName, String coinId);
     void deletePlatform(String platformName);
+    void deletePlatformCoin(String platformName, String coinId);
     Optional<CryptoBalanceResponse> getAllCoins(String platformName);
 }

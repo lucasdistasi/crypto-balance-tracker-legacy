@@ -5,9 +5,15 @@
   "properties": {
     "quantity": {
       "type": "number"
+    },
+    "platform": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 24
     }
   },
   "required": [
-    "quantity"
+    "quantity",
+    "platform"
   ]
 }

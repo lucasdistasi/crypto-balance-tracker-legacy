@@ -2,6 +2,7 @@ package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
 import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformCoinException;
 import com.distasilucas.cryptobalancetracker.model.Error;
 import com.distasilucas.cryptobalancetracker.model.ErrorResponse;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -87,6 +88,21 @@ public class ExceptionController {
         errorResponse.setErrors(Collections.singletonList(error));
 
         return ResponseEntity.badRequest()
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(value = DuplicatedPlatformCoinException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicatedPlatformCoinException(DuplicatedPlatformCoinException duplicatedPlatformCoinException) {
+        log.warn("An DuplicatedPlatformCoinException has occurred: ", duplicatedPlatformCoinException);
+
+        Error error = new Error(duplicatedPlatformCoinException.getErrorMessage());
+
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setErrors(Collections.singletonList(error));
+        errorResponse.setStatusCode(HttpStatus.BAD_REQUEST.value());
+        errorResponse.setTimeStamp(LocalDateTime.now());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(errorResponse);
     }
 
