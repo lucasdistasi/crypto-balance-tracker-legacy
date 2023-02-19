@@ -13,6 +13,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -38,12 +39,25 @@ public class CryptoServiceImpl implements CryptoService<CryptoDTO> {
     }
 
     @Override
-    public CryptoBalanceResponse retrieveCoinsBalances() {
+    public Optional<CryptoBalanceResponse> retrieveCoinsBalances() {
         log.info("Retrieving coins balances");
         List<Crypto> allCoins = cryptoRepository.findAll();
 
         return CollectionUtils.isEmpty(allCoins) ?
-                null :
-                cryptoBalanceResponseMapperImpl.mapFrom(allCoins);
+                Optional.empty() :
+                Optional.of(cryptoBalanceResponseMapperImpl.mapFrom(allCoins));
+    }
+
+    @Override
+    public Optional<CryptoBalanceResponse> retrieveCoinBalance(String coinId) {
+        log.info("Retrieving balances for coin {}", coinId);
+        List<Crypto> allCoins = cryptoRepository.findAll()
+                .stream()
+                .filter(crypto -> crypto.getCoinId().equals(coinId))
+                .toList();
+
+        return CollectionUtils.isEmpty(allCoins) ?
+                Optional.empty() :
+                Optional.of(cryptoBalanceResponseMapperImpl.mapFrom(allCoins));
     }
 }
