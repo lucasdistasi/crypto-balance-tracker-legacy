@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Optional;
+
 import static com.distasilucas.cryptobalancetracker.constant.Constants.APPLICATION_JSON;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.BAD_REQUEST_CODE;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.CRYPTO_NOT_FOUND_DESCRIPTION;
@@ -64,5 +66,22 @@ public interface CryptoControllerApi {
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-    ResponseEntity<CryptoBalanceResponse> retrieveCoinsBalance();
+    ResponseEntity<Optional<CryptoBalanceResponse>> retrieveCoinsBalance();
+
+    @Operation(summary = "Retrieve all Balances from the given Crypto")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = OK_CODE, description = "Retrieved Crypto Balances",
+                    content = {
+                            @Content(mediaType = APPLICATION_JSON,
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = CryptoBalanceResponse.class)))
+                    }),
+            @ApiResponse(responseCode = NO_CONTENT_CODE, description = "No Cryptos Saved"),
+            @ApiResponse(responseCode = INTERNAL_SERVER_ERROR_CODE, description = INTERNAL_SERVER_ERROR,
+                    content = {
+                            @Content(mediaType = APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    })
+    })
+    ResponseEntity<Optional<CryptoBalanceResponse>> retrieveCoinBalance(String coinId);
 }

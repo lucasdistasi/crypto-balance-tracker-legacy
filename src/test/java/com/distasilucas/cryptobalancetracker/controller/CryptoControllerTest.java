@@ -10,9 +10,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
@@ -51,15 +54,29 @@ class CryptoControllerTest {
         var coinsResponse = MockData.getCoinResponse(coinInfo);
         var cryptoBalanceResponse = MockData.getCryptoBalanceResponse();
 
-        when(cryptoServiceMocK.retrieveCoinsBalances()).thenReturn(cryptoBalanceResponse);
+        when(cryptoServiceMocK.retrieveCoinsBalances()).thenReturn(Optional.of(cryptoBalanceResponse));
 
         var responseEntity = cryptoController.retrieveCoinsBalance();
 
         assertNotNull(responseEntity.getBody());
         assertAll(
+                () -> assertTrue(responseEntity.getBody().isPresent()),
                 () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
-                () -> assertEquals(coinsResponse.getBalance(), responseEntity.getBody().getCoins().get(0).getBalance()),
-                () -> assertEquals("btc", responseEntity.getBody().getCoins().get(0).getCoinInfo().getSymbol())
+                () -> assertEquals(coinsResponse.getBalance(), responseEntity.getBody().get().getCoins().get(0).getBalance()),
+                () -> assertEquals("btc", responseEntity.getBody().get().getCoins().get(0).getCoinInfo().getSymbol())
+        );
+    }
+
+    @Test
+    void shouldReturnEmptyCryptosBalances() {
+        when(cryptoServiceMocK.retrieveCoinBalance("bitcoin")).thenReturn(Optional.empty());
+
+        var responseEntity = cryptoController.retrieveCoinBalance("bitcoin");
+
+        assertNotNull(responseEntity.getBody());
+        assertAll(
+                () -> assertTrue(responseEntity.getBody().isEmpty()),
+                () -> assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode())
         );
     }
 }
