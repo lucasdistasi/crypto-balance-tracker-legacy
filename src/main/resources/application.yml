@@ -13,3 +13,9 @@ coingecko:
 springdoc:
   swagger-ui:
     defaultModelsExpandDepth: -1
+
+jwt:
+  signing-key: ${JWT_SIGNING_KEY}
+
+server:
+  port: 0
