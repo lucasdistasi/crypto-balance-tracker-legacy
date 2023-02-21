@@ -16,6 +16,7 @@ import java.util.Optional;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.APPLICATION_JSON;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.BAD_REQUEST_CODE;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.CRYPTO_NOT_FOUND_DESCRIPTION;
+import static com.distasilucas.cryptobalancetracker.constant.Constants.FORBIDDEN_CODE;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.INTERNAL_SERVER_ERROR;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.INTERNAL_SERVER_ERROR_CODE;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.INVALID_DATA;
@@ -38,6 +39,7 @@ public interface CryptoControllerApi {
                             @Content(mediaType = APPLICATION_JSON,
                                     schema = @Schema(implementation = ErrorResponse.class))
                     }),
+            @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden"),
             @ApiResponse(responseCode = NOT_FOUND_CODE, description = CRYPTO_NOT_FOUND_DESCRIPTION,
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
@@ -60,6 +62,7 @@ public interface CryptoControllerApi {
                                             schema = @Schema(implementation = CryptoBalanceResponse.class)))
                     }),
             @ApiResponse(responseCode = NO_CONTENT_CODE, description = "No Cryptos Saved"),
+            @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden"),
             @ApiResponse(responseCode = INTERNAL_SERVER_ERROR_CODE, description = INTERNAL_SERVER_ERROR,
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
@@ -77,6 +80,7 @@ public interface CryptoControllerApi {
                                             schema = @Schema(implementation = CryptoBalanceResponse.class)))
                     }),
             @ApiResponse(responseCode = NO_CONTENT_CODE, description = "No Cryptos Saved"),
+            @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden"),
             @ApiResponse(responseCode = INTERNAL_SERVER_ERROR_CODE, description = INTERNAL_SERVER_ERROR,
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
