@@ -23,8 +23,8 @@ Feel free to star, fork or study from the code :)
 
 ---
 
-This API uses Spring Security. If you want to test or play with it you will need to download 
-[crypto-balance-tracker-login](https://gitlab.com/lucas.distasi/crypto-balance-tracker-login) a Kotlin-Spring 
+This API uses Spring Security. If you want to test or play with it you will an ADMIN user and
+[crypto-balance-tracker-login](https://gitlab.com/lucas.distasi/crypto-balance-tracker-login), a Kotlin-Spring 
 project to generate a JWT and consume the endpoints from this project.
 If you don't want Authentication-Authorization make sure to use the branch ***no-security*** from this project.
 
