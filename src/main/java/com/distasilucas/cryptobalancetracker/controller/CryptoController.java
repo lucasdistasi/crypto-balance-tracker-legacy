@@ -4,9 +4,11 @@ import com.distasilucas.cryptobalancetracker.controller.swagger.CryptoController
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
+import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +21,7 @@ import java.util.Optional;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/crypto")
+@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 public class CryptoController implements CryptoControllerApi {
 
     private final CryptoService<CryptoDTO> cryptoService;
