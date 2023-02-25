@@ -20,6 +20,11 @@ group = 'com.distasilucas'
 version = '1.0.0-SNAPSHOT'
 sourceCompatibility = '17'
 
+bootJar {
+    archiveFileName = "${project.name}.jar"
+    launchScript()
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
