@@ -1,6 +1,7 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.MockData;
+import com.distasilucas.cryptobalancetracker.model.response.PlatformBalanceResponse;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -45,6 +47,33 @@ class PlatformControllerTest {
         assertAll(
                 () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
                 () -> assertTrue(responseEntity.getBody().isPresent())
+        );
+    }
+
+    @Test
+    void shouldGetPlatformsBalances() {
+        var platformBalanceResponse = PlatformBalanceResponse.builder()
+                .totalBalance(BigDecimal.valueOf(1000))
+                .build();
+
+        when(platformServiceMock.getPlatformsBalances()).thenReturn(Optional.of(platformBalanceResponse));
+
+        var responseEntity = platformController.getPlatformsBalances();
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
+                () -> assertTrue(responseEntity.getBody().isPresent())
+        );
+    }
+
+    @Test
+    void shouldReturnNoContentWhenGetPlatformsBalances() {
+        when(platformServiceMock.getPlatformsBalances()).thenReturn(Optional.empty());
+
+        var responseEntity = platformController.getPlatformsBalances();
+
+        assertAll(
+                () -> assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode())
         );
     }
 

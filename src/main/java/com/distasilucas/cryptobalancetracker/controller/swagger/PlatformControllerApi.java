@@ -4,6 +4,7 @@ import com.distasilucas.cryptobalancetracker.model.ErrorResponse;
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.PlatformBalanceResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -54,6 +55,23 @@ public interface PlatformControllerApi {
                     })
     })
     ResponseEntity<Optional<CryptoBalanceResponse>> getCoins(String platformName);
+
+    @Operation(summary = "Retrieve all platforms balances")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = OK_CODE, description = "Platforms balances",
+                    content = {
+                            @Content(mediaType = APPLICATION_JSON,
+                                    schema = @Schema(implementation = PlatformDTO.class))
+                    }),
+            @ApiResponse(responseCode = NO_CONTENT_CODE, description = "No coins saved"),
+            @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden"),
+            @ApiResponse(responseCode = INTERNAL_SERVER_ERROR_CODE, description = INTERNAL_SERVER_ERROR,
+                    content = {
+                            @Content(mediaType = APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    })
+    })
+    ResponseEntity<Optional<PlatformBalanceResponse>> getPlatformsBalances();
 
     @Operation(summary = "Add Platform")
     @ApiResponses(value = {

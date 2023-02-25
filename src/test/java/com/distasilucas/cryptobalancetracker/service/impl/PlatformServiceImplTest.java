@@ -9,6 +9,7 @@ import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.PlatformBalanceResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
@@ -20,6 +21,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -89,6 +92,39 @@ class PlatformServiceImplTest {
                 () -> assertEquals(platformDTO.getName(), platFormResponse.getName())
         );
 
+    }
+
+    @Test
+    void shouldGetPlatformsBalances() {
+        var cryptos = MockData.getAllCryptos();
+        var balanceResponse = MockData.getCryptoBalanceResponse();
+
+        when(cryptoRepositoryMock.findAll()).thenReturn(cryptos);
+        when(cryptoBalanceResponseMapperImplMock.mapFrom(cryptos)).thenReturn(balanceResponse);
+
+        var platformsBalances = platformService.getPlatformsBalances();
+
+        assertAll(
+                () -> assertTrue(platformsBalances.isPresent()),
+                () -> assertEquals(BigDecimal.valueOf(1000), platformsBalances.get().getTotalBalance()),
+                () -> assertEquals(1, platformsBalances.get().getPlatforms().size())
+        );
+    }
+
+    @Test
+    void shouldEmptyGetPlatformsBalances() {
+        var cryptos = MockData.getAllCryptos();
+        var balanceResponse = MockData.getCryptoBalanceResponse();
+        balanceResponse.setCoins(Collections.emptyList());
+
+        when(cryptoRepositoryMock.findAll()).thenReturn(cryptos);
+        when(cryptoBalanceResponseMapperImplMock.mapFrom(cryptos)).thenReturn(balanceResponse);
+
+        var platformsBalances = platformService.getPlatformsBalances();
+
+        assertAll(
+                () -> assertTrue(platformsBalances.isEmpty())
+        );
     }
 
     @Test

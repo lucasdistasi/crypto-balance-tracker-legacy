@@ -4,6 +4,7 @@ import com.distasilucas.cryptobalancetracker.controller.swagger.PlatformControll
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.PlatformBalanceResponse;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -36,6 +37,16 @@ public class PlatformController implements PlatformControllerApi {
 
         return ResponseEntity.status(httpStatus)
                 .body(allCoins);
+    }
+
+    @Override
+    @GetMapping("/balances")
+    public ResponseEntity<Optional<PlatformBalanceResponse>> getPlatformsBalances() {
+        Optional<PlatformBalanceResponse> platformsBalances = platformService.getPlatformsBalances();
+        HttpStatus httpStatus = platformsBalances.isPresent() ? HttpStatus.OK : HttpStatus.NO_CONTENT;
+
+        return ResponseEntity.status(httpStatus)
+                .body(platformsBalances);
     }
 
     @Override
