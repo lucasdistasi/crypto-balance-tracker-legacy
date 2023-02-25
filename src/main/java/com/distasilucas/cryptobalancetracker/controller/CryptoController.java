@@ -4,7 +4,6 @@ import com.distasilucas.cryptobalancetracker.controller.swagger.CryptoController
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
-import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +35,7 @@ public class CryptoController implements CryptoControllerApi {
     }
 
     @Override
-    @GetMapping
+    @GetMapping("/balances")
     public ResponseEntity<Optional<CryptoBalanceResponse>> retrieveCoinsBalance() {
         Optional<CryptoBalanceResponse> cryptoBalanceResponse = cryptoService.retrieveCoinsBalances();
         HttpStatus httpStatus = cryptoBalanceResponse.isPresent() ? HttpStatus.OK : HttpStatus.NO_CONTENT;

@@ -8,7 +8,10 @@ import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
+import com.distasilucas.cryptobalancetracker.model.response.CoinResponse;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.PlatformBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.PlatformInfo;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
@@ -18,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -26,6 +31,7 @@ import java.util.stream.Collectors;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.DUPLICATED_PLATFORM_COIN;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.NO_COIN_IN_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.PLATFORM_NOT_FOUND;
+import static java.util.stream.Collectors.groupingBy;
 
 @Slf4j
 @Service
@@ -49,6 +55,35 @@ public class PlatformServiceImpl implements PlatformService {
         log.info("Saved platform {}", platformEntity.getName());
 
         return platformDTO;
+    }
+
+    @Override
+    public Optional<PlatformBalanceResponse> getPlatformsBalances() {
+        List<Crypto> cryptos = cryptoRepository.findAll();
+        CryptoBalanceResponse cryptoBalanceResponse = cryptoBalanceResponseMapperImpl.mapFrom(cryptos);
+        List<CoinResponse> coins = cryptoBalanceResponse.getCoins();
+
+        if (CollectionUtils.isNotEmpty(coins)) {
+            Map<String, BigDecimal> balancePerPlatform = new HashMap<>();
+
+            coins
+                    .forEach(coin -> {
+                        String platform = coin.getPlatform();
+                        BigDecimal balance = coin.getBalance();
+
+                        balancePerPlatform.compute(platform, (k, v) -> (v == null) ? balance : v.add(balance));
+                    });
+
+            List<PlatformInfo> platforms = getPlatformInfo(coins);
+            PlatformBalanceResponse platformBalanceResponse = PlatformBalanceResponse.builder()
+                    .platforms(platforms)
+                    .totalBalance(cryptoBalanceResponse.getTotalBalance())
+                    .build();
+
+            return Optional.of(platformBalanceResponse);
+        }
+
+        return Optional.empty();
     }
 
     @Override
@@ -170,5 +205,15 @@ public class PlatformServiceImpl implements PlatformService {
 
     private static boolean isDifferentPlatform(String platformName, Platform newPlatform) {
         return !platformName.equalsIgnoreCase(newPlatform.getName());
+    }
+
+    private List<PlatformInfo> getPlatformInfo(List<CoinResponse> coins) {
+        return coins.stream()
+                .map(coinResponse -> PlatformInfo.builder()
+                        .platformName(coinResponse.getPlatform())
+                        .percentage(coinResponse.getPercentage())
+                        .balance(coinResponse.getBalance())
+                        .build())
+                .toList();
     }
 }
