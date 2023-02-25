@@ -41,7 +41,7 @@ public class MockData {
 
     public static CoinInfo getCoinInfo() {
         var currentPrice = new CurrentPrice(BigDecimal.valueOf(150_000));
-        var marketData = new MarketData(currentPrice);
+        var marketData = new MarketData(currentPrice, BigDecimal.valueOf(1000), BigDecimal.valueOf(1000));
         var coinInfo = new CoinInfo();
         coinInfo.setMarketData(marketData);
         coinInfo.setSymbol("btc");
