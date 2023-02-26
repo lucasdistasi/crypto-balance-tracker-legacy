@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -116,7 +117,7 @@ class CryptoServiceImplTest {
         var balanceResponse = MockData.getCryptoBalanceResponse();
         var firstCoin = balanceResponse.getCoins().get(0);
 
-        when(cryptoRepositoryMock.findAll()).thenReturn(cryptos);
+        when(cryptoRepositoryMock.findAllByCoinId("bitcoin")).thenReturn(Optional.of(cryptos));
         when(cryptoBalanceResponseMapperImplMock.mapFrom(cryptos)).thenReturn(balanceResponse);
 
         var cryptoBalanceResponse = cryptoService.retrieveCoinBalance("bitcoin");
@@ -133,9 +134,9 @@ class CryptoServiceImplTest {
 
     @Test
     void shouldReturnEmptyListIfNoCryptosAreSavedForCryptoBalance() {
-        when(cryptoRepositoryMock.findAll()).thenReturn(Collections.emptyList());
+        when(cryptoRepositoryMock.findAllByCoinId("dogecoin")).thenReturn(Optional.of(Collections.emptyList()));
 
-        var cryptoBalanceResponses = cryptoService.retrieveCoinBalance("bitcoin");
+        var cryptoBalanceResponses = cryptoService.retrieveCoinBalance("dogecoin");
 
         assertAll(
                 () -> assertTrue(cryptoBalanceResponses.isEmpty())
