@@ -10,6 +10,6 @@ import java.util.List;
 @Builder
 public class PlatformBalanceResponse {
 
-    private List<PlatformInfo> platforms;
     private BigDecimal totalBalance;
+    private List<PlatformInfo> platforms;
 }

@@ -22,6 +22,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +33,6 @@ import java.util.stream.Collectors;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.DUPLICATED_PLATFORM_COIN;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.NO_COIN_IN_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.PLATFORM_NOT_FOUND;
-import static java.util.stream.Collectors.groupingBy;
 
 @Slf4j
 @Service
@@ -74,10 +75,11 @@ public class PlatformServiceImpl implements PlatformService {
                         balancePerPlatform.compute(platform, (k, v) -> (v == null) ? balance : v.add(balance));
                     });
 
-            List<PlatformInfo> platforms = getPlatformInfo(coins);
+            BigDecimal totalBalance = cryptoBalanceResponse.getTotalBalance();
+            List<PlatformInfo> platforms = getPlatformInfo(balancePerPlatform, totalBalance);
             PlatformBalanceResponse platformBalanceResponse = PlatformBalanceResponse.builder()
                     .platforms(platforms)
-                    .totalBalance(cryptoBalanceResponse.getTotalBalance())
+                    .totalBalance(totalBalance)
                     .build();
 
             return Optional.of(platformBalanceResponse);
@@ -207,13 +209,27 @@ public class PlatformServiceImpl implements PlatformService {
         return !platformName.equalsIgnoreCase(newPlatform.getName());
     }
 
-    private List<PlatformInfo> getPlatformInfo(List<CoinResponse> coins) {
-        return coins.stream()
-                .map(coinResponse -> PlatformInfo.builder()
-                        .platformName(coinResponse.getPlatform())
-                        .percentage(coinResponse.getPercentage())
-                        .balance(coinResponse.getBalance())
-                        .build())
-                .toList();
+    private List<PlatformInfo> getPlatformInfo(Map<String, BigDecimal> balancePerPlatform, BigDecimal totalBalance) {
+        List<PlatformInfo> platformsInfo = new ArrayList<>();
+
+        balancePerPlatform.forEach((platform, platformBalance) -> {
+            PlatformInfo platformInfo = PlatformInfo.builder()
+                    .balance(platformBalance)
+                    .percentage(getPercentage(platformBalance, totalBalance))
+                    .platformName(platform)
+                    .build();
+
+            platformsInfo.add(platformInfo);
+        });
+
+        return platformsInfo;
+    }
+
+    private double getPercentage(BigDecimal platformBalance, BigDecimal totalBalance) {
+        return platformBalance
+                .setScale(2, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100))
+                .divide(totalBalance, RoundingMode.HALF_UP)
+                .doubleValue();
     }
 }

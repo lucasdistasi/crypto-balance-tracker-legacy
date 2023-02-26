@@ -23,7 +23,7 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public Boolean isTokenValid(String token, UserDetails userDetails) {
-        log.info("Validating token {} for {}", token, userDetails);
+        log.info("Validating token {} for {}", token, userDetails.getUsername());
 
         return extractUsername(token).equals(userDetails.getUsername()) &&
                 isTokenNonExpired(token);
