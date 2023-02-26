@@ -11,4 +11,5 @@ public interface CryptoRepository extends MongoRepository<Crypto, String> {
     Optional<Crypto> findByNameAndPlatformId(String coinName, String platformId);
     Optional<Crypto> findByCoinIdAndPlatformId(String coinId, String platformId);
     Optional<List<Crypto>> findAllByPlatformId(String platformId);
+    Optional<List<Crypto>> findAllByCoinId(String platformId);
 }

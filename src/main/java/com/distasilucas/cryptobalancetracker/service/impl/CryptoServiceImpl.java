@@ -51,13 +51,10 @@ public class CryptoServiceImpl implements CryptoService<CryptoDTO> {
     @Override
     public Optional<CryptoBalanceResponse> retrieveCoinBalance(String coinId) {
         log.info("Retrieving balances for coin {}", coinId);
-        List<Crypto> allCoins = cryptoRepository.findAll()
-                .stream()
-                .filter(crypto -> crypto.getCoinId().equals(coinId))
-                .toList();
+        Optional<List<Crypto>> allCoins = cryptoRepository.findAllByCoinId(coinId);
 
-        return CollectionUtils.isEmpty(allCoins) ?
+        return allCoins.isEmpty() || CollectionUtils.isEmpty(allCoins.get()) ?
                 Optional.empty() :
-                Optional.of(cryptoBalanceResponseMapperImpl.mapFrom(allCoins));
+                Optional.of(cryptoBalanceResponseMapperImpl.mapFrom(allCoins.get()));
     }
 }
