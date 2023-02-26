@@ -23,16 +23,15 @@ Feel free to star, fork or study from the code :)
 
 ---
 
-This API uses Spring Security. If you want to test or play with it you will an ADMIN user and
-[crypto-balance-tracker-login](https://gitlab.com/lucas.distasi/crypto-balance-tracker-login), a Kotlin-Spring 
+This API uses ***Spring Security*** and ***Docker Compose***. If you want to test or play with it you must have knowledge with
+Docker, an ADMIN user in the database and [crypto-balance-tracker-login](https://gitlab.com/lucas.distasi/crypto-balance-tracker-login), a Kotlin-Spring 
 project to generate a JWT and consume the endpoints from this project.
 If you don't want Authentication-Authorization make sure to use the branch ***no-security*** from this project.
 
 <br>
 
 #### TODO
-- Develop a front-end application (I don't know yet if I'm going to use ReactJS, VueJS, Angular or Svelte)
-- Dockerize all the microservices.
+- Develop a front-end application (I don't know yet if I'm going to use ReactJS, VueJS, Angular, Svelte or Vaadin)
 - Maybe let the microservices be ready to be deployed to the Cloud.
 
 ## Technologies used
@@ -77,6 +76,7 @@ You can access to Swagger Docs after starting the application and going to the f
    2. _MONGODB_USERNAME_. The username of your database.
    3. _MONGODB_PASSWORD_. The password of your user.
    4. _JWT_SIGNING_KEY_. The Signing Key if you are working with the secured branch.
+   5. _COINGEKO_API_KEY_. The Coingeko API Key (If you have one).
 6. Start the program in your favourite IDE or run the following command from the CLI.
 
 >./gradlew bootRun
