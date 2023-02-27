@@ -3,7 +3,7 @@ package com.distasilucas.cryptobalancetracker.mapper.impl;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.mapper.DescendingPercentageComparator;
+import com.distasilucas.cryptobalancetracker.comparators.DescendingPercentageComparator;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.model.response.CoinResponse;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;

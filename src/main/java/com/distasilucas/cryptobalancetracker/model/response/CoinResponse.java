@@ -15,7 +15,6 @@ public class CoinResponse {
     private BigDecimal quantity;
     private BigDecimal balance;
     private double percentage;
-
     private String platform;
 
     public CoinResponse(CoinInfo coinInfo, BigDecimal quantity, BigDecimal balance, String platform) {

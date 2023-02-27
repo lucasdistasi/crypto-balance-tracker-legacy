@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -64,6 +65,21 @@ class CryptoControllerTest {
                 () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
                 () -> assertEquals(coinsResponse.getBalance(), responseEntity.getBody().get().getCoins().get(0).getBalance()),
                 () -> assertEquals("btc", responseEntity.getBody().get().getCoins().get(0).getCoinInfo().getSymbol())
+        );
+    }
+
+    @Test
+    void shouldRetrieveCoinsBalanceByPlatform() {
+        var cryptoBalanceResponse = MockData.getCryptoPlatformBalanceResponse();
+
+        when(cryptoServiceMocK.retrieveCoinsBalanceByPlatform()).thenReturn(Optional.of(cryptoBalanceResponse));
+
+        var responseEntity = cryptoController.retrieveCoinsBalanceByPlatform();
+
+        assertNotNull(responseEntity.getBody());
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
+                () -> assertEquals(BigDecimal.valueOf(1000), responseEntity.getBody().get().getTotalBalance())
         );
     }
 

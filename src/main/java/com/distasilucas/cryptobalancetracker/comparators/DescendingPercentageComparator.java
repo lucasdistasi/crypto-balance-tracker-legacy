@@ -1,4 +1,4 @@
-package com.distasilucas.cryptobalancetracker.mapper;
+package com.distasilucas.cryptobalancetracker.comparators;
 
 import com.distasilucas.cryptobalancetracker.model.response.CoinResponse;
 
