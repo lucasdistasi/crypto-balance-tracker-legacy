@@ -8,13 +8,16 @@ import com.distasilucas.cryptobalancetracker.model.coingecko.CurrentPrice;
 import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
+import com.distasilucas.cryptobalancetracker.model.response.CoinInfoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.CoinResponse;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.CryptoPlatformBalanceResponse;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 public class MockData {
 
@@ -33,6 +36,23 @@ public class MockData {
         setPercentage(coinResponse);
 
         return cryptoBalanceResponse;
+    }
+
+    public static CryptoPlatformBalanceResponse getCryptoPlatformBalanceResponse() {
+        var coinInfo = getCoinInfoResponse();
+
+        return CryptoPlatformBalanceResponse.builder()
+                .totalBalance(TOTAL_BALANCE)
+                .coinInfoResponse(Collections.singletonList(coinInfo))
+                .build();
+    }
+
+    public static CoinInfoResponse getCoinInfoResponse() {
+        return CoinInfoResponse.builder()
+                .name("bitcoin")
+                .platforms(Set.of("Trezor", "Ledger"))
+                .balance(BigDecimal.valueOf(1000))
+                .build();
     }
 
     public static CoinResponse getCoinResponse(CoinInfo coinInfo) {

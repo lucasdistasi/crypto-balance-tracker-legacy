@@ -2,12 +2,15 @@ package com.distasilucas.cryptobalancetracker.service.impl;
 
 import com.distasilucas.cryptobalancetracker.MockData;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.mapper.BiFunctionMapper;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
+import com.distasilucas.cryptobalancetracker.model.response.CoinInfoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
+import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,7 +20,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiFunction;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,6 +45,9 @@ class CryptoServiceImplTest {
     EntityMapper<CryptoBalanceResponse, List<Crypto>> cryptoBalanceResponseMapperImplMock;
 
     @Mock
+    BiFunctionMapper<Map<String, BigDecimal>, CryptoBalanceResponse, List<CoinInfoResponse>> coinInfoResponseMapperImplMock;
+
+    @Mock
     CryptoRepository cryptoRepositoryMock;
 
     @Mock
@@ -50,7 +58,7 @@ class CryptoServiceImplTest {
     @BeforeEach
     void setUp() {
         cryptoService = new CryptoServiceImpl(cryptoMapperImplMock, cryptoDTOMapperImplMock, cryptoBalanceResponseMapperImplMock,
-                cryptoRepositoryMock, addCryptoValidationMock);
+                coinInfoResponseMapperImplMock, cryptoRepositoryMock, addCryptoValidationMock);
     }
 
     @Test
@@ -140,6 +148,38 @@ class CryptoServiceImplTest {
 
         assertAll(
                 () -> assertTrue(cryptoBalanceResponses.isEmpty())
+        );
+    }
+
+    @Test
+    void shouldRetrieveCoinsBalanceByPlatform() {
+        var allCryptos = MockData.getAllCryptos();
+        var cryptoBalanceResponse = MockData.getCryptoBalanceResponse();
+        var coinInfoResponse = MockData.getCoinInfoResponse();
+        BiFunction<Map<String, BigDecimal>, CryptoBalanceResponse, List<CoinInfoResponse>> biFunction = (a, b) -> Collections.singletonList(coinInfoResponse);
+
+        when(cryptoRepositoryMock.findAll()).thenReturn(allCryptos);
+        when(cryptoBalanceResponseMapperImplMock.mapFrom(allCryptos)).thenReturn(cryptoBalanceResponse);
+        when(coinInfoResponseMapperImplMock.map()).thenReturn(biFunction);
+
+        var platformBalanceResponse = cryptoService.retrieveCoinsBalanceByPlatform();
+
+        assertAll(
+                () -> assertTrue(platformBalanceResponse.isPresent()),
+                () -> assertEquals(cryptoBalanceResponse.getTotalBalance(), platformBalanceResponse.get().getTotalBalance()),
+                () -> assertTrue(CollectionUtils.isNotEmpty(platformBalanceResponse.get().getCoinInfoResponse())),
+                () -> assertEquals(coinInfoResponse.getName(), platformBalanceResponse.get().getCoinInfoResponse().get(0).getName())
+        );
+    }
+
+    @Test
+    void shouldRetrieveEmptyCoinsBalanceByPlatform() {
+        when(cryptoRepositoryMock.findAll()).thenReturn(Collections.emptyList());
+
+        var platformBalanceResponse = cryptoService.retrieveCoinsBalanceByPlatform();
+
+        assertAll(
+                () -> assertTrue(platformBalanceResponse.isEmpty())
         );
     }
 }
