@@ -1,5 +1,6 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
+import com.distasilucas.cryptobalancetracker.exception.ApiException;
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
 import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformCoinException;
@@ -146,6 +147,20 @@ class ExceptionControllerTest {
                 () -> assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode()),
                 () -> assertEquals(1, responseEntity.getBody().getErrors().size()),
                 () -> assertEquals(duplicatedPlatformCoinException.getErrorMessage(), responseEntity.getBody().getErrors().get(0).errorMessage())
+        );
+    }
+
+    @Test
+    void shouldThrowApiException() {
+        var apiException = new ApiException("You've found the easter egg", HttpStatus.I_AM_A_TEAPOT);
+
+        var responseEntity = exceptionController.handleApiException(apiException);
+
+        assertNotNull(responseEntity.getBody());
+        assertAll(
+                () -> assertEquals(HttpStatus.I_AM_A_TEAPOT, responseEntity.getStatusCode()),
+                () -> assertEquals(1, responseEntity.getBody().getErrors().size()),
+                () -> assertEquals(apiException.getErrorMessage(), responseEntity.getBody().getErrors().get(0).errorMessage())
         );
     }
 

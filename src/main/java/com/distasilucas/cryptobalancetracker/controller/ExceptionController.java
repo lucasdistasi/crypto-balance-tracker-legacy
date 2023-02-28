@@ -1,5 +1,6 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
+import com.distasilucas.cryptobalancetracker.exception.ApiException;
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
 import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformCoinException;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.everit.json.schema.ValidationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -103,6 +105,22 @@ public class ExceptionController {
         errorResponse.setTimeStamp(LocalDateTime.now());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(value = ApiException.class)
+    public ResponseEntity<ErrorResponse> handleApiException(ApiException apiException) {
+        log.warn("An ApiException has occurred: ", apiException);
+
+        HttpStatusCode httpStatusCode = apiException.getHttpStatusCode();
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .errors(Collections.singletonList(new Error(apiException.getErrorMessage())))
+                .statusCode(httpStatusCode.value())
+                .timeStamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(httpStatusCode)
                 .body(errorResponse);
     }
 

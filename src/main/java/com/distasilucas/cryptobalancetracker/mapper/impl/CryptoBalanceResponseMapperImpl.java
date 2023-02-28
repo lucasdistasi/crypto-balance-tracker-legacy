@@ -2,6 +2,7 @@ package com.distasilucas.cryptobalancetracker.mapper.impl;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
+import com.distasilucas.cryptobalancetracker.exception.ApiException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.comparators.DescendingPercentageComparator;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
@@ -11,13 +12,18 @@ import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.distasilucas.cryptobalancetracker.constant.Constants.MAX_RATE_LIMIT_REACHED;
+import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN_ERROR;
 
 @Slf4j
 @Service
@@ -29,8 +35,6 @@ public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalan
 
     @Override
     public CryptoBalanceResponse mapFrom(List<Crypto> input) {
-        log.info("Mapping from List<Crypto> to CryptoBalanceResponse");
-
         List<CoinResponse> coins = input.stream()
                 .map(this::getCoinResponse)
                 .collect(Collectors.toList());
@@ -44,13 +48,25 @@ public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalan
     }
 
     private CoinResponse getCoinResponse(Crypto coin) {
-        CoinInfo coinInfo = coingeckoService.retrieveCoinInfo(coin.getCoinId());
-        BigDecimal quantity = coin.getQuantity();
-        BigDecimal balance = coinInfo.getMarketData().currentPrice().usd().multiply(quantity);
-        Optional<Platform> platform = platformRepository.findById(coin.getPlatformId());
-        String platformName = platform.isPresent() ? platform.get().getName() : "Unknown";
+        try {
+            log.info("Attempting to retrieve {} information from Coingecko or cache", coin.getName());
 
-        return new CoinResponse(coinInfo, quantity, balance, platformName);
+            CoinInfo coinInfo = coingeckoService.retrieveCoinInfo(coin.getCoinId());
+            BigDecimal quantity = coin.getQuantity();
+            BigDecimal balance = coinInfo.getMarketData().currentPrice().usd().multiply(quantity);
+            Optional<Platform> platform = platformRepository.findById(coin.getPlatformId());
+            String platformName = platform.isPresent() ? platform.get().getName() : "Unknown";
+
+            return new CoinResponse(coinInfo, quantity, balance, platformName);
+        } catch (WebClientResponseException ex) {
+            if (HttpStatus.TOO_MANY_REQUESTS.equals(ex.getStatusCode())) {
+                log.error("To many requests. Rate limit reached.");
+
+                throw new ApiException(MAX_RATE_LIMIT_REACHED, ex.getStatusCode());
+            }
+
+            throw new ApiException(UNKNOWN_ERROR);
+        }
     }
 
     private void setPercentage(BigDecimal totalMoney, CoinResponse coinResponse) {
