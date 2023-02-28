@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
+import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -45,6 +46,23 @@ class CryptoDTOMapperImplTest {
                 () -> assertEquals(crypto.getQuantity(), cryptoDTO.quantity()),
                 () -> assertEquals(crypto.getCoinId(), cryptoDTO.coinId()),
                 () -> assertEquals(crypto.getPlatformId(), platform.getId())
+        );
+    }
+
+    @Test
+    void shouldMapSuccessfullyWithUnkownPlatform() {
+        var crypto = MockData.getCrypto("1234");
+
+        when(platformRepositoryMock.findById("1234")).thenReturn(Optional.empty());
+
+        var cryptoDTO = cryptoDTOMapperImpl.mapFrom(crypto);
+
+        assertAll(
+                () -> assertEquals(crypto.getName(), cryptoDTO.coin_name()),
+                () -> assertEquals(crypto.getTicker(), cryptoDTO.ticker()),
+                () -> assertEquals(crypto.getQuantity(), cryptoDTO.quantity()),
+                () -> assertEquals(crypto.getCoinId(), cryptoDTO.coinId()),
+                () -> assertEquals(UNKNOWN, cryptoDTO.platform())
         );
     }
 

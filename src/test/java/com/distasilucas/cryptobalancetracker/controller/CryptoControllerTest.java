@@ -2,6 +2,7 @@ package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.MockData;
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
+import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,6 +70,19 @@ class CryptoControllerTest {
     }
 
     @Test
+    void shouldReturnNoContentForCryptosBalances() {
+        when(cryptoServiceMocK.retrieveCoinsBalances()).thenReturn(Optional.empty());
+
+        var responseEntity = cryptoController.retrieveCoinsBalance();
+
+        assertNotNull(responseEntity.getBody());
+        assertAll(
+                () -> assertTrue(responseEntity.getBody().isEmpty()),
+                () -> assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode())
+        );
+    }
+
+    @Test
     void shouldRetrieveCoinsBalanceByPlatform() {
         var cryptoBalanceResponse = MockData.getCryptoPlatformBalanceResponse();
 
@@ -80,6 +94,36 @@ class CryptoControllerTest {
         assertAll(
                 () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
                 () -> assertEquals(BigDecimal.valueOf(1000), responseEntity.getBody().get().getTotalBalance())
+        );
+    }
+
+    @Test
+    void shouldReturnNoContentForCoinsBalanceByPlatform() {
+        when(cryptoServiceMocK.retrieveCoinsBalanceByPlatform()).thenReturn(Optional.empty());
+
+        var responseEntity = cryptoController.retrieveCoinsBalanceByPlatform();
+
+        assertNotNull(responseEntity.getBody());
+        assertAll(
+                () -> assertTrue(responseEntity.getBody().isEmpty()),
+                () -> assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode())
+        );
+    }
+
+    @Test
+    void shouldRetrieveCryptosBalances() {
+        var cryptoBalanceResponse = MockData.getCryptoBalanceResponse();
+
+        when(cryptoServiceMocK.retrieveCoinBalance("bitcoin")).thenReturn(Optional.of(cryptoBalanceResponse));
+
+        var responseEntity = cryptoController.retrieveCoinBalance("bitcoin");
+
+        assertNotNull(responseEntity.getBody());
+        assertAll(
+                () -> assertTrue(responseEntity.getBody().isPresent()),
+                () -> assertEquals(cryptoBalanceResponse.getTotalBalance(), responseEntity.getBody().get().getTotalBalance()),
+                () -> assertEquals(cryptoBalanceResponse.getCoins().size(), responseEntity.getBody().get().getCoins().size()),
+                () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode())
         );
     }
 

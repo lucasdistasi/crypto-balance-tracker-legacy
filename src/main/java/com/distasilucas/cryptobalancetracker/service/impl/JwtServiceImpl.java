@@ -1,12 +1,15 @@
 package com.distasilucas.cryptobalancetracker.service.impl;
 
+import com.distasilucas.cryptobalancetracker.exception.ApiException;
 import com.distasilucas.cryptobalancetracker.service.JwtService;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -14,19 +17,24 @@ import java.security.Key;
 import java.util.Date;
 import java.util.function.Function;
 
+import static com.distasilucas.cryptobalancetracker.constant.Constants.TOKEN_EXPIRED;
+import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN_ERROR;
+
 @Slf4j
 @Service
 public class JwtServiceImpl implements JwtService {
 
-    @Value("${jwt.signing-key}")
-    private String JWT_SIGNING_KEY;
+    private final String jwtSigningKey;
+
+    public JwtServiceImpl(@Value("${jwt.signing-key}") String jwtSigningKey) {
+        this.jwtSigningKey = jwtSigningKey;
+    }
 
     @Override
     public Boolean isTokenValid(String token, UserDetails userDetails) {
-        log.info("Validating token {} for {}", token, userDetails.getUsername());
+        log.info("Validating JWT token for {}", userDetails.getUsername());
 
-        return extractUsername(token).equals(userDetails.getUsername()) &&
-                isTokenNonExpired(token);
+        return isTokenNonExpired(token) && extractUsername(token).equals(userDetails.getUsername());
     }
 
     @Override
@@ -47,15 +55,22 @@ public class JwtServiceImpl implements JwtService {
     }
 
     private Claims extractClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException ex) {
+            throw new ApiException(TOKEN_EXPIRED, HttpStatus.BAD_REQUEST);
+        } catch (Exception ex) {
+            log.warn("Exception when parsing JWT Token: {}", ex.getMessage());
+            throw new ApiException(UNKNOWN_ERROR);
+        }
     }
 
     private Key getSigningKey() {
-        byte[] decoders = Decoders.BASE64.decode(JWT_SIGNING_KEY);
+        byte[] decoders = Decoders.BASE64.decode(jwtSigningKey);
 
         return Keys.hmacShaKeyFor(decoders);
     }

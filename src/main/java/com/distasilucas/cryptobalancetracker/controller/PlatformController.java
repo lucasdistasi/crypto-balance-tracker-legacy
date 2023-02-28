@@ -1,5 +1,6 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
+import com.distasilucas.cryptobalancetracker.controller.helper.ControllerHelper;
 import com.distasilucas.cryptobalancetracker.controller.swagger.PlatformControllerApi;
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
@@ -25,28 +26,28 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/platform")
 @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-public class PlatformController implements PlatformControllerApi {
+public class PlatformController implements PlatformControllerApi, ControllerHelper {
 
     private final PlatformService platformService;
 
     @Override
     @GetMapping("/{platformName}/coins")
     public ResponseEntity<Optional<CryptoBalanceResponse>> getCoins(@PathVariable String platformName) {
-        Optional<CryptoBalanceResponse> allCoins = platformService.getAllCoins(platformName);
-        HttpStatus httpStatus = allCoins.isPresent() ? HttpStatus.OK : HttpStatus.NO_CONTENT;
+        Optional<CryptoBalanceResponse> response = platformService.getAllCoins(platformName);
+        HttpStatus httpStatus = getHttpStatusCode(response);
 
         return ResponseEntity.status(httpStatus)
-                .body(allCoins);
+                .body(response);
     }
 
     @Override
     @GetMapping("/balances")
     public ResponseEntity<Optional<PlatformBalanceResponse>> getPlatformsBalances() {
-        Optional<PlatformBalanceResponse> platformsBalances = platformService.getPlatformsBalances();
-        HttpStatus httpStatus = platformsBalances.isPresent() ? HttpStatus.OK : HttpStatus.NO_CONTENT;
+        Optional<PlatformBalanceResponse> response = platformService.getPlatformsBalances();
+        HttpStatus httpStatus = getHttpStatusCode(response);
 
         return ResponseEntity.status(httpStatus)
-                .body(platformsBalances);
+                .body(response);
     }
 
     @Override

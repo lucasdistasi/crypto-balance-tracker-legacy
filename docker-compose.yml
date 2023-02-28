@@ -1,6 +1,13 @@
 version: '3.9'
 
 services:
+  sonarqube:
+    image: 'sonarqube:lts'
+    ports:
+      - '9000:9000'
+    environment:
+      - SONAR_FORCEAUTHENTICATION=false
+
   mongo-crypto-db:
     image: 'mongo:latest'
     container_name: 'mongo-crypto-db'

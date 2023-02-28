@@ -91,6 +91,7 @@ public class PlatformServiceImpl implements PlatformService {
     @Override
     public PlatformDTO updatePlatform(PlatformDTO platformDTO, String platformName) {
         addPlatformValidation.validate(platformDTO);
+
         Platform platform = findPlatformByName(platformName);
         String newPlatformName = platformDTO.getName();
         platform.setName(newPlatformName);
@@ -105,6 +106,7 @@ public class PlatformServiceImpl implements PlatformService {
     @Override
     public CryptoDTO updatePlatformCoin(CryptoDTO cryptoDTO, String platformName, String coinId) {
         updateCryptoValidation.validate(cryptoDTO);
+
         Platform platform = findPlatformByName(platformName);
         Optional<Crypto> optionalExistingCrypto = cryptoRepository.findByCoinIdAndPlatformId(coinId, platform.getId());
 

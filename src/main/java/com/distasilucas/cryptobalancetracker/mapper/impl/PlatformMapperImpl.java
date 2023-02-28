@@ -12,12 +12,8 @@ public class PlatformMapperImpl implements EntityMapper<Platform, PlatformDTO> {
 
     @Override
     public Platform mapFrom(PlatformDTO input) {
-        Function<PlatformDTO, Platform> platformFunction = this::getPlatform;
+        Function<PlatformDTO, Platform> platformFunction = platformDTO -> new Platform(platformDTO.getName());
 
         return platformFunction.apply(input);
-    }
-
-    private Platform getPlatform(PlatformDTO platformDTO) {
-        return new Platform(platformDTO.getName());
     }
 }
