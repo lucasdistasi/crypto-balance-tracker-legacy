@@ -32,9 +32,12 @@ class QuantityValueValidatorTest {
         entityValidation.validate(cryptoDTO);
     }
 
-    @Test
-    void shouldThrowApiValidationExceptionIfLengthIsInvalid() {
-        var cryptoDTO = getCryptoDTO(BigDecimal.valueOf(9999999999999999.9999999999999));
+    @ParameterizedTest
+    @ValueSource(strings = { "9999999999999999.9999999999999",
+            "99999999999999999.999999999999"})
+    void shouldThrowApiValidationExceptionIfLengthIsInvalid(String length) {
+        BigDecimal quantity = new BigDecimal(length);
+        var cryptoDTO = getCryptoDTO(quantity);
 
         var apiValidationException = assertThrows(
                 ApiValidationException.class,

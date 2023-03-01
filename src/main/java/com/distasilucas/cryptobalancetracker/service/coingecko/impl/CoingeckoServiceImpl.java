@@ -3,7 +3,6 @@ package com.distasilucas.cryptobalancetracker.service.coingecko.impl;
 import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,12 +20,16 @@ import static com.distasilucas.cryptobalancetracker.constant.Constants.CRYPTO_PR
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class CoingeckoServiceImpl implements CoingeckoService {
 
-    @Value("${coingecko.pro.api-key}")
-    private String coingeckoApiKey;
+    private final String coingeckoApiKey;
     private final WebClient coingeckoWebClient;
+
+    public CoingeckoServiceImpl(@Value("${coingecko.pro.api-key}") String coingeckoApiKey,
+                                WebClient coingeckoWebClient) {
+        this.coingeckoApiKey = coingeckoApiKey;
+        this.coingeckoWebClient = coingeckoWebClient;
+    }
 
     @Override
     @Cacheable(cacheNames = COINGECKO_CRYPTOS_CACHE)

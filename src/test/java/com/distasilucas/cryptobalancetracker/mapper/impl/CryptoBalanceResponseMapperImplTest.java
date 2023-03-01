@@ -19,8 +19,10 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.constant.Constants.MAX_RATE_LIMIT_REACHED;
+import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN_ERROR;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -50,6 +52,26 @@ class CryptoBalanceResponseMapperImplTest {
     void shouldMapSuccessfully() {
         var cryptos = MockData.getAllCryptos();
         var coinInfo = MockData.getCoinInfo();
+        var platform = MockData.getPlatform("Ledger");
+
+        when(coingeckoServiceImplMock.retrieveCoinInfo("bitcoin")).thenReturn(coinInfo);
+        when(platformRepositoryMock.findById("1234")).thenReturn(Optional.of(platform));
+
+        var cryptoBalanceResponse = cryptoBalanceResponseMapperImpl.mapFrom(cryptos);
+        var totalBalance = cryptoBalanceResponse.getTotalBalance();
+        var expectedBalance = totalBalance.setScale(2, RoundingMode.HALF_UP);
+
+        assertAll(
+                () -> assertEquals(cryptos.size(), cryptoBalanceResponse.getCoins().size()),
+                () -> assertEquals(platform.getName(), cryptoBalanceResponse.getCoins().get(0).getPlatform()),
+                () -> assertEquals(expectedBalance, totalBalance)
+        );
+    }
+
+    @Test
+    void shouldMapSuccessfullyWithUnknownPlatform() {
+        var cryptos = MockData.getAllCryptos();
+        var coinInfo = MockData.getCoinInfo();
 
         when(coingeckoServiceImplMock.retrieveCoinInfo("bitcoin")).thenReturn(coinInfo);
 
@@ -59,19 +81,21 @@ class CryptoBalanceResponseMapperImplTest {
 
         assertAll(
                 () -> assertEquals(cryptos.size(), cryptoBalanceResponse.getCoins().size()),
+                () -> assertEquals(UNKNOWN, cryptoBalanceResponse.getCoins().get(0).getPlatform()),
                 () -> assertEquals(expectedBalance, totalBalance)
         );
     }
 
     @Test
     void shouldThrowApiExceptionWhenReachingRateLimit() {
+        var allCryptos = MockData.getAllCryptos();
         var crypto = MockData.getCrypto("Ledger");
         var webClientResponseException = new WebClientResponseException(HttpStatus.TOO_MANY_REQUESTS.value(), "TOO_MANY_REQUESTS", null, null, null);
 
         doThrow(webClientResponseException).when(coingeckoServiceImplMock).retrieveCoinInfo(crypto.getCoinId());
 
         ApiException apiException = assertThrows(ApiException.class,
-                () -> cryptoBalanceResponseMapperImpl.mapFrom(Collections.singletonList(crypto)));
+                () -> cryptoBalanceResponseMapperImpl.mapFrom(allCryptos));
 
         assertAll(
                 () -> assertEquals(HttpStatus.TOO_MANY_REQUESTS, apiException.getHttpStatusCode()),
@@ -81,13 +105,14 @@ class CryptoBalanceResponseMapperImplTest {
 
     @Test
     void shouldThrowApiException() {
+        var allCryptos = MockData.getAllCryptos();
         var crypto = MockData.getCrypto("Ledger");
         var webClientResponseException = new WebClientResponseException(HttpStatus.TOO_EARLY.value(), "TOO_EARLY", null, null, null);
 
         doThrow(webClientResponseException).when(coingeckoServiceImplMock).retrieveCoinInfo(crypto.getCoinId());
 
         ApiException apiException = assertThrows(ApiException.class,
-                () -> cryptoBalanceResponseMapperImpl.mapFrom(Collections.singletonList(crypto)));
+                () -> cryptoBalanceResponseMapperImpl.mapFrom(allCryptos));
 
         assertAll(
                 () -> assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, apiException.getHttpStatusCode()),

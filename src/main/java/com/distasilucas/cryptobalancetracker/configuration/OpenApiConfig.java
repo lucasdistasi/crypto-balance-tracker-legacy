@@ -20,7 +20,7 @@ public class OpenApiConfig {
         Info openApiInfo = new Info()
                 .title("Crypto Balance Tracker")
                 .version("v1.0.0")
-                .description("REST API to add cryptocurrencies with their respective balance and retrieve the percentage of each coin");
+                .description("REST API to add cryptocurrencies with their respective quantity and platform to retrieve wide information about balances distribution");
 
         return new OpenAPI()
                 .info(openApiInfo)

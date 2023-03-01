@@ -1,5 +1,6 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
+import com.distasilucas.cryptobalancetracker.controller.helper.ControllerHelper;
 import com.distasilucas.cryptobalancetracker.controller.swagger.CryptoControllerApi;
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
@@ -22,7 +23,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/crypto")
 @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-public class CryptoController implements CryptoControllerApi {
+public class CryptoController implements CryptoControllerApi, ControllerHelper {
 
     private final CryptoService<CryptoDTO> cryptoService;
 
@@ -38,18 +39,18 @@ public class CryptoController implements CryptoControllerApi {
     @Override
     @GetMapping("/balances")
     public ResponseEntity<Optional<CryptoBalanceResponse>> retrieveCoinsBalance() {
-        Optional<CryptoBalanceResponse> cryptoBalanceResponse = cryptoService.retrieveCoinsBalances();
-        HttpStatus httpStatus = cryptoBalanceResponse.isPresent() ? HttpStatus.OK : HttpStatus.NO_CONTENT;
+        Optional<CryptoBalanceResponse> response = cryptoService.retrieveCoinsBalances();
+        HttpStatus httpStatus = getHttpStatusCode(response);
 
         return ResponseEntity.status(httpStatus)
-                .body(cryptoBalanceResponse);
+                .body(response);
     }
 
     @Override
     @GetMapping("/balances/platforms")
     public ResponseEntity<Optional<CryptoPlatformBalanceResponse>> retrieveCoinsBalanceByPlatform() {
         Optional<CryptoPlatformBalanceResponse> response = cryptoService.retrieveCoinsBalanceByPlatform();
-        HttpStatus httpStatus = response.isPresent() ? HttpStatus.OK : HttpStatus.NO_CONTENT;
+        HttpStatus httpStatus = getHttpStatusCode(response);
 
         return ResponseEntity.status(httpStatus)
                 .body(response);
@@ -58,10 +59,10 @@ public class CryptoController implements CryptoControllerApi {
     @Override
     @GetMapping("/{coinId}")
     public ResponseEntity<Optional<CryptoBalanceResponse>> retrieveCoinBalance(@PathVariable String coinId) {
-        Optional<CryptoBalanceResponse> cryptoBalanceResponse = cryptoService.retrieveCoinBalance(coinId);
-        HttpStatus httpStatus = cryptoBalanceResponse.isPresent() ? HttpStatus.OK : HttpStatus.NO_CONTENT;
+        Optional<CryptoBalanceResponse> response = cryptoService.retrieveCoinBalance(coinId);
+        HttpStatus httpStatus = getHttpStatusCode(response);
 
         return ResponseEntity.status(httpStatus)
-                .body(cryptoBalanceResponse);
+                .body(response);
     }
 }

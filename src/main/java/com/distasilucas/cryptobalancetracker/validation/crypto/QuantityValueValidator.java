@@ -23,7 +23,7 @@ public class QuantityValueValidator implements EntityValidation<CryptoDTO> {
     private boolean isValid(BigDecimal quantity) {
         return isGreaterThanZero(quantity) &&
                 isLessThanMaxAllowed(quantity) &&
-                validateLength(quantity);
+                isValidLength(quantity);
     }
 
     private boolean isGreaterThanZero(BigDecimal quantity) {
@@ -34,11 +34,13 @@ public class QuantityValueValidator implements EntityValidation<CryptoDTO> {
         return quantity.compareTo(MAX_CRYPTO_QUANTITY) < 0;
     }
 
-    private boolean validateLength(BigDecimal quantity) {
+    private boolean isValidLength(BigDecimal quantity) {
         String[] quantityValue = String.valueOf(quantity).split("\\.");
 
-        return (quantityValue.length == 1) ||
-                quantityValue[0].length() <= 16 &&
-                        quantityValue[1].length() <= 12;
+        return quantityValue.length == 1 || isValidNumberWithDecimals(quantityValue);
+    }
+
+    private static boolean isValidNumberWithDecimals(String[] quantityValue) {
+        return quantityValue[0].length() <= 16 && quantityValue[1].length() <= 12;
     }
 }

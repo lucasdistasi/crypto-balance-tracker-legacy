@@ -26,21 +26,10 @@ public class CoinInfoResponseMapperImpl implements BiFunctionMapper<Map<String, 
             List<CoinResponse> coins = cryptoBalanceResponse.getCoins();
 
             coinByPlatform.forEach((coinName, coinTotalBalance) -> {
-                List<CoinResponse> coinsResponse = coins.stream()
-                        .filter(coin -> coin.getCoinInfo().getName().equals(coinName))
-                        .toList();
-
-                BigDecimal totalQuantity = coinsResponse.stream()
-                        .map(CoinResponse::getQuantity)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-                Double totalPercentage = coinsResponse.stream()
-                        .map(CoinResponse::getPercentage)
-                        .reduce((double) 0, Double::sum);
-
-                Set<String> platforms = coinsResponse.stream()
-                        .map(CoinResponse::getPlatform)
-                        .collect(Collectors.toSet());
+                List<CoinResponse> coinsResponse = getCoinsResponse(coins, coinName);
+                BigDecimal totalQuantity = getTotalQuantity(coinsResponse);
+                Double totalPercentage = getTotalPercentage(coinsResponse);
+                Set<String> platforms = getPlatforms(coinsResponse);
 
                 CoinInfoResponse coinInfoResponse = CoinInfoResponse.builder()
                         .quantity(totalQuantity)
@@ -57,5 +46,29 @@ public class CoinInfoResponseMapperImpl implements BiFunctionMapper<Map<String, 
 
             return coinInfoResponses;
         };
+    }
+
+    private List<CoinResponse> getCoinsResponse(List<CoinResponse> coins, String coinName) {
+        return coins.stream()
+                .filter(coin -> coin.getCoinInfo().getName().equals(coinName))
+                .toList();
+    }
+
+    private BigDecimal getTotalQuantity(List<CoinResponse> coinsResponse) {
+        return coinsResponse.stream()
+                .map(CoinResponse::getQuantity)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private Double getTotalPercentage(List<CoinResponse> coinsResponse) {
+        return coinsResponse.stream()
+                .map(CoinResponse::getPercentage)
+                .reduce((double) 0, Double::sum);
+    }
+
+    private Set<String> getPlatforms(List<CoinResponse> coinsResponse) {
+        return coinsResponse.stream()
+                .map(CoinResponse::getPlatform)
+                .collect(Collectors.toSet());
     }
 }

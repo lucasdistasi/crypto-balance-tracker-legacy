@@ -40,7 +40,7 @@ public class CryptoMapperImpl implements EntityMapper<Crypto, CryptoDTO> {
             coins = coingeckoService.retrieveAllCoins();
         } catch (WebClientResponseException ex) {
             if (HttpStatus.TOO_MANY_REQUESTS.equals(ex.getStatusCode())) {
-                log.error("To many requests. Rate limit reached.");
+                log.warn("To many requests. Rate limit reached.");
 
                 throw new ApiException(MAX_RATE_LIMIT_REACHED, ex.getStatusCode());
             }

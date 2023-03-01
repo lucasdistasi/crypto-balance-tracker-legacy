@@ -10,6 +10,8 @@ import com.distasilucas.cryptobalancetracker.validation.EntityValidation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -35,6 +37,36 @@ class CryptoPlatformValidatorTest {
     @BeforeEach
     void setUp() {
         entityValidation = new CryptoPlatformValidator(cryptoRepositoryMock, platformRepositoryMock);
+    }
+
+
+
+    @Test
+    void shouldValidateSuccessfully() {
+        var cryptoDTO = MockData.getCryptoDTO();
+        var platform = MockData.getPlatform("LEDGER");
+
+        when(platformRepositoryMock.findByName(cryptoDTO.platform().toUpperCase()))
+                .thenReturn(Optional.of(platform));
+        when(cryptoRepositoryMock.findByNameAndPlatformId(cryptoDTO.coin_name(), platform.getId()))
+                .thenReturn(Optional.empty());
+
+        entityValidation.validate(cryptoDTO);
+    }
+
+    @Test
+    void shouldValidateSuccessfullyWithExistingCryptoInAnotherPlatform() {
+        var cryptoDTO = MockData.getCryptoDTO();
+        var platform = MockData.getPlatform("Binance");
+        var anotherPlatform = MockData.getPlatform("Binance");
+        var crypto = MockData.getCrypto(platform.getId());
+
+        when(platformRepositoryMock.findByName(cryptoDTO.platform().toUpperCase()))
+                .thenReturn(Optional.of(anotherPlatform));
+        when(cryptoRepositoryMock.findByNameAndPlatformId(cryptoDTO.coin_name(), platform.getId()))
+                .thenReturn(Optional.of(crypto));
+
+        entityValidation.validate(cryptoDTO);
     }
 
     @Test
@@ -69,18 +101,5 @@ class CryptoPlatformValidatorTest {
         var message = String.format(DUPLICATED_PLATFORM_COIN, crypto.getName(), platform.getName());
 
         assertEquals(message, apiValidationException.getErrorMessage());
-    }
-
-    @Test
-    void shouldValidateSuccessfully() {
-        var cryptoDTO = MockData.getCryptoDTO();
-        var platform = MockData.getPlatform("LEDGER");
-
-        when(platformRepositoryMock.findByName(cryptoDTO.platform().toUpperCase()))
-                .thenReturn(Optional.of(platform));
-        when(cryptoRepositoryMock.findByNameAndPlatformId(cryptoDTO.coin_name(), platform.getId()))
-                .thenReturn(Optional.empty());
-
-        entityValidation.validate(cryptoDTO);
     }
 }

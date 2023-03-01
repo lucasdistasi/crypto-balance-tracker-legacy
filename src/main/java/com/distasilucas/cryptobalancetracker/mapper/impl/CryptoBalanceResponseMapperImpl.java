@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.distasilucas.cryptobalancetracker.constant.Constants.MAX_RATE_LIMIT_REACHED;
+import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN_ERROR;
 
 @Slf4j
@@ -55,12 +56,12 @@ public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalan
             BigDecimal quantity = coin.getQuantity();
             BigDecimal balance = coinInfo.getMarketData().currentPrice().usd().multiply(quantity);
             Optional<Platform> platform = platformRepository.findById(coin.getPlatformId());
-            String platformName = platform.isPresent() ? platform.get().getName() : "Unknown";
+            String platformName = platform.isPresent() ? platform.get().getName() : UNKNOWN;
 
             return new CoinResponse(coinInfo, quantity, balance, platformName);
         } catch (WebClientResponseException ex) {
             if (HttpStatus.TOO_MANY_REQUESTS.equals(ex.getStatusCode())) {
-                log.error("To many requests. Rate limit reached.");
+                log.warn("To many requests. Rate limit reached.");
 
                 throw new ApiException(MAX_RATE_LIMIT_REACHED, ex.getStatusCode());
             }

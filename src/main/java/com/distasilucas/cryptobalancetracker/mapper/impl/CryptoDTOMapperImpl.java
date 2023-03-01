@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.function.Function;
 
+import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -28,7 +30,7 @@ public class CryptoDTOMapperImpl implements EntityMapper<CryptoDTO, Crypto> {
 
     private CryptoDTO getCryptoDTO(Crypto crypto) {
         Optional<Platform> platform = platformRepository.findById(crypto.getPlatformId());
-        String platformName = platform.isPresent() ? platform.get().getName() : "Unknown";
+        String platformName = platform.isPresent() ? platform.get().getName() : UNKNOWN;
 
         return CryptoDTO.builder()
                 .coin_name(crypto.getName())
