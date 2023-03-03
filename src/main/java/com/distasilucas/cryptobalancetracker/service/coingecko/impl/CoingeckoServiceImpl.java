@@ -1,6 +1,5 @@
 package com.distasilucas.cryptobalancetracker.service.coingecko.impl;
 
-import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import lombok.extern.slf4j.Slf4j;
@@ -33,13 +32,13 @@ public class CoingeckoServiceImpl implements CoingeckoService {
 
     @Override
     @Cacheable(cacheNames = COINGECKO_CRYPTOS_CACHE)
-    public List<Coin> retrieveAllCoins() {
+    public List<CoinInfo> retrieveAllCoins() {
         log.info("Hitting Coingecko API... Retrieving all cryptos");
 
         return coingeckoWebClient.get()
                 .uri(getUriBuilder("/coins/list"))
                 .retrieve()
-                .bodyToFlux(Coin.class)
+                .bodyToFlux(CoinInfo.class)
                 .collectList()
                 .block();
     }
@@ -47,14 +46,16 @@ public class CoingeckoServiceImpl implements CoingeckoService {
     @Override
     @Cacheable(cacheNames = CRYPTO_PRICE_CACHE, key = "#coinId")
     public CoinInfo retrieveCoinInfo(String coinId) {
-        log.info("Hitting Coingecko API... Retrieving information for {}", coinId);
+        log.info("Hitting Coingecko API... Retrieving information for [{}]", coinId);
         String uri = String.format("/coins/%s", coinId);
 
-        return coingeckoWebClient.get()
+        CoinInfo coinInfo = coingeckoWebClient.get()
                 .uri(getUriBuilder(uri))
                 .retrieve()
                 .bodyToMono(CoinInfo.class)
                 .block();
+
+        return mapCoinInfo().apply(coinInfo);
     }
 
     private Function<UriBuilder, URI> getUriBuilder(String url) {
@@ -68,5 +69,17 @@ public class CoingeckoServiceImpl implements CoingeckoService {
         return StringUtils.isNotBlank(coingeckoApiKey) ?
                 proCoingekoUri :
                 freeCoingekoUri;
+    }
+
+    private Function<CoinInfo, CoinInfo> mapCoinInfo() {
+        return originalCoinInfo -> {
+            CoinInfo coinInfo = new CoinInfo();
+            coinInfo.setId(originalCoinInfo.getId());
+            coinInfo.setName(originalCoinInfo.getName());
+            coinInfo.setSymbol(originalCoinInfo.getSymbol());
+            coinInfo.setMarketData(originalCoinInfo.getMarketData());
+
+            return coinInfo;
+        };
     }
 }

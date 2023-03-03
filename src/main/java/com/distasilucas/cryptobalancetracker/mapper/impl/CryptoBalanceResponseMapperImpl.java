@@ -1,38 +1,39 @@
 package com.distasilucas.cryptobalancetracker.mapper.impl;
 
+import com.distasilucas.cryptobalancetracker.comparators.DescendingPercentageComparator;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.exception.ApiException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.comparators.DescendingPercentageComparator;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
+import com.distasilucas.cryptobalancetracker.model.coingecko.CurrentPrice;
+import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.model.response.CoinResponse;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
+import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
-import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.distasilucas.cryptobalancetracker.constant.Constants.MAX_RATE_LIMIT_REACHED;
+import static com.distasilucas.cryptobalancetracker.constant.Constants.COIN_NAME_NOT_FOUND;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN;
-import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN_ERROR;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalanceResponse, List<Crypto>> {
 
-    private final CoingeckoService coingeckoService;
     private final PlatformRepository platformRepository;
+    private final CryptoRepository cryptoRepository;
 
     @Override
     public CryptoBalanceResponse mapFrom(List<Crypto> input) {
@@ -49,25 +50,17 @@ public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalan
     }
 
     private CoinResponse getCoinResponse(Crypto coin) {
-        try {
-            log.info("Attempting to retrieve {} information from Coingecko or cache", coin.getName());
+        Optional<Crypto> crypto = cryptoRepository.findById(coin.getId());
 
-            CoinInfo coinInfo = coingeckoService.retrieveCoinInfo(coin.getCoinId());
-            BigDecimal quantity = coin.getQuantity();
-            BigDecimal balance = coinInfo.getMarketData().currentPrice().usd().multiply(quantity);
-            Optional<Platform> platform = platformRepository.findById(coin.getPlatformId());
-            String platformName = platform.isPresent() ? platform.get().getName() : UNKNOWN;
+        if (crypto.isEmpty()) {
+            String message = String.format(COIN_NAME_NOT_FOUND, coin.getName());
 
-            return new CoinResponse(coinInfo, quantity, balance, platformName);
-        } catch (WebClientResponseException ex) {
-            if (HttpStatus.TOO_MANY_REQUESTS.equals(ex.getStatusCode())) {
-                log.warn("To many requests. Rate limit reached.");
-
-                throw new ApiException(MAX_RATE_LIMIT_REACHED, ex.getStatusCode());
-            }
-
-            throw new ApiException(UNKNOWN_ERROR);
+            throw new ApiException(message, HttpStatus.NOT_FOUND);
         }
+
+        CoinInfo coinInfo = mapCoinInfo().apply(crypto.get());
+
+        return getCoinResponse(coin, coinInfo);
     }
 
     private void setPercentage(BigDecimal totalMoney, CoinResponse coinResponse) {
@@ -84,5 +77,29 @@ public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalan
         return coins.stream()
                 .map(CoinResponse::getBalance)
                 .reduce(BigDecimal.valueOf(0), BigDecimal::add);
+    }
+
+    private CoinResponse getCoinResponse(Crypto coin, CoinInfo coinInfo) {
+        BigDecimal quantity = coin.getQuantity();
+        BigDecimal balance = coinInfo.getMarketData().currentPrice().usd().multiply(quantity);
+        Optional<Platform> platform = platformRepository.findById(coin.getPlatformId());
+        String platformName = platform.isPresent() ? platform.get().getName() : UNKNOWN;
+
+        return new CoinResponse(coinInfo, quantity, balance, platformName);
+    }
+
+    private Function<Crypto, CoinInfo> mapCoinInfo() {
+        return crypto -> {
+            CurrentPrice currentPrice = new CurrentPrice(crypto.getLastKnownPrice());
+            MarketData marketData = new MarketData(currentPrice, crypto.getTotalSupply(), crypto.getMaxSupply());
+
+            CoinInfo coinInfo = new CoinInfo();
+            coinInfo.setId(crypto.getId());
+            coinInfo.setSymbol(crypto.getTicker());
+            coinInfo.setName(crypto.getName());
+            coinInfo.setMarketData(marketData);
+
+            return coinInfo;
+        };
     }
 }

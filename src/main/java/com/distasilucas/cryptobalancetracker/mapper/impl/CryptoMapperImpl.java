@@ -5,7 +5,8 @@ import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.exception.ApiException;
 import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
+import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
+import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
@@ -15,7 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.distasilucas.cryptobalancetracker.constant.Constants.COIN_NAME_NOT_FOUND;
@@ -32,10 +33,10 @@ public class CryptoMapperImpl implements EntityMapper<Crypto, CryptoDTO> {
 
     @Override
     public Crypto mapFrom(CryptoDTO cryptoDTO) {
-        List<Coin> coins;
+        List<CoinInfo> coins;
 
         try {
-            log.info("Attempting to retrieve {} information from Coingecko or cache", cryptoDTO.coin_name());
+            log.info("Attempting to retrieve [{}] information from Coingecko or cache", cryptoDTO.coin_name());
 
             coins = coingeckoService.retrieveAllCoins();
         } catch (WebClientResponseException ex) {
@@ -51,7 +52,7 @@ public class CryptoMapperImpl implements EntityMapper<Crypto, CryptoDTO> {
         return getCrypto(cryptoDTO, coins);
     }
 
-    private Crypto getCrypto(CryptoDTO cryptoDTO, List<Coin> coins) {
+    private Crypto getCrypto(CryptoDTO cryptoDTO, List<CoinInfo> coins) {
         Crypto crypto = new Crypto();
         Platform platform = platformService.findPlatformByName(cryptoDTO.platform());
         String coinName = cryptoDTO.coin_name();
@@ -60,11 +61,17 @@ public class CryptoMapperImpl implements EntityMapper<Crypto, CryptoDTO> {
                 .filter(coin -> coin.getName().equalsIgnoreCase(coinName))
                 .findFirst()
                 .ifPresentOrElse(coin -> {
+                            MarketData marketData = coin.getMarketData();
+
                             crypto.setCoinId(coin.getId());
                             crypto.setName(coin.getName());
                             crypto.setTicker(coin.getSymbol());
                             crypto.setQuantity(cryptoDTO.quantity());
                             crypto.setPlatformId(platform.getId());
+                            crypto.setLastPriceUpdatedAt(LocalDateTime.now());
+                            crypto.setLastKnownPrice(marketData.currentPrice().usd());
+                            crypto.setTotalSupply(marketData.totalSupply());
+                            crypto.setMaxSupply(marketData.maxSupply());
                         }, () -> {
                             String message = String.format(COIN_NAME_NOT_FOUND, coinName);
 

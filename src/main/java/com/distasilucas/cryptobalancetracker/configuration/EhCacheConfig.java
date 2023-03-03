@@ -1,6 +1,5 @@
 package com.distasilucas.cryptobalancetracker.configuration;
 
-import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import org.ehcache.config.CacheConfiguration;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
@@ -27,7 +26,7 @@ public class EhCacheConfig {
 
     @Bean
     public CacheManager ehcacheManager() {
-        CacheConfiguration<SimpleKey, List<Coin>> coingeckoCryptosCache = getCoingeckoCryptosCache();
+        CacheConfiguration<SimpleKey, List<CoinInfo>> coingeckoCryptosCache = getCoingeckoCryptosCache();
         CacheConfiguration<String, CoinInfo> cryptoPriceCache = getCryptoPriceCache();
 
         CachingProvider cachingProvider = Caching.getCachingProvider();
@@ -39,15 +38,15 @@ public class EhCacheConfig {
         return cacheManager;
     }
 
-    private static CacheConfiguration<SimpleKey, List<Coin>> getCoingeckoCryptosCache() {
-        Class<List<Coin>> coinListClass = cast(List.class);
+    private static CacheConfiguration<SimpleKey, List<CoinInfo>> getCoingeckoCryptosCache() {
+        Class<List<CoinInfo>> coinListClass = cast(List.class);
 
         return CacheConfigurationBuilder
                 .newCacheConfigurationBuilder(SimpleKey.class, coinListClass,
                         ResourcePoolsBuilder.newResourcePoolsBuilder()
                                 .offheap(2, MemoryUnit.MB)
                                 .build())
-                .withExpiry(ExpiryPolicyBuilder.timeToIdleExpiration(Duration.ofDays(30)))
+                .withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofDays(30)))
                 .build();
     }
 
@@ -55,9 +54,9 @@ public class EhCacheConfig {
         return CacheConfigurationBuilder
                 .newCacheConfigurationBuilder(String.class, CoinInfo.class,
                         ResourcePoolsBuilder.newResourcePoolsBuilder()
-                                .offheap(1, MemoryUnit.MB)
+                                .offheap(2, MemoryUnit.MB)
                                 .build())
-                .withExpiry(ExpiryPolicyBuilder.timeToIdleExpiration(Duration.ofMinutes(15)))
+                .withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofMinutes(10)))
                 .build();
     }
 
@@ -66,8 +65,8 @@ public class EhCacheConfig {
         return Eh107Configuration.fromEhcacheCacheConfiguration(cryptoPriceCache);
     }
 
-    private static javax.cache.configuration.Configuration<SimpleKey, List<Coin>> getCoingeckoCryptosCacheConfiguration(
-            CacheConfiguration<SimpleKey, List<Coin>> coingeckoCryptosCache) {
+    private static javax.cache.configuration.Configuration<SimpleKey, List<CoinInfo>> getCoingeckoCryptosCacheConfiguration(
+            CacheConfiguration<SimpleKey, List<CoinInfo>> coingeckoCryptosCache) {
         return Eh107Configuration.fromEhcacheCacheConfiguration(coingeckoCryptosCache);
     }
 
