@@ -121,11 +121,13 @@ public class MockData {
 
     public static Crypto getCrypto(String platformId) {
         return Crypto.builder()
+                .id("id")
                 .name("Bitcoin")
                 .ticker("BTC")
                 .platformId(platformId)
                 .quantity(BigDecimal.valueOf(1))
                 .coinId("bitcoin")
+                .lastKnownPrice(BigDecimal.valueOf(22000))
                 .build();
     }
 

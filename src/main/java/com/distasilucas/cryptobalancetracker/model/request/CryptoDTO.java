@@ -10,9 +10,14 @@ public record CryptoDTO(
         String coin_name,
         BigDecimal quantity,
         String platform,
+
         @JsonProperty(access = JsonProperty.Access.READ_ONLY)
         String ticker,
+
         @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-        String coinId
+        String coinId,
+
+        @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+        BigDecimal lastKnownPrice
 ) {
 }

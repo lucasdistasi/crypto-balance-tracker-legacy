@@ -57,7 +57,7 @@ public class CryptoServiceImpl implements CryptoService<CryptoDTO> {
 
     @Override
     public Optional<CryptoBalanceResponse> retrieveCoinBalance(String coinId) {
-        log.info("Retrieving balances for coin {}", coinId);
+        log.info("Retrieving balances for coin [{}]", coinId);
         Optional<List<Crypto>> allCoins = cryptoRepository.findAllByCoinId(coinId);
 
         return allCoins.isEmpty() || CollectionUtils.isEmpty(allCoins.get()) ?

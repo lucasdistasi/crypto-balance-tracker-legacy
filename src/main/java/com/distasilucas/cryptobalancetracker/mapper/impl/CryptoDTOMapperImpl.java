@@ -38,6 +38,7 @@ public class CryptoDTOMapperImpl implements EntityMapper<CryptoDTO, Crypto> {
                 .platform(platformName)
                 .ticker(crypto.getTicker())
                 .coinId(crypto.getCoinId())
+                .lastKnownPrice(crypto.getLastKnownPrice())
                 .build();
     }
 }

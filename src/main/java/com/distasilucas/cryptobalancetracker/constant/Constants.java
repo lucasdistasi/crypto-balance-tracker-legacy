@@ -34,6 +34,7 @@ public class Constants {
     public static final String COINGECKO_CRYPTOS_CACHE = "coingeckoCryptos";
     public static final String CRYPTO_PRICE_CACHE = "cryptoPrice";
     public static final String MAX_RATE_LIMIT_REACHED = "You've exceeded the Rate Limit. Please visit https://www.coingecko.com/en/api/pricing to subscribe to Coingecko API plans for higher rate limits or try again later";
+    public static final String RETRIEVE_INFO_FROM_DATABASE_FAILED = "Because you've reached the rate limit, an attempt to retrieve the crypto information from the database was made, but if failed. Please try again later";
     public static final String TOKEN_EXPIRED = "Token is expired";
     public static final String UNKNOWN = "Unknown";
 

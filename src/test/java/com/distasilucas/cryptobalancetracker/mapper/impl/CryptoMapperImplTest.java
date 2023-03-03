@@ -5,6 +5,7 @@ import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.exception.ApiException;
 import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
+import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
@@ -52,7 +53,11 @@ class CryptoMapperImplTest {
                 .id("1234")
                 .name(platformName)
                 .build();
-        var allCoins = MockData.getAllCoins();
+        var coinInfo = MockData.getCoinInfo();
+        coinInfo.setId(cryptoDTO.coinId());
+        coinInfo.setName(cryptoDTO.coin_name());
+        coinInfo.setSymbol(cryptoDTO.ticker());
+        var allCoins = Collections.singletonList(coinInfo);
 
         when(coingeckoServiceMock.retrieveAllCoins()).thenReturn(allCoins);
         when(platformServiceMock.findPlatformByName(platformName)).thenReturn(platform);

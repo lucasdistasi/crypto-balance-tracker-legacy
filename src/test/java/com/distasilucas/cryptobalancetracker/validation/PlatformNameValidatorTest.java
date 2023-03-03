@@ -29,7 +29,8 @@ class PlatformNameValidatorTest {
     @ParameterizedTest
     @ValueSource(strings = {" ", "1234", "@/!", "ABC123"})
     void shouldThrowApiValidationExceptionWhenInvalidPlatformForCrypto(String platform) {
-        var cryptoDTO = new CryptoDTO("bitcoin", BigDecimal.valueOf(0.1), platform, "btc", "bitcoin");
+        var cryptoDTO = new CryptoDTO("bitcoin", BigDecimal.valueOf(0.1), platform,
+                "btc", "bitcoin", BigDecimal.valueOf(23000));
 
         var apiValidationException = assertThrows(ApiValidationException.class,
                 () -> entityValidation.validate(cryptoDTO));

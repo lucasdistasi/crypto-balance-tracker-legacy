@@ -9,6 +9,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -25,6 +26,10 @@ public class Crypto {
     private String coinId;
     private BigDecimal quantity;
     private String platformId;
+    private BigDecimal lastKnownPrice;
+    private BigDecimal totalSupply;
+    private BigDecimal maxSupply;
+    private LocalDateTime lastPriceUpdatedAt;
 
 }
 
