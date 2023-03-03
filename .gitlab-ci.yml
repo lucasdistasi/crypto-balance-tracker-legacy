@@ -19,11 +19,12 @@ test:
     - echo "[ Running Tests ]"
     - ./gradlew test
 
-owasp-dependency-check:
-  stage: test
-  script:
-    - echo "[ Running OWASP Dependency Check ]"
-    - ./gradlew dependencyCheckAnalyze
+# Temporally disabled because it takes a lot of time to run
+#owasp-dependency-check:
+#  stage: test
+#  script:
+#    - echo "[ Running OWASP Dependency Check ]"
+#    - ./gradlew dependencyCheckAnalyze
 
 after_script:
   - echo "[ Finished CI ]"
