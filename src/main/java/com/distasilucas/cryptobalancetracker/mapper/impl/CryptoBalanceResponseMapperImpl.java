@@ -94,7 +94,7 @@ public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalan
             MarketData marketData = new MarketData(currentPrice, crypto.getTotalSupply(), crypto.getMaxSupply());
 
             CoinInfo coinInfo = new CoinInfo();
-            coinInfo.setId(crypto.getId());
+            coinInfo.setId(crypto.getCoinId());
             coinInfo.setSymbol(crypto.getTicker());
             coinInfo.setName(crypto.getName());
             coinInfo.setMarketData(marketData);
