@@ -20,6 +20,9 @@ ext {
     jacocoVersion = "0.8.8"
     jacocoExecPath = "${project.rootDir}/../target/jacoco.exec"
     okHttp3Version = "4.10.0"
+    logbackVersion = "1.4.5"
+    springRetryVersion = "2.0.0"
+    aspectjweaverVersion = "1.9.19"
 }
 
 group = 'com.distasilucas'
@@ -103,9 +106,12 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-data-mongodb:${springBootVersion}"
     implementation "io.jsonwebtoken:jjwt-api:${jsonWebTokenVersion}"
     implementation "com.squareup.okhttp3:okhttp:${okHttp3Version}"
+    implementation "ch.qos.logback:logback-core:${logbackVersion}"
+    implementation "org.springframework.retry:spring-retry:${springRetryVersion}"
 
     runtimeOnly "io.jsonwebtoken:jjwt-impl:${jsonWebTokenVersion}"
     runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jsonWebTokenVersion}"
+    runtimeOnly "org.aspectj:aspectjweaver:${aspectjweaverVersion}"
 
     compileOnly "org.projectlombok:lombok"
 
