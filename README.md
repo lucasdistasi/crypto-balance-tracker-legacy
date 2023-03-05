@@ -1,3 +1,12 @@
+<br>
+
+- [Crypto Balance Tracker](#crypto-balance-tracker)
+- [Important information](#important)
+- [Technologies used](#technologies-used)
+- [How to use it](#i-want-to-try-this-api-on-my-local-machine-what-should-i-do)
+- [Donations](#if-you-found-this-project-useful-or-you-learnt-something-from-it-you-can-consider-gifting-me-a-coup-of-coffee--)
+- [Response Examples](#below-you-can-find-some-examples-with-random-data-of-the-information-that-each-endpoint-retrieves)
+
 # Crypto Balance Tracker
 
 Crypto Balance Tracker it's a Java-Spring application that works like a portfolio tracker where you can monitor your
@@ -65,7 +74,7 @@ If you don't want Authentication-Authorization make sure to use the branch
 
 ---
 
-- #### If you are using the no-security branch
+- #### If you are using the **_no-security_** branch
 
 1. You must have **MongoDB** installed in your machine.
 2. Download the project.
@@ -80,7 +89,7 @@ If you don't want Authentication-Authorization make sure to use the branch
 
 <br>
 
-- #### If you are using the master branch
+- #### If you are using the _**master**_ branch
 
 1. Have Docker installed and running.
 2. Set up environment variables in _.env_ file.
@@ -91,7 +100,7 @@ If you don't want Authentication-Authorization make sure to use the branch
 
 <br>
 
-If you found this project useful or you learnt something from it, you can consider gifting me a coup of coffee :)
+#### If you found this project useful or you learnt something from it, you can consider gifting me a coup of coffee :)
 
 | Crypto | Network | Address                                    | QR      |
 |--------|---------|--------------------------------------------|---------|
@@ -104,7 +113,7 @@ If you found this project useful or you learnt something from it, you can consid
 
 <br>
 
-Below you can find some random examples of the information that each endpoint retrieves.
+#### Below you can find some examples with random data of the information that each endpoint retrieves.
 
 <details>
   <summary>Response examples</summary>
