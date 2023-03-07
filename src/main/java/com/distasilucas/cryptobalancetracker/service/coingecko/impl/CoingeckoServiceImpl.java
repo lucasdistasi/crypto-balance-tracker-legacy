@@ -6,8 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.util.UriBuilder;
 
 import java.net.URI;
@@ -32,6 +35,7 @@ public class CoingeckoServiceImpl implements CoingeckoService {
 
     @Override
     @Cacheable(cacheNames = COINGECKO_CRYPTOS_CACHE)
+    @Retryable(retryFor = { WebClientException.class }, backoff = @Backoff(delay = 1500))
     public List<CoinInfo> retrieveAllCoins() {
         log.info("Hitting Coingecko API... Retrieving all cryptos");
 
@@ -45,6 +49,7 @@ public class CoingeckoServiceImpl implements CoingeckoService {
 
     @Override
     @Cacheable(cacheNames = CRYPTO_PRICE_CACHE, key = "#coinId")
+    @Retryable(retryFor = { WebClientException.class }, backoff = @Backoff(delay = 1500))
     public CoinInfo retrieveCoinInfo(String coinId) {
         log.info("Hitting Coingecko API... Retrieving information for [{}]", coinId);
         String uri = String.format("/coins/%s", coinId);

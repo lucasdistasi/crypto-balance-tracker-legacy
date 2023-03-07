@@ -57,9 +57,9 @@ public class UpdateCryptoPriceScheduler {
                 crypto.setLastPriceUpdatedAt(LocalDateTime.now());
                 cryptoRepository.save(crypto);
             } catch (WebClientResponseException ex) {
-                log.warn("A WebClientResponseException occurred and [{}] price could not be updated {}", crypto.getCoinId(), ex.getMessage());
+                log.warn("A WebClientResponseException occurred and [{}] price could not be updated {}", crypto.getCoinId(), ex);
             } catch (Exception ex) {
-                log.warn("An uncaught exception occurred and [{}] price could not be updated {}", crypto.getCoinId(), ex.getMessage());
+                log.warn("An uncaught exception occurred and [{}] price could not be updated {}", crypto.getCoinId(), ex);
             }
         });
     }
