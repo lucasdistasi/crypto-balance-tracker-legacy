@@ -1,12 +1,3 @@
-# Index
-
-- [Crypto Balance Tracker](#crypto-balance-tracker--rocket-)
-- [Important information](#important)
-- [Technologies used](#technologies-used)
-- [How to use it](#i-want-to-try-this-api-on-my-local-machine-what-should-i-do)
-- [Donations](#if-you-found-this-project-useful-or-you-learnt-something-from-it-you-can-consider-gifting-me-a-coup-of-coffee--)
-- [Response Examples](#below-you-can-find-some-examples-with-random-data-of-the-information-that-each-endpoint-retrieves)
-
 # Crypto Balance Tracker :rocket:
 
 Crypto Balance Tracker it's a Java-Spring application that works like a portfolio tracker where you can monitor your
@@ -35,7 +26,7 @@ So I ended up with the current approach.
 <br>
 Feel free to star, fork or study from the code :)
 
-## IMPORTANT
+## IMPORTANT :fire:
 
 ---
 
@@ -55,7 +46,7 @@ If you don't want Authentication-Authorization make sure to use the branch
   it
 - Maybe let the microservices be ready to be deployed to the Cloud.
 
-## Technologies used
+## Technologies used :sparkles:
 
 - Java 17
 - Spring 6 & Spring Boot 3
@@ -69,7 +60,7 @@ If you don't want Authentication-Authorization make sure to use the branch
 - JUnit 5 - Mockito
 - Docker - Docker Compose
 
-### I want to try this API on my local machine. What should I do?
+### I want to try this API on my local machine. What should I do? :tada:
 
 ---
 
@@ -99,7 +90,7 @@ If you don't want Authentication-Authorization make sure to use the branch
 
 <br>
 
-#### If you found this project useful or you learnt something from it, you can consider gifting me a coup of coffee
+### If you found this project useful or you learnt something from it, you can consider gifting me a coup of coffee :coffee:
 
 | Crypto | Network | Address                                    | QR      |
 |--------|---------|--------------------------------------------|---------|
@@ -112,7 +103,7 @@ If you don't want Authentication-Authorization make sure to use the branch
 
 <br>
 
-#### Below you can find some examples with random data of the information that each endpoint retrieves.
+### Below you can find some examples with random data of the information that each endpoint retrieves :memo:
 
 <details>
   <summary>Response examples</summary>
