@@ -1,13 +1,13 @@
 # Index
 
-- [Crypto Balance Tracker](#crypto-balance-tracker)
+- [Crypto Balance Tracker](#crypto-balance-tracker--rocket-)
 - [Important information](#important)
 - [Technologies used](#technologies-used)
 - [How to use it](#i-want-to-try-this-api-on-my-local-machine-what-should-i-do)
 - [Donations](#if-you-found-this-project-useful-or-you-learnt-something-from-it-you-can-consider-gifting-me-a-coup-of-coffee--)
 - [Response Examples](#below-you-can-find-some-examples-with-random-data-of-the-information-that-each-endpoint-retrieves)
 
-# Crypto Balance Tracker
+# Crypto Balance Tracker :rocket:
 
 Crypto Balance Tracker it's a Java-Spring application that works like a portfolio tracker where you can monitor your
 assets
@@ -99,7 +99,7 @@ If you don't want Authentication-Authorization make sure to use the branch
 
 <br>
 
-#### If you found this project useful or you learnt something from it, you can consider gifting me a coup of coffee :)
+#### If you found this project useful or you learnt something from it, you can consider gifting me a coup of coffee
 
 | Crypto | Network | Address                                    | QR      |
 |--------|---------|--------------------------------------------|---------|
