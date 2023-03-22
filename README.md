@@ -1,4 +1,4 @@
-<br>
+# Index
 
 - [Crypto Balance Tracker](#crypto-balance-tracker)
 - [Important information](#important)
@@ -18,8 +18,7 @@ about the coins.
 <br>
 Please bear in mind that Coingecko has a [rate limit for the Free Plan](https://www.coingecko.com/en/api/pricing).
 To avoid getting a rate limit, a scheduler retrieves the price of a few saved coins every 180 seconds. By doing so, the
-final user
-does not call Coingecko API multiple times exceeding the rate limit.
+final user does not call Coingecko API multiple times exceeding the rate limit.
 <br>
 I might add new features in the future alongside with a front-end application in order to display all the data with
 charts/graphics.
@@ -27,10 +26,10 @@ charts/graphics.
 <br>
 My first idea was to let the user add a wallet address but I faced problems with this approach,
 like specifying a network for the address. Also if you are using an exchange, your coins are in an address from the
-exchange
-with coins from others users, so is not possible to track just your coins. This approach might be doable only if the
+exchange with coins from others users, so is not possible to track just your coins. This approach might be doable only if the
 address it's from a hardware-cold wallet you own.
-Another issue is that services that provide an API to track balances from an address are not cheap.
+Another issue is that services that provide an API to track balances from an address are not cheap and I've not found
+any API capeable of track address with networks like Polygon, Algorand, etc.
 So I ended up with the current approach.
 <br>
 <br>
@@ -122,7 +121,7 @@ If you don't want Authentication-Authorization make sure to use the branch
 
 #### Retrieve all coins
 
-  ```json
+```json
 {
   "total_balance": 4285.94,
   "coins": [
@@ -164,13 +163,13 @@ If you don't want Authentication-Authorization make sure to use the branch
     }
   ]
 }
-  ```
+```
 
 ### `/api/v1/crypto/{coinId}`
 
 #### Retrieve all balances for the given coin
 
-  ```json
+```json
 {
   "total_balance": 409.01,
   "coins": [
@@ -212,13 +211,13 @@ If you don't want Authentication-Authorization make sure to use the branch
     }
   ]
 }
-  ```
+```
 
 ### `/api/v1/crypto/balances/platforms`
 
 #### Retrieve balances for each crypto in all platforms
 
-  ```json
+```json
 {
   "totalBalance": 4349.97,
   "coinInfoResponse": [
@@ -243,13 +242,13 @@ If you don't want Authentication-Authorization make sure to use the branch
     }
   ]
 }
-  ```
+```
 
 ### `/api/v1/platform/{platform}/coins`
 
 #### Retrieve coins and balances for the given platform
 
-  ```json
+```json
 {
   "total_balance": 169.38,
   "coins": [
@@ -291,13 +290,13 @@ If you don't want Authentication-Authorization make sure to use the branch
     }
   ]
 }
-  ```
+```
 
 ### `/api/v1/platform/balances`
 
 #### Returns total balance and percentage in each platform
 
-  ```json
+```json
 {
   "totalBalance": 2200,
   "platforms": [
@@ -313,7 +312,7 @@ If you don't want Authentication-Authorization make sure to use the branch
     }
   ]
 }
-  ```
+```
 
 </details>
 
