@@ -44,8 +44,17 @@ public class PlatformServiceImpl implements PlatformService {
     private final Validation<PlatformDTO> addPlatformValidation;
     private final Validation<CryptoDTO> updateCryptoValidation;
     private final EntityMapper<Platform, PlatformDTO> platformMapperImpl;
+    private final EntityMapper<PlatformDTO, Platform>  platformDTOMapperImpl;
     private final EntityMapper<CryptoBalanceResponse, List<Crypto>> cryptoBalanceResponseMapperImpl;
     private final EntityMapper<CryptoDTO, Crypto> cryptoDTOMapperImpl;
+
+    @Override
+    public List<PlatformDTO> getAllPlatforms() {
+        return platformRepository.findAll()
+                .stream()
+                .map(platformDTOMapperImpl::mapFrom)
+                .toList();
+    }
 
     @Override
     public PlatformDTO addPlatForm(PlatformDTO platformDTO) {

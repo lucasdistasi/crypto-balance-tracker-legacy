@@ -32,6 +32,7 @@ import static com.distasilucas.cryptobalancetracker.constant.Constants.NO_COIN_I
 import static com.distasilucas.cryptobalancetracker.constant.Constants.PLATFORM_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -60,6 +61,9 @@ class PlatformServiceImplTest {
     EntityMapper<Platform, PlatformDTO> platformMapperImplMock;
 
     @Mock
+    EntityMapper<PlatformDTO, Platform> platformDTOMapperImplMock;
+
+    @Mock
     EntityMapper<CryptoBalanceResponse, List<Crypto>> cryptoBalanceResponseMapperImplMock;
 
     @Mock
@@ -71,7 +75,24 @@ class PlatformServiceImplTest {
     void setUp() {
         platformService = new PlatformServiceImpl(platformRepositoryMock, cryptoRepositoryMock,
                 addPlatformValidationMock, updateCryptoValidationMock, platformMapperImplMock,
-                cryptoBalanceResponseMapperImplMock, cryptoDTOMapperImplMock);
+                platformDTOMapperImplMock, cryptoBalanceResponseMapperImplMock, cryptoDTOMapperImplMock);
+    }
+
+    @Test
+    void shouldGetAllPlatforms() {
+        var platform = Platform.builder()
+                .id("1234")
+                .name("Binance")
+                .build();
+
+        when(platformRepositoryMock.findAll()).thenReturn(Collections.singletonList(platform));
+
+        var allPlatforms = platformService.getAllPlatforms();
+
+        assertAll(
+                () -> assertFalse(allPlatforms.isEmpty()),
+                () -> assertEquals(1, allPlatforms.size())
+        );
     }
 
     @Test

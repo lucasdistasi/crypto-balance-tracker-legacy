@@ -21,7 +21,7 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/crypto")
+@RequestMapping("/api/v1/cryptos")
 @PreAuthorize("hasAuthority('ROLE_ADMIN')")
 public class CryptoController implements CryptoControllerApi, ControllerHelper {
 

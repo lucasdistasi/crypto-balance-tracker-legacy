@@ -20,15 +20,48 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/platform")
+@RequestMapping("/api/v1/platforms")
 @PreAuthorize("hasAuthority('ROLE_ADMIN')")
 public class PlatformController implements PlatformControllerApi, ControllerHelper {
 
     private final PlatformService platformService;
+
+    @Override
+    @GetMapping
+    public ResponseEntity<List<PlatformDTO>> getAllPlatforms() {
+        return ResponseEntity.ok(platformService.getAllPlatforms());
+    }
+
+    @Override
+    @PostMapping
+    public ResponseEntity<PlatformDTO> addPlatform(@RequestBody PlatformDTO platformDTO) {
+        PlatformDTO platForm = platformService.addPlatForm(platformDTO);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(platForm);
+    }
+
+    @Override
+    @PutMapping("/{platformName}")
+    public ResponseEntity<PlatformDTO> updatePlatform(@PathVariable String platformName,
+                                                      @RequestBody PlatformDTO platformDTO) {
+        PlatformDTO updatedPlatform = platformService.updatePlatform(platformDTO, platformName);
+
+        return ResponseEntity.ok(updatedPlatform);
+    }
+
+    @Override
+    @DeleteMapping("/{platformName}")
+    public ResponseEntity<Void> deletePlatform(@PathVariable String platformName) {
+        platformService.deletePlatform(platformName);
+
+        return ResponseEntity.noContent().build();
+    }
 
     @Override
     @GetMapping("/{platformName}/coins")
@@ -51,24 +84,6 @@ public class PlatformController implements PlatformControllerApi, ControllerHelp
     }
 
     @Override
-    @PostMapping
-    public ResponseEntity<PlatformDTO> addPlatform(@RequestBody PlatformDTO platformDTO) {
-        PlatformDTO platForm = platformService.addPlatForm(platformDTO);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(platForm);
-    }
-
-    @Override
-    @PutMapping("/{platformName}")
-    public ResponseEntity<PlatformDTO> updatePlatform(@PathVariable String platformName,
-                                                      @RequestBody PlatformDTO platformDTO) {
-        PlatformDTO updatedPlatform = platformService.updatePlatform(platformDTO, platformName);
-
-        return ResponseEntity.ok(updatedPlatform);
-    }
-
-    @Override
     @PutMapping("/{platformName}/{coinId}")
     public ResponseEntity<CryptoDTO> updatePlatformCoin(@RequestBody CryptoDTO cryptoDTO,
                                                         @PathVariable String platformName,
@@ -76,14 +91,6 @@ public class PlatformController implements PlatformControllerApi, ControllerHelp
         CryptoDTO updatedCrypto = platformService.updatePlatformCoin(cryptoDTO, platformName, coinId);
 
         return ResponseEntity.ok(updatedCrypto);
-    }
-
-    @Override
-    @DeleteMapping("/{platformName}")
-    public ResponseEntity<Void> deletePlatform(@PathVariable String platformName) {
-        platformService.deletePlatform(platformName);
-
-        return ResponseEntity.noContent().build();
     }
 
     @Override
