@@ -1,6 +1,7 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.MockData;
+import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
 import com.distasilucas.cryptobalancetracker.model.response.PlatformBalanceResponse;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,8 +10,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -33,6 +37,18 @@ class PlatformControllerTest {
     @BeforeEach
     void setUp() {
         platformController = new PlatformController(platformServiceMock);
+    }
+
+    @Test
+    void shouldRetrieveAllPlatforms() {
+        when(platformServiceMock.getAllPlatforms()).thenReturn(Collections.singletonList(new PlatformDTO("Binance")));
+
+        var allPlatforms = platformController.getAllPlatforms();
+
+        assertAll(
+                () -> assertNotNull(allPlatforms.getBody()),
+                () -> assertEquals(1, allPlatforms.getBody().size())
+        );
     }
 
     @Test

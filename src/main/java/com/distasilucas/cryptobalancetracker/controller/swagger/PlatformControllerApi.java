@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.constant.Constants.APPLICATION_JSON;
@@ -28,6 +29,16 @@ import static com.distasilucas.cryptobalancetracker.constant.Constants.PLATFORM_
 import static com.distasilucas.cryptobalancetracker.constant.Constants.RESOURCE_CREATED_CODE;
 
 public interface PlatformControllerApi {
+
+    @Operation(summary = "Retrieve all platforms")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = OK_CODE, description = "Platforms",
+                    content = {
+                            @Content(mediaType = APPLICATION_JSON,
+                                    schema = @Schema(implementation = PlatformDTO.class))
+                    })
+    })
+    ResponseEntity<List<PlatformDTO>> getAllPlatforms();
 
     @Operation(summary = "Retrieve all coins for the given platform")
     @ApiResponses(value = {
