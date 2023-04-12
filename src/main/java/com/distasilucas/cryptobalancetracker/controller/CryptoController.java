@@ -10,9 +10,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,7 +27,7 @@ import java.util.Optional;
 @PreAuthorize("hasAuthority('ROLE_ADMIN')")
 public class CryptoController implements CryptoControllerApi, ControllerHelper {
 
-    private final CryptoService<CryptoDTO> cryptoService;
+    private final CryptoService cryptoService;
 
     @Override
     @PostMapping
@@ -64,5 +66,22 @@ public class CryptoController implements CryptoControllerApi, ControllerHelper {
 
         return ResponseEntity.status(httpStatus)
                 .body(response);
+    }
+
+    @Override
+    @PutMapping("/{coinId}")
+    public ResponseEntity<CryptoDTO> updateCoin(@RequestBody CryptoDTO cryptoDTO,
+                                                @PathVariable String coinId) {
+        CryptoDTO updatedCrypto = cryptoService.updateCoin(cryptoDTO, coinId);
+
+        return ResponseEntity.ok(updatedCrypto);
+    }
+
+    @Override
+    @DeleteMapping("/{coinId}")
+    public ResponseEntity<Void> deleteCoin(@PathVariable String coinId) {
+        cryptoService.deleteCoin(coinId);
+
+        return ResponseEntity.noContent().build();
     }
 }

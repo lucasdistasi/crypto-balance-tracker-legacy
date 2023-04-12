@@ -11,13 +11,15 @@ import java.math.BigDecimal;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CoinResponse {
 
+    private String coinId;
     private CoinInfo coinInfo;
     private BigDecimal quantity;
     private BigDecimal balance;
     private double percentage;
     private String platform;
 
-    public CoinResponse(CoinInfo coinInfo, BigDecimal quantity, BigDecimal balance, String platform) {
+    public CoinResponse(String coinId, CoinInfo coinInfo, BigDecimal quantity, BigDecimal balance, String platform) {
+        this.coinId = coinId;
         this.coinInfo = coinInfo;
         this.quantity = quantity;
         this.balance = balance;
