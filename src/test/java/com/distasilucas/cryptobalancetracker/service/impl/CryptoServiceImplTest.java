@@ -2,12 +2,16 @@ package com.distasilucas.cryptobalancetracker.service.impl;
 
 import com.distasilucas.cryptobalancetracker.MockData;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.Platform;
+import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.BiFunctionMapper;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.model.response.CoinInfoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
+import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
 import org.apache.commons.collections.CollectionUtils;
@@ -24,8 +28,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
+import static com.distasilucas.cryptobalancetracker.constant.Constants.PLATFORM_NOT_FOUND_DESCRIPTION;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
@@ -51,14 +57,20 @@ class CryptoServiceImplTest {
     CryptoRepository cryptoRepositoryMock;
 
     @Mock
+    PlatformRepository platformRepository;
+
+    @Mock
     Validation<CryptoDTO> addCryptoValidationMock;
 
-    CryptoService<CryptoDTO> cryptoService;
+    @Mock
+    Validation<CryptoDTO> updateCryptoValidationMock;
+
+    CryptoService cryptoService;
 
     @BeforeEach
     void setUp() {
         cryptoService = new CryptoServiceImpl(cryptoMapperImplMock, cryptoDTOMapperImplMock, cryptoBalanceResponseMapperImplMock,
-                coinInfoResponseMapperImplMock, cryptoRepositoryMock, addCryptoValidationMock);
+                coinInfoResponseMapperImplMock, cryptoRepositoryMock, platformRepository, addCryptoValidationMock, updateCryptoValidationMock);
     }
 
     @Test
@@ -180,6 +192,98 @@ class CryptoServiceImplTest {
 
         assertAll(
                 () -> assertTrue(platformBalanceResponse.isEmpty())
+        );
+    }
+
+    @Test
+    void shouldUpdateCoin() {
+        var newCryptoDTO = CryptoDTO.builder()
+                .quantity(BigDecimal.valueOf(0.15))
+                .platform("BINANCE")
+                .build();
+        var platform = Platform.builder()
+                .id("321")
+                .build();
+        var existingCrypto = Crypto.builder()
+                .id("ABC123")
+                .build();
+
+        doNothing().when(updateCryptoValidationMock).validate(newCryptoDTO);
+        when(cryptoRepositoryMock.findById("ABC123")).thenReturn(Optional.of(existingCrypto));
+        when(platformRepository.findByName(newCryptoDTO.platform())).thenReturn(Optional.of(platform));
+        when(cryptoDTOMapperImplMock.mapFrom(existingCrypto)).thenReturn(newCryptoDTO);
+
+        CryptoDTO cryptoDTO = cryptoService.updateCoin(newCryptoDTO, "ABC123");
+
+        assertAll(
+                () -> verify(updateCryptoValidationMock, times(1)).validate(newCryptoDTO),
+                () -> verify(cryptoRepositoryMock, times(1)).findById("ABC123"),
+                () -> verify(cryptoRepositoryMock, times(1)).save(existingCrypto),
+                () -> assertEquals(newCryptoDTO.quantity(), cryptoDTO.quantity())
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUpdateNonExistentCrypto() {
+        var newCryptoDTO = CryptoDTO.builder()
+                .quantity(BigDecimal.valueOf(0.15))
+                .build();
+
+        doNothing().when(updateCryptoValidationMock).validate(newCryptoDTO);
+        when(cryptoRepositoryMock.findById("ABC123")).thenReturn(Optional.empty());
+
+        var coinNotFoundException = assertThrows(CoinNotFoundException.class,
+                () -> cryptoService.updateCoin(newCryptoDTO, "ABC123"));
+
+        assertAll(
+                () -> assertEquals("Coin not found", coinNotFoundException.getErrorMessage())
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUpdateCryptoWithNonExistentPlatform() {
+        var newCryptoDTO = CryptoDTO.builder()
+                .quantity(BigDecimal.valueOf(0.15))
+                .platform("BINANCE")
+                .build();
+        var existingCrypto = Crypto.builder()
+                .id("ABC123")
+                .build();
+
+        doNothing().when(updateCryptoValidationMock).validate(newCryptoDTO);
+        when(cryptoRepositoryMock.findById("ABC123")).thenReturn(Optional.of(existingCrypto));
+        when(platformRepository.findByName("BINANCE")).thenReturn(Optional.empty());
+
+        var platformNotFoundException = assertThrows(PlatformNotFoundException.class,
+                () -> cryptoService.updateCoin(newCryptoDTO, "ABC123"));
+
+        assertAll(
+                () -> assertEquals(PLATFORM_NOT_FOUND_DESCRIPTION, platformNotFoundException.getErrorMessage())
+        );
+    }
+
+    @Test
+    void shouldDeleteIcon() {
+        var existingCrypto = Crypto.builder()
+                .id("ABC123")
+                .build();
+
+        when(cryptoRepositoryMock.findById("ABC123")).thenReturn(Optional.of(existingCrypto));
+
+        cryptoService.deleteCoin("ABC123");
+
+        verify(cryptoRepositoryMock, times(1)).delete(existingCrypto);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenDeleteNonExistentCrypto() {
+        when(cryptoRepositoryMock.findById("ABC123")).thenReturn(Optional.empty());
+
+        var coinNotFoundException = assertThrows(CoinNotFoundException.class,
+                () -> cryptoService.deleteCoin("ABC123"));
+
+        assertAll(
+                () -> assertEquals("Coin not found", coinNotFoundException.getErrorMessage())
         );
     }
 }

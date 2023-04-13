@@ -56,7 +56,7 @@ public class MockData {
     }
 
     public static CoinResponse getCoinResponse(CoinInfo coinInfo) {
-        return new CoinResponse(coinInfo, BigDecimal.valueOf(5), TOTAL_BALANCE, "LEDGER");
+        return new CoinResponse("ABC123", coinInfo, BigDecimal.valueOf(5), TOTAL_BALANCE, "LEDGER");
     }
 
     public static CoinInfo getCoinInfo() {

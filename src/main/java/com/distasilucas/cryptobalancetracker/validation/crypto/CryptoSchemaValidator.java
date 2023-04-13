@@ -27,11 +27,13 @@ public class CryptoSchemaValidator {
     @Bean
     public Validation<CryptoDTO> updateCryptoValidation(Schema updateCryptoJsonSchemaValidator,
                                                         QuantityValueValidator quantityValueValidator,
-                                                        PlatformNameValidator<CryptoDTO> platformNameValidator) {
+                                                        PlatformNameValidator<CryptoDTO> platformNameValidator,
+                                                        CryptoPlatformValidator cryptoPlatformValidator) {
         return new Validation<>(
                 new JsonSchemaValidationService<>(updateCryptoJsonSchemaValidator),
                 quantityValueValidator,
-                platformNameValidator
+                platformNameValidator,
+                cryptoPlatformValidator
         );
     }
 }

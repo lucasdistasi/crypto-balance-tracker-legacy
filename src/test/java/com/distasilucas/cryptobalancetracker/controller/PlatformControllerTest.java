@@ -138,34 +138,8 @@ class PlatformControllerTest {
     }
 
     @Test
-    void shouldUpdatePlatformCoin() {
-        var cryptoDTO = MockData.getCryptoDTO();
-
-        when(platformServiceMock.updatePlatformCoin(cryptoDTO, "Safepal", "bitcoin")).thenReturn(cryptoDTO);
-
-        var responseEntity = platformController.updatePlatformCoin(cryptoDTO, "Safepal", "bitcoin");
-
-        assertNotNull(responseEntity.getBody());
-        assertAll(
-                () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
-                () -> assertEquals(cryptoDTO.platform(), responseEntity.getBody().platform()),
-                () -> assertEquals(cryptoDTO.coinId(), responseEntity.getBody().coinId())
-        );
-    }
-
-    @Test
     void shouldDeletePlatform() {
         var responseEntity = platformController.deletePlatform(PLATFORM_NAME);
-
-        assertNull(responseEntity.getBody());
-        assertAll(
-                () -> assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode())
-        );
-    }
-
-    @Test
-    void shouldDeletePlatformCoin() {
-        var responseEntity = platformController.deletePlatformCoin(PLATFORM_NAME, "bitcoin");
 
         assertNull(responseEntity.getBody());
         assertAll(

@@ -73,9 +73,8 @@ class PlatformServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        platformService = new PlatformServiceImpl(platformRepositoryMock, cryptoRepositoryMock,
-                addPlatformValidationMock, updateCryptoValidationMock, platformMapperImplMock,
-                platformDTOMapperImplMock, cryptoBalanceResponseMapperImplMock, cryptoDTOMapperImplMock);
+        platformService = new PlatformServiceImpl(platformRepositoryMock, cryptoRepositoryMock, addPlatformValidationMock,
+                platformMapperImplMock, platformDTOMapperImplMock, cryptoBalanceResponseMapperImplMock);
     }
 
     @Test
@@ -190,76 +189,6 @@ class PlatformServiceImplTest {
     }
 
     @Test
-    void shouldThrowCoinNotFoundExceptionWhenUpdatePlatformCoin() {
-        var cryptoDTO = MockData.getCryptoDTO();
-        var platform = MockData.getPlatform(cryptoDTO.platform());
-
-        doNothing().when(updateCryptoValidationMock).validate(cryptoDTO);
-        when(platformRepositoryMock.findByName(cryptoDTO.platform().toUpperCase()))
-                .thenReturn(Optional.of(platform));
-        when(cryptoRepositoryMock.findByCoinIdAndPlatformId("bitcoin", platform.getId()))
-                .thenReturn(Optional.empty());
-
-        var coinNotFoundException = assertThrows(CoinNotFoundException.class,
-                () -> platformService.updatePlatformCoin(cryptoDTO, "Ledger", "bitcoin"));
-
-        var message = String.format(NO_COIN_IN_PLATFORM, "bitcoin", "Ledger");
-
-        assertEquals(message, coinNotFoundException.getErrorMessage());
-    }
-
-    @Test
-    void shouldThrowDuplicatedPlatformCoinExceptionWhenUpdatePlatformCoin() {
-        var cryptoDTO = MockData.getCryptoDTO();
-        var platform = MockData.getPlatform(cryptoDTO.platform());
-        var newPlatform = MockData.getPlatform("Safepal");
-        var cryptoEntity = MockData.getCrypto("1234");
-        var newCryptoEntity = MockData.getCrypto("4321");
-
-        doNothing().when(updateCryptoValidationMock).validate(cryptoDTO);
-        when(platformRepositoryMock.findByName(cryptoDTO.platform().toUpperCase()))
-                .thenReturn(Optional.of(newPlatform));
-        when(cryptoRepositoryMock.findByCoinIdAndPlatformId("bitcoin", platform.getId()))
-                .thenReturn(Optional.of(cryptoEntity));
-        when(cryptoRepositoryMock.findByNameAndPlatformId(cryptoEntity.getName(), cryptoEntity.getPlatformId()))
-                .thenReturn(Optional.of(newCryptoEntity));
-
-        var duplicatedPlatformCoinException = assertThrows(DuplicatedPlatformCoinException.class,
-                () -> platformService.updatePlatformCoin(cryptoDTO, "Ledger", "bitcoin"));
-
-        var message = String.format(DUPLICATED_PLATFORM_COIN, newCryptoEntity.getCoinId(), newPlatform.getName());
-
-        assertEquals(message, duplicatedPlatformCoinException.getErrorMessage());
-    }
-
-    @Test
-    void shouldUpdatePlatformCoin() {
-        var cryptoDTO = MockData.getCryptoDTO();
-        var platform = MockData.getPlatform(cryptoDTO.platform());
-        var newPlatform = MockData.getPlatform("Safepal");
-        var cryptoEntity = MockData.getCrypto("1234");
-
-        doNothing().when(updateCryptoValidationMock).validate(cryptoDTO);
-        when(platformRepositoryMock.findByName(cryptoDTO.platform().toUpperCase()))
-                .thenReturn(Optional.of(newPlatform));
-        when(cryptoRepositoryMock.findByCoinIdAndPlatformId("bitcoin", platform.getId()))
-                .thenReturn(Optional.of(cryptoEntity));
-        when(cryptoRepositoryMock.findByNameAndPlatformId(cryptoEntity.getName(), cryptoEntity.getPlatformId()))
-                .thenReturn(Optional.empty());
-        when(cryptoDTOMapperImplMock.mapFrom(cryptoEntity)).thenReturn(cryptoDTO);
-
-        var updatePlatformCoin = platformService.updatePlatformCoin(cryptoDTO, "Ledger", "bitcoin");
-
-        assertAll(
-                () -> verify(cryptoRepositoryMock, times(1)).save(cryptoEntity),
-                () -> assertEquals(cryptoDTO.platform(), updatePlatformCoin.platform()),
-                () -> assertEquals(cryptoDTO.coinId(), updatePlatformCoin.coinId()),
-                () -> assertEquals(cryptoDTO.coin_name(), updatePlatformCoin.coin_name()),
-                () -> assertEquals(cryptoDTO.ticker(), updatePlatformCoin.ticker())
-        );
-    }
-
-    @Test
     void shouldDeletePlatform() {
         var platformEntity = MockData.getPlatform("Ledger");
         var allCryptos = MockData.getAllCryptos();
@@ -275,48 +204,6 @@ class PlatformServiceImplTest {
                 () -> verify(cryptoRepositoryMock, times(1)).deleteAllById(cryptoIds.keySet()),
                 () -> verify(platformRepositoryMock, times(1)).delete(platformEntity)
         );
-    }
-
-    @Test
-    void shouldThrowPlatformNotFoundExceptionWhenDeletePlatformCoin() {
-        when(platformRepositoryMock.findByName("LEDGER")).thenReturn(Optional.empty());
-
-        var platformNotFoundException = assertThrows(PlatformNotFoundException.class,
-                () -> platformService.deletePlatformCoin("Ledger", "Bitcoin"));
-
-        var message = String.format(PLATFORM_NOT_FOUND, "Ledger");
-
-        assertEquals(message, platformNotFoundException.getErrorMessage());
-    }
-
-    @Test
-    void shouldThrowCoinNotFoundExceptionWhenDeletePlatformCoin() {
-        var platformEntity = MockData.getPlatform("Ledger");
-
-        when(platformRepositoryMock.findByName("LEDGER")).thenReturn(Optional.of(platformEntity));
-        when(cryptoRepositoryMock.findByCoinIdAndPlatformId("bitcoin", platformEntity.getId()))
-                .thenReturn(Optional.empty());
-
-        var coinNotFoundException = assertThrows(CoinNotFoundException.class,
-                () -> platformService.deletePlatformCoin("Ledger", "bitcoin"));
-
-        var message = String.format(NO_COIN_IN_PLATFORM, "bitcoin", platformEntity.getName());
-
-        assertEquals(message, coinNotFoundException.getErrorMessage());
-    }
-
-    @Test
-    void shouldDeletePlatformCoin() {
-        var platformEntity = MockData.getPlatform("Ledger");
-        var cryptoEntity = MockData.getCrypto(platformEntity.getName());
-
-        when(platformRepositoryMock.findByName("LEDGER")).thenReturn(Optional.of(platformEntity));
-        when(cryptoRepositoryMock.findByCoinIdAndPlatformId("bitcoin", platformEntity.getId()))
-                .thenReturn(Optional.of(cryptoEntity));
-
-        platformService.deletePlatformCoin("Ledger", "bitcoin");
-
-        verify(cryptoRepositoryMock, times(1)).delete(cryptoEntity);
     }
 
     @Test

@@ -85,7 +85,7 @@ public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalan
         Optional<Platform> platform = platformRepository.findById(coin.getPlatformId());
         String platformName = platform.isPresent() ? platform.get().getName() : UNKNOWN;
 
-        return new CoinResponse(coinInfo, quantity, balance, platformName);
+        return new CoinResponse(coin.getId(), coinInfo, quantity, balance, platformName);
     }
 
     private Function<Crypto, CoinInfo> mapCoinInfo() {
