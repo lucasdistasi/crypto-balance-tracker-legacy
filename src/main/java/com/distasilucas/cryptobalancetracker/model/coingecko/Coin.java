@@ -4,10 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public sealed class Coin permits CoinInfo {
+public sealed class Coin implements Serializable permits CoinInfo {
 
     private String id;
     private String symbol;
