@@ -52,62 +52,6 @@ class PlatformControllerTest {
     }
 
     @Test
-    void shouldRetrieveAllCoinsForPlatform() {
-        var platformName = PLATFORM_NAME;
-        var cryptoBalanceResponse = MockData.getCryptoBalanceResponse();
-
-        when(platformServiceMock.getAllCoins(platformName)).thenReturn(Optional.of(cryptoBalanceResponse));
-
-        var responseEntity = platformController.getCoins(platformName);
-
-        assertAll(
-                () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
-                () -> assertTrue(responseEntity.getBody().isPresent())
-        );
-    }
-
-    @Test
-    void shouldGetPlatformsBalances() {
-        var platformBalanceResponse = PlatformBalanceResponse.builder()
-                .totalBalance(BigDecimal.valueOf(1000))
-                .build();
-
-        when(platformServiceMock.getPlatformsBalances()).thenReturn(Optional.of(platformBalanceResponse));
-
-        var responseEntity = platformController.getPlatformsBalances();
-
-        assertAll(
-                () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
-                () -> assertTrue(responseEntity.getBody().isPresent())
-        );
-    }
-
-    @Test
-    void shouldReturnNoContentWhenGetPlatformsBalances() {
-        when(platformServiceMock.getPlatformsBalances()).thenReturn(Optional.empty());
-
-        var responseEntity = platformController.getPlatformsBalances();
-
-        assertAll(
-                () -> assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode())
-        );
-    }
-
-    @Test
-    void shouldReturnNoContentWhenRetrievingAllCoinsForPlatform() {
-        var platformName = PLATFORM_NAME;
-
-        when(platformServiceMock.getAllCoins(platformName)).thenReturn(Optional.empty());
-
-        var responseEntity = platformController.getCoins(platformName);
-
-        assertAll(
-                () -> assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode()),
-                () -> assertTrue(responseEntity.getBody().isEmpty())
-        );
-    }
-
-    @Test
     void shouldAddPlatform() {
         var platformDTO = MockData.getPlatformDTO("LEDGER");
 
