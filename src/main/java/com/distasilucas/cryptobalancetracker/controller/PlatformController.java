@@ -3,8 +3,6 @@ package com.distasilucas.cryptobalancetracker.controller;
 import com.distasilucas.cryptobalancetracker.controller.helper.ControllerHelper;
 import com.distasilucas.cryptobalancetracker.controller.swagger.PlatformControllerApi;
 import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
-import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
-import com.distasilucas.cryptobalancetracker.model.response.PlatformBalanceResponse;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -60,25 +57,5 @@ public class PlatformController implements PlatformControllerApi, ControllerHelp
         platformService.deletePlatform(platformName);
 
         return ResponseEntity.noContent().build();
-    }
-
-    @Override
-    @GetMapping("/{platformName}/coins")
-    public ResponseEntity<Optional<CryptoBalanceResponse>> getCoins(@PathVariable String platformName) {
-        Optional<CryptoBalanceResponse> response = platformService.getAllCoins(platformName);
-        HttpStatus httpStatus = getHttpStatusCode(response);
-
-        return ResponseEntity.status(httpStatus)
-                .body(response);
-    }
-
-    @Override
-    @GetMapping("/balances")
-    public ResponseEntity<Optional<PlatformBalanceResponse>> getPlatformsBalances() {
-        Optional<PlatformBalanceResponse> response = platformService.getPlatformsBalances();
-        HttpStatus httpStatus = getHttpStatusCode(response);
-
-        return ResponseEntity.status(httpStatus)
-                .body(response);
     }
 }

@@ -5,10 +5,6 @@ import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
-import com.distasilucas.cryptobalancetracker.model.response.CoinResponse;
-import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
-import com.distasilucas.cryptobalancetracker.model.response.PlatformBalanceResponse;
-import com.distasilucas.cryptobalancetracker.model.response.PlatformInfo;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
@@ -18,10 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -39,7 +31,6 @@ public class PlatformServiceImpl implements PlatformService {
     private final Validation<PlatformDTO> addPlatformValidation;
     private final EntityMapper<Platform, PlatformDTO> platformMapperImpl;
     private final EntityMapper<PlatformDTO, Platform>  platformDTOMapperImpl;
-    private final EntityMapper<CryptoBalanceResponse, List<Crypto>> cryptoBalanceResponseMapperImpl;
 
     @Override
     public List<PlatformDTO> getAllPlatforms() {
@@ -61,33 +52,18 @@ public class PlatformServiceImpl implements PlatformService {
     }
 
     @Override
-    public Optional<PlatformBalanceResponse> getPlatformsBalances() {
-        List<Crypto> cryptos = cryptoRepository.findAll();
-        CryptoBalanceResponse cryptoBalanceResponse = cryptoBalanceResponseMapperImpl.mapFrom(cryptos);
-        List<CoinResponse> coins = cryptoBalanceResponse.getCoins();
+    public Platform findPlatformByName(String platformName) {
+        platformName = platformName.toUpperCase();
+        log.info("Checking if {} it's an existing platform", platformName);
+        Optional<Platform> platform = platformRepository.findByName(platformName);
 
-        if (CollectionUtils.isNotEmpty(coins)) {
-            Map<String, BigDecimal> balancePerPlatform = new HashMap<>();
+        if (platform.isEmpty()) {
+            String message = String.format(PLATFORM_NOT_FOUND, platformName);
 
-            coins
-                    .forEach(coin -> {
-                        String platform = coin.getPlatform();
-                        BigDecimal balance = coin.getBalance();
-
-                        balancePerPlatform.compute(platform, (k, v) -> (v == null) ? balance : v.add(balance));
-                    });
-
-            BigDecimal totalBalance = cryptoBalanceResponse.getTotalBalance();
-            List<PlatformInfo> platforms = getPlatformInfo(balancePerPlatform, totalBalance);
-            PlatformBalanceResponse platformBalanceResponse = PlatformBalanceResponse.builder()
-                    .platforms(platforms)
-                    .totalBalance(totalBalance)
-                    .build();
-
-            return Optional.of(platformBalanceResponse);
+            throw new PlatformNotFoundException(message);
         }
 
-        return Optional.empty();
+        return platform.get();
     }
 
     @Override
@@ -121,59 +97,5 @@ public class PlatformServiceImpl implements PlatformService {
 
         platformRepository.delete(platform);
         log.info("Deleted platform {}", platform.getName());
-    }
-
-    @Override
-    public Optional<CryptoBalanceResponse> getAllCoins(String platformName) {
-        log.info("Retrieving coins in platform {}", platformName);
-        Platform platform = findPlatformByName(platformName);
-        Optional<List<Crypto>> cryptos = cryptoRepository.findAllByPlatformId(platform.getId());
-
-        Optional<CryptoBalanceResponse> cryptoBalanceResponse = Optional.empty();
-
-        if (cryptos.isPresent() && CollectionUtils.isNotEmpty(cryptos.get())) {
-            cryptoBalanceResponse = Optional.of(cryptoBalanceResponseMapperImpl.mapFrom(cryptos.get()));
-        }
-
-        return cryptoBalanceResponse;
-    }
-
-    @Override
-    public Platform findPlatformByName(String platformName) {
-        platformName = platformName.toUpperCase();
-        log.info("Checking if {} it's an existing platform", platformName);
-        Optional<Platform> platform = platformRepository.findByName(platformName);
-
-        if (platform.isEmpty()) {
-            String message = String.format(PLATFORM_NOT_FOUND, platformName);
-
-            throw new PlatformNotFoundException(message);
-        }
-
-        return platform.get();
-    }
-
-    private List<PlatformInfo> getPlatformInfo(Map<String, BigDecimal> balancePerPlatform, BigDecimal totalBalance) {
-        List<PlatformInfo> platformsInfo = new ArrayList<>();
-
-        balancePerPlatform.forEach((platform, platformBalance) -> {
-            PlatformInfo platformInfo = PlatformInfo.builder()
-                    .balance(platformBalance)
-                    .percentage(getPercentage(platformBalance, totalBalance))
-                    .platformName(platform)
-                    .build();
-
-            platformsInfo.add(platformInfo);
-        });
-
-        return platformsInfo;
-    }
-
-    private double getPercentage(BigDecimal platformBalance, BigDecimal totalBalance) {
-        return platformBalance
-                .setScale(2, RoundingMode.HALF_UP)
-                .multiply(BigDecimal.valueOf(100))
-                .divide(totalBalance, RoundingMode.HALF_UP)
-                .doubleValue();
     }
 }

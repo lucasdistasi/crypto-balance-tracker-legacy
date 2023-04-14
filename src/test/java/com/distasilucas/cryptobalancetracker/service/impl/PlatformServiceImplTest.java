@@ -1,19 +1,14 @@
 package com.distasilucas.cryptobalancetracker.service.impl;
 
+import com.distasilucas.cryptobalancetracker.MockData;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
-import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
-import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformCoinException;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
-import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
-import com.distasilucas.cryptobalancetracker.model.response.PlatformBalanceResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
-import com.distasilucas.cryptobalancetracker.MockData;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,23 +16,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.distasilucas.cryptobalancetracker.constant.Constants.DUPLICATED_PLATFORM_COIN;
-import static com.distasilucas.cryptobalancetracker.constant.Constants.NO_COIN_IN_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.PLATFORM_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -55,26 +45,17 @@ class PlatformServiceImplTest {
     Validation<PlatformDTO> addPlatformValidationMock;
 
     @Mock
-    Validation<CryptoDTO> updateCryptoValidationMock;
-
-    @Mock
     EntityMapper<Platform, PlatformDTO> platformMapperImplMock;
 
     @Mock
     EntityMapper<PlatformDTO, Platform> platformDTOMapperImplMock;
-
-    @Mock
-    EntityMapper<CryptoBalanceResponse, List<Crypto>> cryptoBalanceResponseMapperImplMock;
-
-    @Mock
-    EntityMapper<CryptoDTO, Crypto> cryptoDTOMapperImplMock;
 
     PlatformService platformService;
 
     @BeforeEach
     void setUp() {
         platformService = new PlatformServiceImpl(platformRepositoryMock, cryptoRepositoryMock, addPlatformValidationMock,
-                platformMapperImplMock, platformDTOMapperImplMock, cryptoBalanceResponseMapperImplMock);
+                platformMapperImplMock, platformDTOMapperImplMock);
     }
 
     @Test
@@ -112,39 +93,6 @@ class PlatformServiceImplTest {
                 () -> assertEquals(platformDTO.getName(), platFormResponse.getName())
         );
 
-    }
-
-    @Test
-    void shouldGetPlatformsBalances() {
-        var cryptos = MockData.getAllCryptos();
-        var balanceResponse = MockData.getCryptoBalanceResponse();
-
-        when(cryptoRepositoryMock.findAll()).thenReturn(cryptos);
-        when(cryptoBalanceResponseMapperImplMock.mapFrom(cryptos)).thenReturn(balanceResponse);
-
-        var platformsBalances = platformService.getPlatformsBalances();
-
-        assertAll(
-                () -> assertTrue(platformsBalances.isPresent()),
-                () -> assertEquals(BigDecimal.valueOf(1000), platformsBalances.get().getTotalBalance()),
-                () -> assertEquals(1, platformsBalances.get().getPlatforms().size())
-        );
-    }
-
-    @Test
-    void shouldEmptyGetPlatformsBalances() {
-        var cryptos = MockData.getAllCryptos();
-        var balanceResponse = MockData.getCryptoBalanceResponse();
-        balanceResponse.setCoins(Collections.emptyList());
-
-        when(cryptoRepositoryMock.findAll()).thenReturn(cryptos);
-        when(cryptoBalanceResponseMapperImplMock.mapFrom(cryptos)).thenReturn(balanceResponse);
-
-        var platformsBalances = platformService.getPlatformsBalances();
-
-        assertAll(
-                () -> assertTrue(platformsBalances.isEmpty())
-        );
     }
 
     @Test
@@ -207,23 +155,17 @@ class PlatformServiceImplTest {
     }
 
     @Test
-    void shouldRetrieveAllCoinsForPlatform() {
-        var platformEntity = MockData.getPlatform("LEDGER");
-        var allCryptos = MockData.getAllCryptos();
-        var balanceResponse = MockData.getCryptoBalanceResponse();
+    void shouldNotCallDeleteCryptosIfNoCryptosFoundForPlatform() {
+        var platformEntity = MockData.getPlatform("Ledger");
 
         when(platformRepositoryMock.findByName("LEDGER")).thenReturn(Optional.of(platformEntity));
-        when(cryptoRepositoryMock.findAllByPlatformId("1234")).thenReturn(Optional.of(allCryptos));
-        when(cryptoBalanceResponseMapperImplMock.mapFrom(allCryptos)).thenReturn(balanceResponse);
+        when(cryptoRepositoryMock.findAllByPlatformId("1234")).thenReturn(Optional.empty());
 
-        var cryptoBalanceResponse = platformService.getAllCoins("Ledger");
+        platformService.deletePlatform("Ledger");
 
         assertAll(
-                () -> assertNotNull(cryptoBalanceResponse),
-                () -> assertTrue(cryptoBalanceResponse.isPresent()),
-                () -> assertEquals(balanceResponse.getTotalBalance(), cryptoBalanceResponse.get().getTotalBalance()),
-                () -> assertEquals(1, cryptoBalanceResponse.get().getCoins().size()),
-                () -> assertEquals(platformEntity.getName(), cryptoBalanceResponse.get().getCoins().get(0).getPlatform())
+                () -> verify(cryptoRepositoryMock, never()).deleteAllById(any()),
+                () -> verify(platformRepositoryMock, times(1)).delete(platformEntity)
         );
     }
 }
