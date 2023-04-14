@@ -1,5 +1,6 @@
 package com.distasilucas.cryptobalancetracker.service.coingecko.impl;
 
+import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import okhttp3.mockwebserver.MockResponse;
@@ -50,7 +51,7 @@ class CoingeckoServiceImplTest {
         var mockResponse = new MockResponse();
         mockBackEnd.enqueue(mockResponse);
 
-        List<CoinInfo> coins = coingeckoService.retrieveAllCoins();
+        List<Coin> coins = coingeckoService.retrieveAllCoins();
 
         StepVerifier.create(Flux.just(coins))
                 .expectNextMatches(CollectionUtils::isNotEmpty)

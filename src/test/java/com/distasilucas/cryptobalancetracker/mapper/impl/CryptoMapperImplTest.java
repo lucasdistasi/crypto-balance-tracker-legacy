@@ -5,6 +5,7 @@ import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.exception.ApiException;
 import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
+import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
@@ -53,14 +54,12 @@ class CryptoMapperImplTest {
                 .id("1234")
                 .name(platformName)
                 .build();
+        var allCoins = MockData.getAllCoins();
         var coinInfo = MockData.getCoinInfo();
-        coinInfo.setId(cryptoDTO.coinId());
-        coinInfo.setName(cryptoDTO.coin_name());
-        coinInfo.setSymbol(cryptoDTO.ticker());
-        var allCoins = Collections.singletonList(coinInfo);
 
         when(coingeckoServiceMock.retrieveAllCoins()).thenReturn(allCoins);
         when(platformServiceMock.findPlatformByName(platformName)).thenReturn(platform);
+        when(coingeckoServiceMock.retrieveCoinInfo("ethereum")).thenReturn(coinInfo);
 
         var crypto = entityMapper.mapFrom(cryptoDTO);
 
@@ -69,7 +68,8 @@ class CryptoMapperImplTest {
                 () -> assertEquals(cryptoDTO.coinId(), crypto.getCoinId()),
                 () -> assertEquals(cryptoDTO.ticker(), crypto.getTicker()),
                 () -> assertEquals(cryptoDTO.quantity(), crypto.getQuantity()),
-                () -> assertEquals(platform.getId(), crypto.getPlatformId())
+                () -> assertEquals(platform.getId(), crypto.getPlatformId()),
+                () -> assertEquals(coinInfo.getMarketData().currentPrice().usd(), crypto.getLastKnownPrice())
         );
     }
 
