@@ -1,5 +1,6 @@
 package com.distasilucas.cryptobalancetracker.configuration;
 
+import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import org.ehcache.config.CacheConfiguration;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
@@ -26,7 +27,7 @@ public class EhCacheConfig {
 
     @Bean
     public CacheManager ehcacheManager() {
-        CacheConfiguration<SimpleKey, List<CoinInfo>> coingeckoCryptosCache = getCoingeckoCryptosCache();
+        CacheConfiguration<SimpleKey, List<Coin>> coingeckoCryptosCache = getCoingeckoCryptosCache();
         CacheConfiguration<String, CoinInfo> cryptoPriceCache = getCryptoPriceCache();
 
         CachingProvider cachingProvider = Caching.getCachingProvider();
@@ -38,8 +39,8 @@ public class EhCacheConfig {
         return cacheManager;
     }
 
-    private static CacheConfiguration<SimpleKey, List<CoinInfo>> getCoingeckoCryptosCache() {
-        Class<List<CoinInfo>> coinListClass = cast(List.class);
+    private static CacheConfiguration<SimpleKey, List<Coin>> getCoingeckoCryptosCache() {
+        Class<List<Coin>> coinListClass = cast(List.class);
 
         return CacheConfigurationBuilder
                 .newCacheConfigurationBuilder(SimpleKey.class, coinListClass,
@@ -65,8 +66,8 @@ public class EhCacheConfig {
         return Eh107Configuration.fromEhcacheCacheConfiguration(cryptoPriceCache);
     }
 
-    private static javax.cache.configuration.Configuration<SimpleKey, List<CoinInfo>> getCoingeckoCryptosCacheConfiguration(
-            CacheConfiguration<SimpleKey, List<CoinInfo>> coingeckoCryptosCache) {
+    private static javax.cache.configuration.Configuration<SimpleKey, List<Coin>> getCoingeckoCryptosCacheConfiguration(
+            CacheConfiguration<SimpleKey, List<Coin>> coingeckoCryptosCache) {
         return Eh107Configuration.fromEhcacheCacheConfiguration(coingeckoCryptosCache);
     }
 

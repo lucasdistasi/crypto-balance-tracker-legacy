@@ -1,5 +1,6 @@
 package com.distasilucas.cryptobalancetracker.service.coingecko.impl;
 
+import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import lombok.extern.slf4j.Slf4j;
@@ -36,13 +37,13 @@ public class CoingeckoServiceImpl implements CoingeckoService {
     @Override
     @Cacheable(cacheNames = COINGECKO_CRYPTOS_CACHE)
     @Retryable(retryFor = { WebClientException.class }, backoff = @Backoff(delay = 1500))
-    public List<CoinInfo> retrieveAllCoins() {
+    public List<Coin> retrieveAllCoins() {
         log.info("Hitting Coingecko API... Retrieving all cryptos");
 
         return coingeckoWebClient.get()
                 .uri(getUriBuilder("/coins/list"))
                 .retrieve()
-                .bodyToFlux(CoinInfo.class)
+                .bodyToFlux(Coin.class)
                 .collectList()
                 .block();
     }

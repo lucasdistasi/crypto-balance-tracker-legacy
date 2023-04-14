@@ -5,6 +5,7 @@ import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.exception.ApiException;
 import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
+import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
@@ -33,12 +34,11 @@ public class CryptoMapperImpl implements EntityMapper<Crypto, CryptoDTO> {
 
     @Override
     public Crypto mapFrom(CryptoDTO cryptoDTO) {
-        List<CoinInfo> coins;
-
         try {
             log.info("Attempting to retrieve [{}] information from Coingecko or cache", cryptoDTO.coin_name());
+            List<Coin> coins = coingeckoService.retrieveAllCoins();
 
-            coins = coingeckoService.retrieveAllCoins();
+            return getCrypto(cryptoDTO, coins);
         } catch (WebClientResponseException ex) {
             if (HttpStatus.TOO_MANY_REQUESTS.equals(ex.getStatusCode())) {
                 log.warn("To many requests. Rate limit reached.");
@@ -46,13 +46,11 @@ public class CryptoMapperImpl implements EntityMapper<Crypto, CryptoDTO> {
                 throw new ApiException(MAX_RATE_LIMIT_REACHED, ex.getStatusCode());
             }
 
-            throw new ApiException(UNKNOWN_ERROR);
+            throw new ApiException(UNKNOWN_ERROR, ex);
         }
-
-        return getCrypto(cryptoDTO, coins);
     }
 
-    private Crypto getCrypto(CryptoDTO cryptoDTO, List<CoinInfo> coins) {
+    private Crypto getCrypto(CryptoDTO cryptoDTO, List<Coin> coins) {
         Crypto crypto = new Crypto();
         Platform platform = platformService.findPlatformByName(cryptoDTO.platform());
         String coinName = cryptoDTO.coin_name();
@@ -61,7 +59,8 @@ public class CryptoMapperImpl implements EntityMapper<Crypto, CryptoDTO> {
                 .filter(coin -> coin.getName().equalsIgnoreCase(coinName))
                 .findFirst()
                 .ifPresentOrElse(coin -> {
-                            MarketData marketData = coin.getMarketData();
+                            CoinInfo coinInfo = getCoinInfo(coin.getId());
+                            MarketData marketData = coinInfo.getMarketData();
 
                             crypto.setCoinId(coin.getId());
                             crypto.setName(coin.getName());
@@ -80,5 +79,21 @@ public class CryptoMapperImpl implements EntityMapper<Crypto, CryptoDTO> {
                 );
 
         return crypto;
+    }
+
+    private CoinInfo getCoinInfo(String coinId) {
+        try {
+            log.info("Attempting to retrieve information for [{}] from Coingecko or cache", coinId);
+
+            return coingeckoService.retrieveCoinInfo(coinId);
+        } catch (WebClientResponseException ex) {
+            if (HttpStatus.TOO_MANY_REQUESTS.equals(ex.getStatusCode())) {
+                log.warn("To many requests. Rate limit reached.");
+
+                throw new ApiException(MAX_RATE_LIMIT_REACHED, ex.getStatusCode());
+            }
+
+            throw new ApiException(UNKNOWN_ERROR, ex);
+        }
     }
 }
