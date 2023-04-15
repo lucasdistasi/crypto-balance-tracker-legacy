@@ -1,5 +1,6 @@
 package com.distasilucas.cryptobalancetracker.service.impl;
 
+import com.distasilucas.cryptobalancetracker.MockData;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
@@ -17,12 +18,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.constant.Constants.PLATFORM_NOT_FOUND_DESCRIPTION;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -55,6 +60,56 @@ class CryptoServiceImplTest {
     void setUp() {
         cryptoService = new CryptoServiceImpl(cryptoMapperImplMock, cryptoDTOMapperImplMock, cryptoRepositoryMock,
                 platformRepository, addCryptoValidationMock, updateCryptoValidationMock);
+    }
+
+    @Test
+    void shouldReturnCoin() {
+        var crypto = MockData.getCrypto("1234");
+        var platform = MockData.getPlatform(crypto.getName());
+
+        when(cryptoRepositoryMock.findById("1234")).thenReturn(Optional.of(crypto));
+        when(platformRepository.findById("1234")).thenReturn(Optional.of(platform));
+
+        var cryptoDTO = cryptoService.getCoin("1234");
+
+        assertAll(
+                () -> assertTrue(cryptoDTO.isPresent()),
+                () -> assertNotNull(cryptoDTO.get()),
+                () -> assertEquals("Bitcoin", cryptoDTO.get().coin_name()),
+                () -> assertEquals(crypto.getQuantity(), cryptoDTO.get().quantity()),
+                () -> assertEquals(platform.getName(), cryptoDTO.get().platform())
+        );
+    }
+
+    @Test
+    void shouldReturnEmptyIfCoinNotExists() {
+        when(cryptoRepositoryMock.findById("1234")).thenReturn(Optional.empty());
+
+        var cryptoDTO = cryptoService.getCoin("1234");
+
+        assertTrue(cryptoDTO.isEmpty());
+    }
+
+    @Test
+    void shouldRetrieveAllCoins() {
+        var crypto = MockData.getCrypto("1234");
+        var platformId = crypto.getPlatformId();
+        var platform = MockData.getPlatform("Binance");
+
+        when(cryptoRepositoryMock.findAll()).thenReturn(Collections.singletonList(crypto));
+        when(platformRepository.findById(platformId)).thenReturn(Optional.of(platform));
+
+        var coins = cryptoService.getCoins();
+
+        assertAll(
+                () -> assertTrue(coins.isPresent()),
+                () -> assertNotNull(coins.get()),
+                () -> assertNotEquals(0, coins.get().size()),
+                () -> assertEquals(platform.getName(), coins.get().get(0).platform()),
+                () -> assertEquals(crypto.getQuantity(), coins.get().get(0).quantity()),
+                () -> assertEquals(crypto.getName(), coins.get().get(0).coin_name()),
+                () -> assertEquals(platform.getName(), coins.get().get(0).platform())
+        );
     }
 
     @Test

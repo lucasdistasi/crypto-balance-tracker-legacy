@@ -12,7 +12,11 @@ import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.constant.Constants.PLATFORM_NOT_FOUND_DESCRIPTION;
 
@@ -27,6 +31,50 @@ public class CryptoServiceImpl implements CryptoService {
     private final PlatformRepository platformRepository;
     private final Validation<CryptoDTO> addCryptoValidation;
     private final Validation<CryptoDTO> updateCryptoValidation;
+
+    @Override
+    public Optional<CryptoDTO> getCoin(String coinId) {
+        Optional<Crypto> optionalCrypto = cryptoRepository.findById(coinId);
+
+        if (optionalCrypto.isPresent()) {
+            Crypto crypto = optionalCrypto.get();
+            Optional<Platform> platform = platformRepository.findById(crypto.getPlatformId());
+            String platformName = platform.isPresent() ? platform.get().getName() : "UNKNOWN";
+
+            CryptoDTO cryptoDTO = CryptoDTO.builder()
+                    .coin_name(crypto.getName())
+                    .platform(platformName)
+                    .quantity(crypto.getQuantity())
+                    .build();
+
+            return Optional.of(cryptoDTO);
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<List<CryptoDTO>> getCoins() {
+        List<Crypto> cryptos = cryptoRepository.findAll();
+
+        if (CollectionUtils.isEmpty(cryptos)) return Optional.empty();
+
+        return Optional.of(
+                cryptos.stream()
+                        .map(crypto -> {
+                            Optional<Platform> platform = platformRepository.findById(crypto.getPlatformId());
+                            String platformName = platform.isPresent() ? platform.get().getName() : "UNKNOWN";
+
+                            return CryptoDTO.builder()
+                                    .coinId(crypto.getId())
+                                    .coin_name(crypto.getName())
+                                    .platform(platformName)
+                                    .quantity(crypto.getQuantity())
+                                    .build();
+                        })
+                        .toList()
+        );
+    }
 
     @Override
     public CryptoDTO addCoin(CryptoDTO cryptoDTO) {
