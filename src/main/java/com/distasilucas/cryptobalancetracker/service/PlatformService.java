@@ -1,15 +1,16 @@
 package com.distasilucas.cryptobalancetracker.service;
 
 import com.distasilucas.cryptobalancetracker.entity.Platform;
-import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
+import com.distasilucas.cryptobalancetracker.model.request.PlatformRequest;
+import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
 
 import java.util.List;
 
 public interface PlatformService {
 
-    List<PlatformDTO> getAllPlatforms();
-    PlatformDTO addPlatForm(PlatformDTO platform);
+    List<PlatformResponse> getAllPlatforms();
+    PlatformResponse addPlatForm(PlatformRequest platform);
     Platform findPlatformByName(String platformName);
-    PlatformDTO updatePlatform(PlatformDTO platformDTO, String platformName);
+    PlatformResponse updatePlatform(String platformName, PlatformRequest platformRequest);
     void deletePlatform(String platformName);
 }

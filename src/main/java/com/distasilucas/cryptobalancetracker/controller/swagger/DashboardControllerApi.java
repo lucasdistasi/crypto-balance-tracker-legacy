@@ -1,10 +1,10 @@
 package com.distasilucas.cryptobalancetracker.controller.swagger;
 
-import com.distasilucas.cryptobalancetracker.model.ErrorResponse;
-import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
-import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
-import com.distasilucas.cryptobalancetracker.model.response.CryptoPlatformBalanceResponse;
-import com.distasilucas.cryptobalancetracker.model.response.PlatformBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.error.ErrorResponse;
+import com.distasilucas.cryptobalancetracker.model.request.PlatformRequest;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoPlatformBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformBalanceResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,16 +15,16 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Optional;
 
-import static com.distasilucas.cryptobalancetracker.constant.Constants.APPLICATION_JSON;
-import static com.distasilucas.cryptobalancetracker.constant.Constants.BAD_REQUEST_CODE;
-import static com.distasilucas.cryptobalancetracker.constant.Constants.FORBIDDEN_CODE;
-import static com.distasilucas.cryptobalancetracker.constant.Constants.INTERNAL_SERVER_ERROR;
-import static com.distasilucas.cryptobalancetracker.constant.Constants.INTERNAL_SERVER_ERROR_CODE;
-import static com.distasilucas.cryptobalancetracker.constant.Constants.INVALID_DATA;
-import static com.distasilucas.cryptobalancetracker.constant.Constants.NOT_FOUND_CODE;
-import static com.distasilucas.cryptobalancetracker.constant.Constants.NO_CONTENT_CODE;
-import static com.distasilucas.cryptobalancetracker.constant.Constants.OK_CODE;
-import static com.distasilucas.cryptobalancetracker.constant.Constants.PLATFORM_NOT_FOUND_DESCRIPTION;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.APPLICATION_JSON;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.BAD_REQUEST_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.FORBIDDEN_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.INTERNAL_SERVER_ERROR;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.INTERNAL_SERVER_ERROR_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.INVALID_DATA;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.NOT_FOUND_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.NO_CONTENT_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.OK_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.PLATFORM_NOT_FOUND_DESCRIPTION;
 
 public interface DashboardControllerApi {
 
@@ -89,7 +89,7 @@ public interface DashboardControllerApi {
             @ApiResponse(responseCode = OK_CODE, description = "Platform coins",
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
-                                    schema = @Schema(implementation = PlatformDTO.class))
+                                    schema = @Schema(implementation = PlatformRequest.class))
                     }),
             @ApiResponse(responseCode = NO_CONTENT_CODE, description = "No coins saved for the given platform"),
             @ApiResponse(responseCode = BAD_REQUEST_CODE, description = INVALID_DATA,
@@ -116,7 +116,7 @@ public interface DashboardControllerApi {
             @ApiResponse(responseCode = OK_CODE, description = "Platforms balances",
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
-                                    schema = @Schema(implementation = PlatformDTO.class))
+                                    schema = @Schema(implementation = PlatformRequest.class))
                     }),
             @ApiResponse(responseCode = NO_CONTENT_CODE, description = "No coins saved"),
             @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden"),

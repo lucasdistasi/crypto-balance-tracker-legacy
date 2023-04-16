@@ -2,8 +2,8 @@ package com.distasilucas.cryptobalancetracker.mapper.impl;
 
 import com.distasilucas.cryptobalancetracker.MockData;
 import com.distasilucas.cryptobalancetracker.mapper.BiFunctionMapper;
-import com.distasilucas.cryptobalancetracker.model.response.CoinInfoResponse;
-import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinInfoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoBalanceResponse;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -26,13 +26,13 @@ class CoinInfoResponseMapperImplTest {
         }};
         var cryptoBalanceResponse = MockData.getCryptoBalanceResponse();
 
-        List<CoinInfoResponse> coinInfoResponses = coinInfoResponseMapper.map()
+        var coinInfoResponses = coinInfoResponseMapper.map()
                 .apply(map, cryptoBalanceResponse);
 
         assertAll(
                 () -> assertFalse(coinInfoResponses.isEmpty()),
                 () -> assertEquals(map.size(), coinInfoResponses.size()),
-                () -> assertEquals("ethereum", coinInfoResponses.get(0).getName())
+                () -> assertEquals("ethereum", coinInfoResponses.get(0).name())
         );
     }
 }

@@ -1,7 +1,5 @@
 package com.distasilucas.cryptobalancetracker.service.coingecko.impl;
 
-import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
-import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -19,7 +17,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -42,7 +39,7 @@ class CoingeckoServiceImplTest {
 
     @BeforeEach
     void setUpService() {
-        WebClient webClient = WebClient.create("https://api.coingecko.com/api/v3");
+        var webClient = WebClient.create("https://api.coingecko.com/api/v3");
         coingeckoService = new CoingeckoServiceImpl("", webClient);
     }
 
@@ -51,7 +48,7 @@ class CoingeckoServiceImplTest {
         var mockResponse = new MockResponse();
         mockBackEnd.enqueue(mockResponse);
 
-        List<Coin> coins = coingeckoService.retrieveAllCoins();
+        var coins = coingeckoService.retrieveAllCoins();
 
         StepVerifier.create(Flux.just(coins))
                 .expectNextMatches(CollectionUtils::isNotEmpty)
@@ -63,7 +60,7 @@ class CoingeckoServiceImplTest {
         var mockResponse = new MockResponse();
         mockBackEnd.enqueue(mockResponse);
 
-        CoinInfo coins = coingeckoService.retrieveCoinInfo("bitcoin");
+        var coins = coingeckoService.retrieveCoinInfo("bitcoin");
 
         StepVerifier.create(Mono.just(coins))
                 .expectNextMatches(coinInfo -> coinInfo.getName().equals("Bitcoin"))
@@ -74,7 +71,7 @@ class CoingeckoServiceImplTest {
     void shouldThrowWebClientResponseExceptionForInvalidApiKey() {
         var mockResponse = new MockResponse();
         mockBackEnd.enqueue(mockResponse);
-        WebClient webClient = WebClient.create("https://pro-api.coingecko.com/api/v3");
+        var webClient = WebClient.create("https://pro-api.coingecko.com/api/v3");
         coingeckoService = new CoingeckoServiceImpl("ABC123", webClient);
 
         assertThrows(WebClientResponseException.class, () -> coingeckoService.retrieveCoinInfo("bitcoin"));

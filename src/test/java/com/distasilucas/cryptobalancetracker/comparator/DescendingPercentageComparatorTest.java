@@ -1,7 +1,7 @@
-package com.distasilucas.cryptobalancetracker.comparators;
+package com.distasilucas.cryptobalancetracker.comparator;
 
 import com.distasilucas.cryptobalancetracker.MockData;
-import com.distasilucas.cryptobalancetracker.model.response.CoinResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinResponse;
 import org.junit.jupiter.api.Test;
 
 import java.util.Comparator;
@@ -21,8 +21,8 @@ class DescendingPercentageComparatorTest {
         var lowerCoinResponse = MockData.getCoinResponse(coinInfo);
         lowerCoinResponse.setPercentage(40);
 
-        int firstCompare = comparator.compare(higherCoinResponse, lowerCoinResponse);
-        int secondCompare = comparator.compare(lowerCoinResponse, higherCoinResponse);
+        var firstCompare = comparator.compare(higherCoinResponse, lowerCoinResponse);
+        var secondCompare = comparator.compare(lowerCoinResponse, higherCoinResponse);
 
         assertAll(
                 () -> assertEquals(-1, firstCompare),

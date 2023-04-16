@@ -7,7 +7,7 @@ import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.json.JSONObject;
 
-import static com.distasilucas.cryptobalancetracker.constant.Constants.ERROR_VALIDATING_JSON_SCHEMA;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.ERROR_VALIDATING_JSON_SCHEMA;
 
 @RequiredArgsConstructor
 public class JsonSchemaValidationService<T> implements EntityValidation<T> {

@@ -6,8 +6,8 @@ import com.distasilucas.cryptobalancetracker.service.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
-import static com.distasilucas.cryptobalancetracker.constant.Constants.TOKEN_EXPIRED;
-import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN_ERROR;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.TOKEN_EXPIRED;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.UNKNOWN_ERROR;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -75,7 +75,7 @@ class JwtServiceImplTest {
 
     @Test
     void shouldExtractUsername() {
-        String username = jwtService.extractUsername(TOKEN);
+        var username = jwtService.extractUsername(TOKEN);
 
         assertEquals("lucas", username);
     }

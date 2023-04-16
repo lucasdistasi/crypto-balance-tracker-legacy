@@ -1,4 +1,4 @@
-package com.distasilucas.cryptobalancetracker.model.response;
+package com.distasilucas.cryptobalancetracker.model.response.crypto;
 
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;

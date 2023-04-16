@@ -4,8 +4,9 @@ import com.distasilucas.cryptobalancetracker.exception.ApiException;
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
 import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformCoinException;
-import com.distasilucas.cryptobalancetracker.model.Error;
-import com.distasilucas.cryptobalancetracker.model.ErrorResponse;
+import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
+import com.distasilucas.cryptobalancetracker.model.error.Error;
+import com.distasilucas.cryptobalancetracker.model.error.ErrorResponse;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +23,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
-import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN_ERROR;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.UNKNOWN_ERROR;
 
 @Slf4j
 @RestControllerAdvice
@@ -34,10 +35,19 @@ public class ExceptionController {
 
         Error error = new Error(coinNotFoundException.getErrorMessage());
 
-        ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setErrors(Collections.singletonList(error));
-        errorResponse.setStatusCode(HttpStatus.NOT_FOUND.value());
-        errorResponse.setTimeStamp(LocalDateTime.now());
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), Collections.singletonList(error));
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(value = PlatformNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlePlatformNotFoundException(PlatformNotFoundException platformNotFoundException) {
+        log.warn("An PlatformNotFoundException has occurred: ", platformNotFoundException);
+
+        Error error = new Error(platformNotFoundException.getErrorMessage());
+
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), Collections.singletonList(error));
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(errorResponse);
@@ -58,10 +68,7 @@ public class ExceptionController {
                         .toList() :
                 Collections.singletonList(new Error(message));
 
-        ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setStatusCode(HttpStatus.BAD_REQUEST.value());
-        errorResponse.setTimeStamp(LocalDateTime.now());
-        errorResponse.setErrors(errors);
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), errors);
 
         return ResponseEntity.badRequest()
                 .body(errorResponse);
@@ -70,10 +77,6 @@ public class ExceptionController {
     @ExceptionHandler(value = HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException httpMessageNotReadableException) {
         log.warn("An HttpMessageNotReadableException has occurred: ", httpMessageNotReadableException);
-
-        ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setStatusCode(HttpStatus.BAD_REQUEST.value());
-        errorResponse.setTimeStamp(LocalDateTime.now());
 
         String originalMessage = UNKNOWN_ERROR;
 
@@ -87,7 +90,7 @@ public class ExceptionController {
         }
 
         Error error = new Error(originalMessage);
-        errorResponse.setErrors(Collections.singletonList(error));
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), Collections.singletonList(error));
 
         return ResponseEntity.badRequest()
                 .body(errorResponse);
@@ -99,10 +102,7 @@ public class ExceptionController {
 
         Error error = new Error(duplicatedPlatformCoinException.getErrorMessage());
 
-        ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setErrors(Collections.singletonList(error));
-        errorResponse.setStatusCode(HttpStatus.BAD_REQUEST.value());
-        errorResponse.setTimeStamp(LocalDateTime.now());
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), Collections.singletonList(error));
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(errorResponse);
@@ -114,11 +114,8 @@ public class ExceptionController {
 
         HttpStatusCode httpStatusCode = apiException.getHttpStatusCode();
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .errors(Collections.singletonList(new Error(apiException.getErrorMessage())))
-                .statusCode(httpStatusCode.value())
-                .timeStamp(LocalDateTime.now())
-                .build();
+        Error error = new Error(apiException.getErrorMessage());
+        ErrorResponse errorResponse = new ErrorResponse(httpStatusCode.value(), Collections.singletonList(error));
 
         return ResponseEntity.status(httpStatusCode)
                 .body(errorResponse);
@@ -129,11 +126,8 @@ public class ExceptionController {
         log.warn("An Unhandled Exception has occurred: ", exception);
 
         HttpStatus internalServerError = HttpStatus.INTERNAL_SERVER_ERROR;
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .errors(Collections.singletonList(new Error(UNKNOWN_ERROR)))
-                .statusCode(internalServerError.value())
-                .timeStamp(LocalDateTime.now())
-                .build();
+        Error error = new Error(UNKNOWN_ERROR);
+        ErrorResponse errorResponse = new ErrorResponse(internalServerError.value(), Collections.singletonList(error));
 
         return ResponseEntity.status(internalServerError)
                 .body(errorResponse);

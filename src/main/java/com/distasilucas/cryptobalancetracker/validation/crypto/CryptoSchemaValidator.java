@@ -1,6 +1,6 @@
 package com.distasilucas.cryptobalancetracker.validation.crypto;
 
-import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
+import com.distasilucas.cryptobalancetracker.model.request.CryptoRequest;
 import com.distasilucas.cryptobalancetracker.validation.JsonSchemaValidationService;
 import com.distasilucas.cryptobalancetracker.validation.PlatformNameValidator;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
@@ -12,10 +12,10 @@ import org.springframework.stereotype.Component;
 public class CryptoSchemaValidator {
 
     @Bean
-    public Validation<CryptoDTO> addCryptoValidation(Schema addCryptoJsonSchemaValidator,
-                                                     QuantityValueValidator quantityValueValidator,
-                                                     PlatformNameValidator<CryptoDTO> platformNameValidator,
-                                                     CryptoPlatformValidator cryptoPlatformValidator) {
+    public Validation<CryptoRequest> addCryptoValidation(Schema addCryptoJsonSchemaValidator,
+                                                         QuantityValueValidator quantityValueValidator,
+                                                         PlatformNameValidator<CryptoRequest> platformNameValidator,
+                                                         CryptoPlatformValidator cryptoPlatformValidator) {
         return new Validation<>(
                 new JsonSchemaValidationService<>(addCryptoJsonSchemaValidator),
                 quantityValueValidator,
@@ -25,10 +25,10 @@ public class CryptoSchemaValidator {
     }
 
     @Bean
-    public Validation<CryptoDTO> updateCryptoValidation(Schema updateCryptoJsonSchemaValidator,
-                                                        QuantityValueValidator quantityValueValidator,
-                                                        PlatformNameValidator<CryptoDTO> platformNameValidator,
-                                                        CryptoPlatformValidator cryptoPlatformValidator) {
+    public Validation<CryptoRequest> updateCryptoValidation(Schema updateCryptoJsonSchemaValidator,
+                                                            QuantityValueValidator quantityValueValidator,
+                                                            PlatformNameValidator<CryptoRequest> platformNameValidator,
+                                                            CryptoPlatformValidator cryptoPlatformValidator) {
         return new Validation<>(
                 new JsonSchemaValidationService<>(updateCryptoJsonSchemaValidator),
                 quantityValueValidator,

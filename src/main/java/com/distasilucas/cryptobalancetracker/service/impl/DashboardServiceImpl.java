@@ -4,12 +4,12 @@ import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.mapper.BiFunctionMapper;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.model.response.CoinInfoResponse;
-import com.distasilucas.cryptobalancetracker.model.response.CoinResponse;
-import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
-import com.distasilucas.cryptobalancetracker.model.response.CryptoPlatformBalanceResponse;
-import com.distasilucas.cryptobalancetracker.model.response.PlatformBalanceResponse;
-import com.distasilucas.cryptobalancetracker.model.response.PlatformInfo;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinInfoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoPlatformBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformInfo;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.service.DashboardService;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
@@ -65,7 +65,7 @@ public class DashboardServiceImpl implements DashboardService {
             CryptoBalanceResponse cryptoBalanceResponse = cryptoBalanceResponseMapperImpl.mapFrom(allCoins);
             Map<String, BigDecimal> coinByPlatform = new HashMap<>();
 
-            cryptoBalanceResponse.getCoins()
+            cryptoBalanceResponse.coins()
                     .forEach(coin -> {
                         String coinName = coin.getCoinInfo().getName();
                         BigDecimal balance = coin.getBalance();
@@ -76,10 +76,9 @@ public class DashboardServiceImpl implements DashboardService {
             List<CoinInfoResponse> coinInfoResponses = coinInfoResponseMapperImpl.map()
                     .apply(coinByPlatform, cryptoBalanceResponse);
 
-            CryptoPlatformBalanceResponse cryptoPlatformBalanceResponse = CryptoPlatformBalanceResponse.builder()
-                    .totalBalance(cryptoBalanceResponse.getTotalBalance())
-                    .coinInfoResponse(coinInfoResponses)
-                    .build();
+            CryptoPlatformBalanceResponse cryptoPlatformBalanceResponse = new CryptoPlatformBalanceResponse(
+                    cryptoBalanceResponse.totalBalance(), coinInfoResponses
+            );
 
             return Optional.of(cryptoPlatformBalanceResponse);
         }
@@ -91,7 +90,7 @@ public class DashboardServiceImpl implements DashboardService {
     public Optional<PlatformBalanceResponse> getPlatformsBalances() {
         List<Crypto> cryptos = cryptoRepository.findAll();
         CryptoBalanceResponse cryptoBalanceResponse = cryptoBalanceResponseMapperImpl.mapFrom(cryptos);
-        List<CoinResponse> coins = cryptoBalanceResponse.getCoins();
+        List<CoinResponse> coins = cryptoBalanceResponse.coins();
 
         if (CollectionUtils.isNotEmpty(coins)) {
             Map<String, BigDecimal> balancePerPlatform = new HashMap<>();
@@ -104,13 +103,9 @@ public class DashboardServiceImpl implements DashboardService {
                         balancePerPlatform.compute(platform, (k, v) -> (v == null) ? balance : v.add(balance));
                     });
 
-            BigDecimal totalBalance = cryptoBalanceResponse.getTotalBalance();
+            BigDecimal totalBalance = cryptoBalanceResponse.totalBalance();
             List<PlatformInfo> platforms = getPlatformInfo(balancePerPlatform, totalBalance);
-            PlatformBalanceResponse platformBalanceResponse = PlatformBalanceResponse.builder()
-                    .platforms(platforms)
-                    .totalBalance(totalBalance)
-                    .build();
-
+            PlatformBalanceResponse platformBalanceResponse = new PlatformBalanceResponse(totalBalance, platforms);
             return Optional.of(platformBalanceResponse);
         }
 
@@ -136,12 +131,7 @@ public class DashboardServiceImpl implements DashboardService {
         List<PlatformInfo> platformsInfo = new ArrayList<>();
 
         balancePerPlatform.forEach((platform, platformBalance) -> {
-            PlatformInfo platformInfo = PlatformInfo.builder()
-                    .balance(platformBalance)
-                    .percentage(getPercentage(platformBalance, totalBalance))
-                    .platformName(platform)
-                    .build();
-
+            PlatformInfo platformInfo = new PlatformInfo(platform, getPercentage(platformBalance, totalBalance), platformBalance);
             platformsInfo.add(platformInfo);
         });
 

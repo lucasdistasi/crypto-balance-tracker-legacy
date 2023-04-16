@@ -1,9 +1,9 @@
 package com.distasilucas.cryptobalancetracker.mapper.impl;
 
+import com.distasilucas.cryptobalancetracker.MockData;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
-import com.distasilucas.cryptobalancetracker.MockData;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,19 +16,20 @@ import java.util.Optional;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class CryptoDTOMapperImplTest {
+class CryptoResponseMapperImplTest {
 
     @Mock
     private PlatformRepository platformRepositoryMock;
 
-    EntityMapper<CryptoDTO, Crypto> cryptoDTOMapperImpl;
+    EntityMapper<CryptoResponse, Crypto> cryptoResponseMapperImpl;
 
     @BeforeEach
     void setUp() {
-        cryptoDTOMapperImpl = new CryptoDTOMapperImpl(platformRepositoryMock);
+        cryptoResponseMapperImpl = new CryptoResponseMapperImpl(platformRepositoryMock);
     }
 
     @Test
@@ -38,31 +39,29 @@ class CryptoDTOMapperImplTest {
 
         when(platformRepositoryMock.findById("1234")).thenReturn(Optional.of(platform));
 
-        var cryptoDTO = cryptoDTOMapperImpl.mapFrom(crypto);
+        var cryptoResponse = cryptoResponseMapperImpl.mapFrom(crypto);
 
         assertAll(
-                () -> assertEquals(crypto.getName(), cryptoDTO.coin_name()),
-                () -> assertEquals(crypto.getTicker(), cryptoDTO.ticker()),
-                () -> assertEquals(crypto.getQuantity(), cryptoDTO.quantity()),
-                () -> assertEquals(crypto.getCoinId(), cryptoDTO.coinId()),
+                () -> assertEquals(crypto.getName(), cryptoResponse.getCoinName()),
+                () -> assertEquals(crypto.getQuantity(), cryptoResponse.getQuantity()),
+                () -> assertNotNull(cryptoResponse.getCoinId()),
                 () -> assertEquals(crypto.getPlatformId(), platform.getId())
         );
     }
 
     @Test
-    void shouldMapSuccessfullyWithUnkownPlatform() {
+    void shouldMapSuccessfullyWithUnknownPlatform() {
         var crypto = MockData.getCrypto("1234");
 
         when(platformRepositoryMock.findById("1234")).thenReturn(Optional.empty());
 
-        var cryptoDTO = cryptoDTOMapperImpl.mapFrom(crypto);
+        var cryptoResponse = cryptoResponseMapperImpl.mapFrom(crypto);
 
         assertAll(
-                () -> assertEquals(crypto.getName(), cryptoDTO.coin_name()),
-                () -> assertEquals(crypto.getTicker(), cryptoDTO.ticker()),
-                () -> assertEquals(crypto.getQuantity(), cryptoDTO.quantity()),
-                () -> assertEquals(crypto.getCoinId(), cryptoDTO.coinId()),
-                () -> assertEquals(UNKNOWN, cryptoDTO.platform())
+                () -> assertEquals(crypto.getName(), cryptoResponse.getCoinName()),
+                () -> assertEquals(crypto.getQuantity(), cryptoResponse.getQuantity()),
+                () -> assertNotNull(cryptoResponse.getCoinId()),
+                () -> assertEquals(UNKNOWN, cryptoResponse.getPlatform())
         );
     }
 

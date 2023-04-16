@@ -2,14 +2,15 @@ package com.distasilucas.cryptobalancetracker.mapper.impl;
 
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
+import com.distasilucas.cryptobalancetracker.model.request.PlatformRequest;
+import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class PlatformDTOMapperImplTest {
+class PlatformResponseMapperImplTest {
 
-    EntityMapper<PlatformDTO, Platform> entityMapper = new PlatformDTOMapperImpl();
+    EntityMapper<PlatformResponse, Platform> entityMapper = new PlatformResponseMapperImpl();
 
     @Test
     void shouldMapSuccessfully() {
@@ -17,8 +18,8 @@ class PlatformDTOMapperImplTest {
                 .name("LEDGER")
                 .build();
 
-        var platformDTO = entityMapper.mapFrom(platform);
+        var platformResponse = entityMapper.mapFrom(platform);
 
-        assertEquals(platform.getName(), platformDTO.getName());
+        assertEquals(platform.getName(), platformResponse.getName());
     }
 }

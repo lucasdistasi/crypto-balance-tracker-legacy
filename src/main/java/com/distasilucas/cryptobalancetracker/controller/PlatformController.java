@@ -2,9 +2,11 @@ package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.controller.helper.ControllerHelper;
 import com.distasilucas.cryptobalancetracker.controller.swagger.PlatformControllerApi;
-import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
+import com.distasilucas.cryptobalancetracker.model.request.PlatformRequest;
+import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,14 +31,18 @@ public class PlatformController implements PlatformControllerApi, ControllerHelp
 
     @Override
     @GetMapping
-    public ResponseEntity<List<PlatformDTO>> getAllPlatforms() {
-        return ResponseEntity.ok(platformService.getAllPlatforms());
+    public ResponseEntity<List<PlatformResponse>> getAllPlatforms() {
+        List<PlatformResponse> platforms = platformService.getAllPlatforms();
+        HttpStatus httpStatus = CollectionUtils.isNotEmpty(platforms) ? HttpStatus.OK : HttpStatus.NO_CONTENT;
+
+        return ResponseEntity.status(httpStatus)
+                .body(platforms);
     }
 
     @Override
     @PostMapping
-    public ResponseEntity<PlatformDTO> addPlatform(@RequestBody PlatformDTO platformDTO) {
-        PlatformDTO platForm = platformService.addPlatForm(platformDTO);
+    public ResponseEntity<PlatformResponse> addPlatform(@RequestBody PlatformRequest platformRequest) {
+        PlatformResponse platForm = platformService.addPlatForm(platformRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(platForm);
@@ -44,9 +50,9 @@ public class PlatformController implements PlatformControllerApi, ControllerHelp
 
     @Override
     @PutMapping("/{platformName}")
-    public ResponseEntity<PlatformDTO> updatePlatform(@PathVariable String platformName,
-                                                      @RequestBody PlatformDTO platformDTO) {
-        PlatformDTO updatedPlatform = platformService.updatePlatform(platformDTO, platformName);
+    public ResponseEntity<PlatformResponse> updatePlatform(@PathVariable String platformName,
+                                                          @RequestBody PlatformRequest platformRequest) {
+        PlatformResponse updatedPlatform = platformService.updatePlatform(platformName, platformRequest);
 
         return ResponseEntity.ok(updatedPlatform);
     }
