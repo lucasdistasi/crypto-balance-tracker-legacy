@@ -1,6 +1,6 @@
 package com.distasilucas.cryptobalancetracker.validation.platform;
 
-import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
+import com.distasilucas.cryptobalancetracker.model.request.PlatformRequest;
 import com.distasilucas.cryptobalancetracker.validation.JsonSchemaValidationService;
 import com.distasilucas.cryptobalancetracker.validation.PlatformNameValidator;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
@@ -12,9 +12,9 @@ import org.springframework.stereotype.Component;
 public class PlatformSchemaValidator {
 
     @Bean
-    public Validation<PlatformDTO> addPlatformValidation(Schema addPlatformJsonSchemaValidator,
-                                                         PlatformNameValidator<PlatformDTO> platformNameValidator,
-                                                         PlatformNotExistsValidator platformNotExistsValidator) {
+    public Validation<PlatformRequest> addPlatformValidation(Schema addPlatformJsonSchemaValidator,
+                                                             PlatformNameValidator<PlatformRequest> platformNameValidator,
+                                                             PlatformNotExistsValidator platformNotExistsValidator) {
         return new Validation<>(
                 new JsonSchemaValidationService<>(addPlatformJsonSchemaValidator),
                 platformNameValidator,

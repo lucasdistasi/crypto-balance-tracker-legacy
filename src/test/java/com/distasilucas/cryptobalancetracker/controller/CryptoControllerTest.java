@@ -1,7 +1,8 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.MockData;
-import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
+import com.distasilucas.cryptobalancetracker.model.request.CryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,11 +10,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -39,38 +38,24 @@ class CryptoControllerTest {
 
     @Test
     void shouldGetCoinWith200StatusCode() {
-        var crypto = CryptoDTO.builder()
+        var cryptoResponse = CryptoResponse.builder()
                 .coinId("bitcoin")
                 .build();
 
-        when(cryptoServiceMocK.getCoin("1234")).thenReturn(Optional.of(crypto));
+        when(cryptoServiceMocK.getCoin("1234")).thenReturn(cryptoResponse);
 
         var responseEntity = cryptoController.getCoin("1234");
 
         assertAll(
                 () -> assertNotNull(responseEntity.getBody()),
-                () -> assertTrue(responseEntity.getBody().isPresent()),
                 () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
-                () -> assertEquals("bitcoin", responseEntity.getBody().get().coinId())
-        );
-    }
-
-    @Test
-    void shouldReturn404WhenRetrievingNonExistingCoin() {
-        when(cryptoServiceMocK.getCoin("1234")).thenReturn(Optional.empty());
-
-        var responseEntity = cryptoController.getCoin("1234");
-
-        assertAll(
-                () -> assertNotNull(responseEntity.getBody()),
-                () -> assertTrue(responseEntity.getBody().isEmpty()),
-                () -> assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode())
+                () -> assertEquals("bitcoin", responseEntity.getBody().getCoinId())
         );
     }
 
     @Test
     void shouldRetrieveAllCoins() {
-        var cryptos = Collections.singletonList(MockData.getCryptoDTO());
+        var cryptos = Collections.singletonList(MockData.getCryptoResponse());
 
         when(cryptoServiceMocK.getCoins()).thenReturn(Optional.of(cryptos));
 
@@ -99,26 +84,30 @@ class CryptoControllerTest {
 
     @Test
     void shouldReturnCreatedCrypto() {
-        var cryptoDTO = MockData.getCryptoDTO();
-        var cryptoDTOResponse = MockData.getCryptoDTO();
+        var cryptoRequest = MockData.getCryptoRequest();
+        var cryptoResponse = MockData.getCryptoResponse();
 
-        when(cryptoServiceMocK.addCoin(cryptoDTO)).thenReturn(cryptoDTOResponse);
+        when(cryptoServiceMocK.addCoin(cryptoRequest)).thenReturn(cryptoResponse);
 
-        var cryptoResponseEntity = cryptoController.addCoin(cryptoDTO);
+        var cryptoResponseEntity = cryptoController.addCoin(cryptoRequest);
 
         assertNotNull(cryptoResponseEntity.getBody());
         assertAll(
                 () -> assertEquals(HttpStatus.CREATED, cryptoResponseEntity.getStatusCode()),
-                () -> assertEquals(cryptoDTO.coin_name(), cryptoResponseEntity.getBody().coin_name())
+                () -> assertEquals(cryptoRequest.coin_name(), cryptoResponseEntity.getBody().getCoinName())
         );
     }
 
     @Test
     void shouldUpdateCoin() {
-        var originalCrypto = new CryptoDTO("Bitcoin", BigDecimal.valueOf(0.10), "Binance", "BTC", "bitcoin", BigDecimal.valueOf(30000));
-        var newCrypto = new CryptoDTO("Bitcoin", BigDecimal.valueOf(0.15), "Binance", "BTC", "bitcoin", BigDecimal.valueOf(30000));
+        var newCrypto = new CryptoRequest("Bitcoin", BigDecimal.valueOf(0.15), "Binance");
+        var newCryptoResponse = CryptoResponse.builder()
+                .coinName("Bitcoin")
+                .quantity(BigDecimal.valueOf(0.10))
+                .platform("Binance")
+                .build();
 
-        when(cryptoServiceMocK.updateCoin(newCrypto, "ABC123")).thenReturn(originalCrypto);
+        when(cryptoServiceMocK.updateCoin(newCrypto, "ABC123")).thenReturn(newCryptoResponse);
 
         var responseEntity = cryptoController.updateCoin(newCrypto, "ABC123");
 

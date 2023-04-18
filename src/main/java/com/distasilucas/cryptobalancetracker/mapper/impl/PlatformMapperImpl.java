@@ -2,17 +2,17 @@ package com.distasilucas.cryptobalancetracker.mapper.impl;
 
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
+import com.distasilucas.cryptobalancetracker.model.request.PlatformRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.function.Function;
 
 @Service
-public class PlatformMapperImpl implements EntityMapper<Platform, PlatformDTO> {
+public class PlatformMapperImpl implements EntityMapper<Platform, PlatformRequest> {
 
     @Override
-    public Platform mapFrom(PlatformDTO input) {
-        Function<PlatformDTO, Platform> platformFunction = platformDTO -> new Platform(platformDTO.getName());
+    public Platform mapFrom(PlatformRequest input) {
+        Function<PlatformRequest, Platform> platformFunction = platformRequest -> new Platform(platformRequest.getName());
 
         return platformFunction.apply(input);
     }

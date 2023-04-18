@@ -1,10 +1,10 @@
 package com.distasilucas.cryptobalancetracker.mapper.impl;
 
-import com.distasilucas.cryptobalancetracker.comparators.DescendingBalanceComparator;
+import com.distasilucas.cryptobalancetracker.comparator.DescendingBalanceComparator;
 import com.distasilucas.cryptobalancetracker.mapper.BiFunctionMapper;
-import com.distasilucas.cryptobalancetracker.model.response.CoinInfoResponse;
-import com.distasilucas.cryptobalancetracker.model.response.CoinResponse;
-import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinInfoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoBalanceResponse;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,7 +23,7 @@ public class CoinInfoResponseMapperImpl implements BiFunctionMapper<Map<String, 
         List<CoinInfoResponse> coinInfoResponses = new ArrayList<>();
 
         return (coinByPlatform, cryptoBalanceResponse) -> {
-            List<CoinResponse> coins = cryptoBalanceResponse.getCoins();
+            List<CoinResponse> coins = cryptoBalanceResponse.coins();
 
             coinByPlatform.forEach((coinName, coinTotalBalance) -> {
                 List<CoinResponse> coinsResponse = getCoinsResponse(coins, coinName);
@@ -31,13 +31,8 @@ public class CoinInfoResponseMapperImpl implements BiFunctionMapper<Map<String, 
                 Double totalPercentage = getTotalPercentage(coinsResponse);
                 Set<String> platforms = getPlatforms(coinsResponse);
 
-                CoinInfoResponse coinInfoResponse = CoinInfoResponse.builder()
-                        .quantity(totalQuantity)
-                        .name(coinName)
-                        .balance(coinTotalBalance)
-                        .percentage(totalPercentage)
-                        .platforms(platforms)
-                        .build();
+                CoinInfoResponse coinInfoResponse = new CoinInfoResponse(coinName, totalQuantity, coinTotalBalance,
+                        totalPercentage, platforms);
 
                 coinInfoResponses.add(coinInfoResponse);
             });

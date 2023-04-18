@@ -8,7 +8,7 @@ import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
-import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
+import com.distasilucas.cryptobalancetracker.model.request.CryptoRequest;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import lombok.RequiredArgsConstructor;
@@ -20,25 +20,25 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.distasilucas.cryptobalancetracker.constant.Constants.COIN_NAME_NOT_FOUND;
-import static com.distasilucas.cryptobalancetracker.constant.Constants.MAX_RATE_LIMIT_REACHED;
-import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN_ERROR;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.COIN_NAME_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.MAX_RATE_LIMIT_REACHED;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.UNKNOWN_ERROR;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CryptoMapperImpl implements EntityMapper<Crypto, CryptoDTO> {
+public class CryptoMapperImpl implements EntityMapper<Crypto, CryptoRequest> {
 
     private final CoingeckoService coingeckoService;
     private final PlatformService platformService;
 
     @Override
-    public Crypto mapFrom(CryptoDTO cryptoDTO) {
+    public Crypto mapFrom(CryptoRequest cryptoRequest) {
         try {
-            log.info("Attempting to retrieve [{}] information from Coingecko or cache", cryptoDTO.coin_name());
+            log.info("Attempting to retrieve [{}] information from Coingecko or cache", cryptoRequest.coin_name());
             List<Coin> coins = coingeckoService.retrieveAllCoins();
 
-            return getCrypto(cryptoDTO, coins);
+            return getCrypto(cryptoRequest, coins);
         } catch (WebClientResponseException ex) {
             if (HttpStatus.TOO_MANY_REQUESTS.equals(ex.getStatusCode())) {
                 log.warn("To many requests. Rate limit reached.");
@@ -50,10 +50,10 @@ public class CryptoMapperImpl implements EntityMapper<Crypto, CryptoDTO> {
         }
     }
 
-    private Crypto getCrypto(CryptoDTO cryptoDTO, List<Coin> coins) {
+    private Crypto getCrypto(CryptoRequest cryptoRequest, List<Coin> coins) {
         Crypto crypto = new Crypto();
-        Platform platform = platformService.findPlatformByName(cryptoDTO.platform());
-        String coinName = cryptoDTO.coin_name();
+        Platform platform = platformService.findPlatformByName(cryptoRequest.platform());
+        String coinName = cryptoRequest.coin_name();
 
         coins.stream()
                 .filter(coin -> coin.getName().equalsIgnoreCase(coinName))
@@ -65,7 +65,7 @@ public class CryptoMapperImpl implements EntityMapper<Crypto, CryptoDTO> {
                             crypto.setCoinId(coin.getId());
                             crypto.setName(coin.getName());
                             crypto.setTicker(coin.getSymbol());
-                            crypto.setQuantity(cryptoDTO.quantity());
+                            crypto.setQuantity(cryptoRequest.quantity());
                             crypto.setPlatformId(platform.getId());
                             crypto.setLastPriceUpdatedAt(LocalDateTime.now());
                             crypto.setLastKnownPrice(marketData.currentPrice().usd());

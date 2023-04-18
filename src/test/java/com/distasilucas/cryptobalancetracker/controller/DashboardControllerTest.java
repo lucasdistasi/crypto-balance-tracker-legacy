@@ -1,7 +1,8 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.MockData;
-import com.distasilucas.cryptobalancetracker.model.response.PlatformBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformInfo;
 import com.distasilucas.cryptobalancetracker.service.DashboardService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -48,8 +50,8 @@ class DashboardControllerTest {
         assertAll(
                 () -> assertTrue(responseEntity.getBody().isPresent()),
                 () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
-                () -> assertEquals(coinsResponse.getBalance(), responseEntity.getBody().get().getCoins().get(0).getBalance()),
-                () -> assertEquals("btc", responseEntity.getBody().get().getCoins().get(0).getCoinInfo().getSymbol())
+                () -> assertEquals(coinsResponse.getBalance(), responseEntity.getBody().get().coins().get(0).getBalance()),
+                () -> assertEquals("btc", responseEntity.getBody().get().coins().get(0).getCoinInfo().getSymbol())
         );
     }
 
@@ -77,7 +79,7 @@ class DashboardControllerTest {
         assertNotNull(responseEntity.getBody());
         assertAll(
                 () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
-                () -> assertEquals(BigDecimal.valueOf(1000), responseEntity.getBody().get().getTotalBalance())
+                () -> assertEquals(BigDecimal.valueOf(1000), responseEntity.getBody().get().totalBalance())
         );
     }
 
@@ -105,8 +107,8 @@ class DashboardControllerTest {
         assertNotNull(responseEntity.getBody());
         assertAll(
                 () -> assertTrue(responseEntity.getBody().isPresent()),
-                () -> assertEquals(cryptoBalanceResponse.getTotalBalance(), responseEntity.getBody().get().getTotalBalance()),
-                () -> assertEquals(cryptoBalanceResponse.getCoins().size(), responseEntity.getBody().get().getCoins().size()),
+                () -> assertEquals(cryptoBalanceResponse.totalBalance(), responseEntity.getBody().get().totalBalance()),
+                () -> assertEquals(cryptoBalanceResponse.coins().size(), responseEntity.getBody().get().coins().size()),
                 () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode())
         );
     }
@@ -141,9 +143,8 @@ class DashboardControllerTest {
 
     @Test
     void shouldGetPlatformsBalances() {
-        var platformBalanceResponse = PlatformBalanceResponse.builder()
-                .totalBalance(BigDecimal.valueOf(1000))
-                .build();
+        var platformInfo = new PlatformInfo("Ledger", 50, BigDecimal.valueOf(500));
+        var platformBalanceResponse = new PlatformBalanceResponse(BigDecimal.valueOf(1000), Collections.singletonList(platformInfo));
 
         when(dashboardServiceMock.getPlatformsBalances()).thenReturn(Optional.of(platformBalanceResponse));
 

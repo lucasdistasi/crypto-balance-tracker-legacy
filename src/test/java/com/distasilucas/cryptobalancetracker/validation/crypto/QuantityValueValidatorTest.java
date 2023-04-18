@@ -1,7 +1,7 @@
 package com.distasilucas.cryptobalancetracker.validation.crypto;
 
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
-import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
+import com.distasilucas.cryptobalancetracker.model.request.CryptoRequest;
 import com.distasilucas.cryptobalancetracker.validation.EntityValidation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -9,39 +9,39 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.math.BigDecimal;
 
-import static com.distasilucas.cryptobalancetracker.constant.Constants.INVALID_CRYPTO_QUANTITY;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.INVALID_CRYPTO_QUANTITY;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class QuantityValueValidatorTest {
 
-    EntityValidation<CryptoDTO> entityValidation = new QuantityValueValidator();
+    EntityValidation<CryptoRequest> entityValidation = new QuantityValueValidator();
 
     @Test
     void shouldValidateQuantitySuccessfully() {
-        var cryptoDTO = getCryptoDTO(BigDecimal.valueOf(123.456));
+        var cryptoRequest = getCryptoRequest(BigDecimal.valueOf(123.456));
 
-        entityValidation.validate(cryptoDTO);
+        entityValidation.validate(cryptoRequest);
     }
 
     @Test
     void shouldValidateQuantitySuccessfullyWithoutDecimals() {
-        var cryptoDTO = getCryptoDTO(BigDecimal.valueOf(123));
+        var cryptoRequest = getCryptoRequest(BigDecimal.valueOf(123));
 
-        entityValidation.validate(cryptoDTO);
+        entityValidation.validate(cryptoRequest);
     }
 
     @ParameterizedTest
     @ValueSource(strings = { "9999999999999999.9999999999999",
             "99999999999999999.999999999999"})
     void shouldThrowApiValidationExceptionIfLengthIsInvalid(String length) {
-        BigDecimal quantity = new BigDecimal(length);
-        var cryptoDTO = getCryptoDTO(quantity);
+        var quantity = new BigDecimal(length);
+        var cryptoRequest = getCryptoRequest(quantity);
 
         var apiValidationException = assertThrows(
                 ApiValidationException.class,
-                () -> entityValidation.validate(cryptoDTO)
+                () -> entityValidation.validate(cryptoRequest)
         );
 
         assertAll(
@@ -52,11 +52,11 @@ class QuantityValueValidatorTest {
     @ParameterizedTest
     @ValueSource(doubles = {-1, 0})
     void shouldThrowApiValidationExceptionIfQuantityIsNotGreaterThanZero(double quantity) {
-        var cryptoDTO = getCryptoDTO(BigDecimal.valueOf(quantity));
+        var cryptoRequest = getCryptoRequest(BigDecimal.valueOf(quantity));
 
         var apiValidationException = assertThrows(
                 ApiValidationException.class,
-                () -> entityValidation.validate(cryptoDTO)
+                () -> entityValidation.validate(cryptoRequest)
         );
 
         assertAll(
@@ -66,11 +66,11 @@ class QuantityValueValidatorTest {
 
     @Test
     void shouldThrowApiValidationExceptionIfQuantityIsGreaterThanAllowed() {
-        var cryptoDTO = getCryptoDTO(BigDecimal.valueOf(9999999999999999.99));
+        var cryptoRequest = getCryptoRequest(BigDecimal.valueOf(9999999999999999.99));
 
         var apiValidationException = assertThrows(
                 ApiValidationException.class,
-                () -> entityValidation.validate(cryptoDTO)
+                () -> entityValidation.validate(cryptoRequest)
         );
 
         assertAll(
@@ -78,10 +78,8 @@ class QuantityValueValidatorTest {
         );
     }
 
-    private CryptoDTO getCryptoDTO(BigDecimal quantity) {
-        return CryptoDTO.builder()
-                .quantity(quantity)
-                .build();
+    private CryptoRequest getCryptoRequest(BigDecimal quantity) {
+        return new CryptoRequest("Bitcoin", quantity, "Safepal");
     }
 
 }

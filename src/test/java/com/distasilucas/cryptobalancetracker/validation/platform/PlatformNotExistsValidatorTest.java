@@ -2,7 +2,7 @@ package com.distasilucas.cryptobalancetracker.validation.platform;
 
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
-import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
+import com.distasilucas.cryptobalancetracker.model.request.PlatformRequest;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import com.distasilucas.cryptobalancetracker.validation.EntityValidation;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static com.distasilucas.cryptobalancetracker.constant.Constants.DUPLICATED_PLATFORM;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.DUPLICATED_PLATFORM;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
@@ -24,7 +24,7 @@ class PlatformNotExistsValidatorTest {
     @Mock
     PlatformRepository platformRepositoryMock;
 
-    EntityValidation<PlatformDTO> entityValidation;
+    EntityValidation<PlatformRequest> entityValidation;
 
     @BeforeEach
     void setUp() {
@@ -33,28 +33,28 @@ class PlatformNotExistsValidatorTest {
 
     @Test
     void shouldValidateSuccessfully() {
-        var platformDTO = new PlatformDTO("TREZOR");
+        var platformRequest = new PlatformRequest("TREZOR");
 
-        when(platformRepositoryMock.findByName(platformDTO.getName())).thenReturn(Optional.empty());
+        when(platformRepositoryMock.findByName(platformRequest.getName())).thenReturn(Optional.empty());
 
-        entityValidation.validate(platformDTO);
+        entityValidation.validate(platformRequest);
     }
 
     @Test
     void shouldThrowApiValidationExceptionWhenDuplicatedPlatformName() {
-        var platformDTO = new PlatformDTO("TREZOR");
+        var platformRequest = new PlatformRequest("TREZOR");
 
         var platform = Platform.builder()
-                .name(platformDTO.getName())
+                .name(platformRequest.getName())
                 .build();
 
-        when(platformRepositoryMock.findByName(platformDTO.getName())).thenReturn(Optional.of(platform));
+        when(platformRepositoryMock.findByName(platformRequest.getName())).thenReturn(Optional.of(platform));
 
-        ApiValidationException apiValidationException = assertThrows(ApiValidationException.class,
-                () -> entityValidation.validate(platformDTO)
+        var apiValidationException = assertThrows(ApiValidationException.class,
+                () -> entityValidation.validate(platformRequest)
         );
-        String message = String.format(DUPLICATED_PLATFORM, platformDTO.getName());
 
+        var message = String.format(DUPLICATED_PLATFORM, platformRequest.getName());
 
         assertEquals(message, apiValidationException.getErrorMessage());
     }

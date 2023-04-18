@@ -1,8 +1,8 @@
 package com.distasilucas.cryptobalancetracker.service;
 
-import com.distasilucas.cryptobalancetracker.model.response.CryptoBalanceResponse;
-import com.distasilucas.cryptobalancetracker.model.response.CryptoPlatformBalanceResponse;
-import com.distasilucas.cryptobalancetracker.model.response.PlatformBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoPlatformBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformBalanceResponse;
 
 import java.util.Optional;
 

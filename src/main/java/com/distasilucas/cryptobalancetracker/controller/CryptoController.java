@@ -2,7 +2,8 @@ package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.controller.helper.ControllerHelper;
 import com.distasilucas.cryptobalancetracker.controller.swagger.CryptoControllerApi;
-import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
+import com.distasilucas.cryptobalancetracker.model.request.CryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,19 +29,19 @@ public class CryptoController implements CryptoControllerApi, ControllerHelper {
 
     private final CryptoService cryptoService;
 
+    @Override
     @GetMapping("/{coinId}")
-    public ResponseEntity<Optional<CryptoDTO>> getCoin(@PathVariable String coinId) {
-        Optional<CryptoDTO> coin = cryptoService.getCoin(coinId);
-        HttpStatus httpStatus = coin.isEmpty() ? HttpStatus.NOT_FOUND : HttpStatus.OK;
+    public ResponseEntity<CryptoResponse> getCoin(@PathVariable String coinId) {
+        CryptoResponse coin = cryptoService.getCoin(coinId);
 
-        return ResponseEntity.status(httpStatus)
-                .body(coin);
+        return ResponseEntity.ok(coin);
     }
 
+    @Override
     @GetMapping
-    public ResponseEntity<Optional<List<CryptoDTO>>> getCoins() {
-        Optional<List<CryptoDTO>> coins = cryptoService.getCoins();
-        HttpStatus httpStatus = getHttpStatusCode(coins);
+    public ResponseEntity<Optional<List<CryptoResponse>>> getCoins() {
+        Optional<List<CryptoResponse>> coins = cryptoService.getCoins();
+        HttpStatus httpStatus = getOkOrNoContentHttpStatusCode(coins);
 
         return ResponseEntity.status(httpStatus)
                 .body(coins);
@@ -48,8 +49,8 @@ public class CryptoController implements CryptoControllerApi, ControllerHelper {
 
     @Override
     @PostMapping
-    public ResponseEntity<CryptoDTO> addCoin(@RequestBody CryptoDTO cryptoDTO) {
-        CryptoDTO crypto = cryptoService.addCoin(cryptoDTO);
+    public ResponseEntity<CryptoResponse> addCoin(@RequestBody CryptoRequest cryptoRequest) {
+        CryptoResponse crypto = cryptoService.addCoin(cryptoRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(crypto);
@@ -57,9 +58,9 @@ public class CryptoController implements CryptoControllerApi, ControllerHelper {
 
     @Override
     @PutMapping("/{coinId}")
-    public ResponseEntity<CryptoDTO> updateCoin(@RequestBody CryptoDTO cryptoDTO,
-                                                @PathVariable String coinId) {
-        CryptoDTO updatedCrypto = cryptoService.updateCoin(cryptoDTO, coinId);
+    public ResponseEntity<CryptoResponse> updateCoin(@RequestBody CryptoRequest cryptoRequest,
+                                                    @PathVariable String coinId) {
+        CryptoResponse updatedCrypto = cryptoService.updateCoin(cryptoRequest, coinId);
 
         return ResponseEntity.ok(updatedCrypto);
     }

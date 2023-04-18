@@ -5,7 +5,8 @@ import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
+import com.distasilucas.cryptobalancetracker.model.request.PlatformRequest;
+import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
@@ -20,7 +21,7 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.distasilucas.cryptobalancetracker.constant.Constants.PLATFORM_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.PLATFORM_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -42,20 +43,20 @@ class PlatformServiceImplTest {
     CryptoRepository cryptoRepositoryMock;
 
     @Mock
-    Validation<PlatformDTO> addPlatformValidationMock;
+    Validation<PlatformRequest> addPlatformValidationMock;
 
     @Mock
-    EntityMapper<Platform, PlatformDTO> platformMapperImplMock;
+    EntityMapper<Platform, PlatformRequest> platformMapperImplMock;
 
     @Mock
-    EntityMapper<PlatformDTO, Platform> platformDTOMapperImplMock;
+    EntityMapper<PlatformResponse, Platform> platformResponseMapperImplMock;
 
     PlatformService platformService;
 
     @BeforeEach
     void setUp() {
         platformService = new PlatformServiceImpl(platformRepositoryMock, cryptoRepositoryMock, addPlatformValidationMock,
-                platformMapperImplMock, platformDTOMapperImplMock);
+                platformMapperImplMock, platformResponseMapperImplMock);
     }
 
     @Test
@@ -77,22 +78,21 @@ class PlatformServiceImplTest {
 
     @Test
     void shouldAddPlatform() {
-        var platformDTO = new PlatformDTO("Trezor");
+        var platformRequest = new PlatformRequest("Trezor");
 
         var platform = Platform.builder()
                 .name("Trezor")
                 .build();
 
-        doNothing().when(addPlatformValidationMock).validate(platformDTO);
-        when(platformMapperImplMock.mapFrom(platformDTO)).thenReturn(platform);
+        doNothing().when(addPlatformValidationMock).validate(platformRequest);
+        when(platformMapperImplMock.mapFrom(platformRequest)).thenReturn(platform);
 
-        var platFormResponse = platformService.addPlatForm(platformDTO);
+        var platFormResponse = platformService.addPlatForm(platformRequest);
 
         assertAll(
                 () -> verify(platformRepositoryMock, times(1)).save(platform),
-                () -> assertEquals(platformDTO.getName(), platFormResponse.getName())
+                () -> assertEquals(platformRequest.getName(), platFormResponse.getName())
         );
-
     }
 
     @Test
@@ -123,16 +123,16 @@ class PlatformServiceImplTest {
 
     @Test
     void shouldUpdatePlatform() {
-        var platformDTO = MockData.getPlatformDTO("Ledger");
-        var platformEntity = MockData.getPlatform("Trezor");
+        var platformRequest = MockData.getPlatformRequest("Ledger");
+        var platformEntity = MockData.getPlatform("TREZOR");
 
         when(platformRepositoryMock.findByName("TREZOR")).thenReturn(Optional.of(platformEntity));
 
-        var platform = platformService.updatePlatform(platformDTO, "Trezor");
+        var platformResponse = platformService.updatePlatform("Trezor", platformRequest);
 
         assertAll(
                 () -> verify(platformRepositoryMock, times(1)).save(any()),
-                () -> assertEquals(platformDTO.getName(), platform.getName())
+                () -> assertEquals(platformRequest.getName(), platformResponse.getName())
         );
     }
 

@@ -3,22 +3,20 @@ package com.distasilucas.cryptobalancetracker.validation.crypto;
 import com.distasilucas.cryptobalancetracker.MockData;
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
-import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
+import com.distasilucas.cryptobalancetracker.model.request.CryptoRequest;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import com.distasilucas.cryptobalancetracker.validation.EntityValidation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static com.distasilucas.cryptobalancetracker.constant.Constants.DUPLICATED_PLATFORM_COIN;
-import static com.distasilucas.cryptobalancetracker.constant.Constants.PLATFORM_NOT_FOUND_DESCRIPTION;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.DUPLICATED_PLATFORM_COIN;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.PLATFORM_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
@@ -32,70 +30,70 @@ class CryptoPlatformValidatorTest {
     @Mock
     PlatformRepository platformRepositoryMock;
 
-    EntityValidation<CryptoDTO> entityValidation;
+    EntityValidation<CryptoRequest> entityValidation;
 
     @BeforeEach
     void setUp() {
         entityValidation = new CryptoPlatformValidator(cryptoRepositoryMock, platformRepositoryMock);
     }
 
-
-
     @Test
     void shouldValidateSuccessfully() {
-        var cryptoDTO = MockData.getCryptoDTO();
+        var cryptoRequest = MockData.getCryptoRequest();
         var platform = MockData.getPlatform("LEDGER");
 
-        when(platformRepositoryMock.findByName(cryptoDTO.platform().toUpperCase()))
+        when(platformRepositoryMock.findByName(cryptoRequest.platform().toUpperCase()))
                 .thenReturn(Optional.of(platform));
-        when(cryptoRepositoryMock.findByNameAndPlatformId(cryptoDTO.coin_name(), platform.getId()))
+        when(cryptoRepositoryMock.findByNameAndPlatformId(cryptoRequest.coin_name(), platform.getId()))
                 .thenReturn(Optional.empty());
 
-        entityValidation.validate(cryptoDTO);
+        entityValidation.validate(cryptoRequest);
     }
 
     @Test
     void shouldValidateSuccessfullyWithExistingCryptoInAnotherPlatform() {
-        var cryptoDTO = MockData.getCryptoDTO();
+        var cryptoRequest = MockData.getCryptoRequest();
         var platform = MockData.getPlatform("Binance");
         var anotherPlatform = MockData.getPlatform("Binance");
         var crypto = MockData.getCrypto(platform.getId());
 
-        when(platformRepositoryMock.findByName(cryptoDTO.platform().toUpperCase()))
+        when(platformRepositoryMock.findByName(cryptoRequest.platform().toUpperCase()))
                 .thenReturn(Optional.of(anotherPlatform));
-        when(cryptoRepositoryMock.findByNameAndPlatformId(cryptoDTO.coin_name(), platform.getId()))
+        when(cryptoRepositoryMock.findByNameAndPlatformId(cryptoRequest.coin_name(), platform.getId()))
                 .thenReturn(Optional.of(crypto));
 
-        entityValidation.validate(cryptoDTO);
+        entityValidation.validate(cryptoRequest);
     }
 
     @Test
     void shouldThrowPlatformNotFoundExceptionWhenValidating() {
-        var cryptoDTO = MockData.getCryptoDTO();
+        var cryptoRequest = MockData.getCryptoRequest();
 
-        when(platformRepositoryMock.findByName(cryptoDTO.platform().toUpperCase()))
+        when(platformRepositoryMock.findByName(cryptoRequest.platform().toUpperCase()))
                 .thenReturn(Optional.empty());
 
         var platformNotFoundException = assertThrows(PlatformNotFoundException.class,
-                () -> entityValidation.validate(cryptoDTO)
+                () -> entityValidation.validate(cryptoRequest)
         );
 
-        assertEquals(PLATFORM_NOT_FOUND_DESCRIPTION, platformNotFoundException.getErrorMessage());
+        var message = String.format(PLATFORM_NOT_FOUND, cryptoRequest.platform());
+
+        assertEquals(message, platformNotFoundException.getErrorMessage());
     }
 
     @Test
     void shouldThrowApiValidationExceptionWhenValidating() {
-        var cryptoDTO = MockData.getCryptoDTO();
+        var cryptoRequest = MockData.getCryptoRequest();
         var platform = MockData.getPlatform("LEDGER");
         var crypto = MockData.getCrypto(platform.getId());
 
-        when(platformRepositoryMock.findByName(cryptoDTO.platform().toUpperCase()))
+        when(platformRepositoryMock.findByName(cryptoRequest.platform().toUpperCase()))
                 .thenReturn(Optional.of(platform));
-        when(cryptoRepositoryMock.findByNameAndPlatformId(cryptoDTO.coin_name(), platform.getId()))
+        when(cryptoRepositoryMock.findByNameAndPlatformId(cryptoRequest.coin_name(), platform.getId()))
                 .thenReturn(Optional.of(crypto));
 
         var apiValidationException = assertThrows(ApiValidationException.class,
-                () -> entityValidation.validate(cryptoDTO)
+                () -> entityValidation.validate(cryptoRequest)
         );
 
         var message = String.format(DUPLICATED_PLATFORM_COIN, crypto.getName(), platform.getName());

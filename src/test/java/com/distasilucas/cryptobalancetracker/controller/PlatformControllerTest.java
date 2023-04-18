@@ -1,8 +1,7 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.MockData;
-import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
-import com.distasilucas.cryptobalancetracker.model.response.PlatformBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,12 +9,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
-import java.math.BigDecimal;
 import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -41,7 +36,9 @@ class PlatformControllerTest {
 
     @Test
     void shouldRetrieveAllPlatforms() {
-        when(platformServiceMock.getAllPlatforms()).thenReturn(Collections.singletonList(new PlatformDTO("Binance")));
+        var platformResponse = new PlatformResponse("Binance");
+
+        when(platformServiceMock.getAllPlatforms()).thenReturn(Collections.singletonList(platformResponse));
 
         var allPlatforms = platformController.getAllPlatforms();
 
@@ -53,30 +50,32 @@ class PlatformControllerTest {
 
     @Test
     void shouldAddPlatform() {
-        var platformDTO = MockData.getPlatformDTO("LEDGER");
+        var platformRequest = MockData.getPlatformRequest("LEDGER");
+        var platformResponse = MockData.getPlatformResponse("LEDGER");
 
-        when(platformServiceMock.addPlatForm(platformDTO)).thenReturn(platformDTO);
+        when(platformServiceMock.addPlatForm(platformRequest)).thenReturn(platformResponse);
 
-       var responseEntity = platformController.addPlatform(platformDTO);
+       var responseEntity = platformController.addPlatform(platformRequest);
 
        assertNotNull(responseEntity.getBody());
        assertAll(
-               () -> assertEquals(platformDTO.getName(), responseEntity.getBody().getName()),
+               () -> assertEquals(platformRequest.getName(), responseEntity.getBody().getName()),
                () -> assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode())
        );
     }
 
     @Test
     void shouldUpdatePlatform() {
-        var platformDTO = MockData.getPlatformDTO("LEDGER");
+        var platformRequest = MockData.getPlatformRequest("LEDGER");
+        var platformResponse = MockData.getPlatformResponse("LEDGER");
 
-        when(platformServiceMock.updatePlatform(platformDTO, PLATFORM_NAME)).thenReturn(platformDTO);
+        when(platformServiceMock.updatePlatform(PLATFORM_NAME, platformRequest)).thenReturn(platformResponse);
 
-        var responseEntity = platformController.updatePlatform(PLATFORM_NAME, platformDTO);
+        var responseEntity = platformController.updatePlatform(PLATFORM_NAME, platformRequest);
 
         assertNotNull(responseEntity.getBody());
         assertAll(
-                () -> assertEquals(platformDTO.getName(), responseEntity.getBody().getName()),
+                () -> assertEquals(platformResponse.getName(), responseEntity.getBody().getName()),
                 () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode())
         );
     }

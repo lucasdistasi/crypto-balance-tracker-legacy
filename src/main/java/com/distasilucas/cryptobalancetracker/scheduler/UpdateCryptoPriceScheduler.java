@@ -1,4 +1,4 @@
-package com.distasilucas.cryptobalancetracker.schedulers;
+package com.distasilucas.cryptobalancetracker.scheduler;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;

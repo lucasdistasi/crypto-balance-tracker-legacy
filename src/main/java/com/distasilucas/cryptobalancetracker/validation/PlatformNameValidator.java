@@ -1,12 +1,12 @@
 package com.distasilucas.cryptobalancetracker.validation;
 
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
-import com.distasilucas.cryptobalancetracker.model.request.CryptoDTO;
-import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
+import com.distasilucas.cryptobalancetracker.model.request.CryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.PlatformRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import static com.distasilucas.cryptobalancetracker.constant.Constants.INVALID_PLATFORM_FORMAT;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.INVALID_PLATFORM_FORMAT;
 
 @Component
 public class PlatformNameValidator<T> implements EntityValidation<T> {
@@ -16,11 +16,11 @@ public class PlatformNameValidator<T> implements EntityValidation<T> {
         String platformNameRegexValidator = "^[a-zA-Z]+$";
         String platformName = "";
 
-        if (input instanceof CryptoDTO cryptoDTO)
-            platformName = cryptoDTO.platform();
+        if (input instanceof CryptoRequest cryptoRequest)
+            platformName = cryptoRequest.platform();
 
-        if (input instanceof PlatformDTO platformDTO)
-            platformName = platformDTO.getName();
+        if (input instanceof PlatformRequest platformRequest)
+            platformName = platformRequest.getName();
 
         if (StringUtils.isNotEmpty(platformName) && !platformName.matches(platformNameRegexValidator))
             throw new ApiValidationException(INVALID_PLATFORM_FORMAT);

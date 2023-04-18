@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.USERNAME_NOT_FOUND;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -19,6 +21,6 @@ public class UserServiceImpl implements UserService {
         log.info("Searching for username {}", username);
 
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
+                .orElseThrow(() -> new UsernameNotFoundException(USERNAME_NOT_FOUND));
     }
 }

@@ -4,6 +4,7 @@ import com.distasilucas.cryptobalancetracker.exception.ApiException;
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
 import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformCoinException;
+import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
@@ -17,6 +18,7 @@ import org.springframework.mock.http.client.MockClientHttpResponse;
 import java.io.IOException;
 import java.util.Collections;
 
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.COIN_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -30,14 +32,27 @@ class ExceptionControllerTest {
 
     @Test
     void shouldHandleCoinNotFoundException() {
-        var coinNotFoundException = new CoinNotFoundException("Coin not found");
+        var coinNotFoundException = new CoinNotFoundException(COIN_NOT_FOUND);
         var responseEntity = exceptionController.handleCoinNotFoundException(coinNotFoundException);
 
         assertNotNull(responseEntity.getBody());
         assertAll(
                 () -> assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode()),
-                () -> assertEquals(1, responseEntity.getBody().getErrors().size()),
-                () -> assertEquals(coinNotFoundException.getErrorMessage(), responseEntity.getBody().getErrors().get(0).errorMessage())
+                () -> assertEquals(1, responseEntity.getBody().errors().size()),
+                () -> assertEquals(coinNotFoundException.getErrorMessage(), responseEntity.getBody().errors().get(0).errorMessage())
+        );
+    }
+
+    @Test
+    void shouldHandlePlatformNotFoundException() {
+        var platformNotFoundException = new PlatformNotFoundException("Platform not found");
+        var responseEntity = exceptionController.handlePlatformNotFoundException(platformNotFoundException);
+
+        assertNotNull(responseEntity.getBody());
+        assertAll(
+                () -> assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode()),
+                () -> assertEquals(1, responseEntity.getBody().errors().size()),
+                () -> assertEquals(platformNotFoundException.getErrorMessage(), responseEntity.getBody().errors().get(0).errorMessage())
         );
     }
 
@@ -55,9 +70,9 @@ class ExceptionControllerTest {
         assertNotNull(responseEntityBody);
         assertAll(
                 () -> assertEquals(BAD_REQUEST, responseEntity.getStatusCode()),
-                () -> assertEquals(BAD_REQUEST_VALUE, responseEntityBody.getStatusCode()),
-                () -> assertEquals(1, responseEntityBody.getErrors().size()),
-                () -> assertEquals(validationException.getErrorMessage(), responseEntityBody.getErrors().get(0).errorMessage())
+                () -> assertEquals(BAD_REQUEST_VALUE, responseEntityBody.statusCode()),
+                () -> assertEquals(1, responseEntityBody.errors().size()),
+                () -> assertEquals(validationException.getErrorMessage(), responseEntityBody.errors().get(0).errorMessage())
         );
     }
 
@@ -71,9 +86,9 @@ class ExceptionControllerTest {
         assertNotNull(responseEntityBody);
         assertAll(
                 () -> assertEquals(BAD_REQUEST, responseEntity.getStatusCode()),
-                () -> assertEquals(BAD_REQUEST_VALUE, responseEntityBody.getStatusCode()),
-                () -> assertEquals(1, responseEntityBody.getErrors().size()),
-                () -> assertEquals(apiValidationException.getMessage(), responseEntityBody.getErrors().get(0).errorMessage())
+                () -> assertEquals(BAD_REQUEST_VALUE, responseEntityBody.statusCode()),
+                () -> assertEquals(1, responseEntityBody.errors().size()),
+                () -> assertEquals(apiValidationException.getMessage(), responseEntityBody.errors().get(0).errorMessage())
         );
     }
 
@@ -91,9 +106,9 @@ class ExceptionControllerTest {
         assertNotNull(responseEntityBody);
         assertAll(
                 () -> assertEquals(BAD_REQUEST, responseEntity.getStatusCode()),
-                () -> assertEquals(BAD_REQUEST_VALUE, responseEntityBody.getStatusCode()),
-                () -> assertEquals(1, responseEntityBody.getErrors().size()),
-                () -> assertEquals(validationException.getErrorMessage(), responseEntityBody.getErrors().get(0).errorMessage())
+                () -> assertEquals(BAD_REQUEST_VALUE, responseEntityBody.statusCode()),
+                () -> assertEquals(1, responseEntityBody.errors().size()),
+                () -> assertEquals(validationException.getErrorMessage(), responseEntityBody.errors().get(0).errorMessage())
         );
     }
 
@@ -110,9 +125,9 @@ class ExceptionControllerTest {
             assertNotNull(responseEntityBody);
             assertAll(
                     () -> assertEquals(BAD_REQUEST, responseEntity.getStatusCode()),
-                    () -> assertEquals(BAD_REQUEST_VALUE, responseEntityBody.getStatusCode()),
-                    () -> assertEquals(1, responseEntityBody.getErrors().size()),
-                    () -> assertEquals(invalidFormatException.getOriginalMessage(), responseEntityBody.getErrors().get(0).errorMessage())
+                    () -> assertEquals(BAD_REQUEST_VALUE, responseEntityBody.statusCode()),
+                    () -> assertEquals(1, responseEntityBody.errors().size()),
+                    () -> assertEquals(invalidFormatException.getOriginalMessage(), responseEntityBody.errors().get(0).errorMessage())
             );
         }
     }
@@ -130,9 +145,9 @@ class ExceptionControllerTest {
             assertNotNull(responseEntityBody);
             assertAll(
                     () -> assertEquals(BAD_REQUEST, responseEntity.getStatusCode()),
-                    () -> assertEquals(BAD_REQUEST_VALUE, responseEntityBody.getStatusCode()),
-                    () -> assertEquals(1, responseEntityBody.getErrors().size()),
-                    () -> assertEquals(invalidFormatException.getOriginalMessage(), responseEntityBody.getErrors().get(0).errorMessage())
+                    () -> assertEquals(BAD_REQUEST_VALUE, responseEntityBody.statusCode()),
+                    () -> assertEquals(1, responseEntityBody.errors().size()),
+                    () -> assertEquals(invalidFormatException.getOriginalMessage(), responseEntityBody.errors().get(0).errorMessage())
             );
         }
     }
@@ -145,8 +160,8 @@ class ExceptionControllerTest {
         assertNotNull(responseEntity.getBody());
         assertAll(
                 () -> assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode()),
-                () -> assertEquals(1, responseEntity.getBody().getErrors().size()),
-                () -> assertEquals(duplicatedPlatformCoinException.getErrorMessage(), responseEntity.getBody().getErrors().get(0).errorMessage())
+                () -> assertEquals(1, responseEntity.getBody().errors().size()),
+                () -> assertEquals(duplicatedPlatformCoinException.getErrorMessage(), responseEntity.getBody().errors().get(0).errorMessage())
         );
     }
 
@@ -159,8 +174,8 @@ class ExceptionControllerTest {
         assertNotNull(responseEntity.getBody());
         assertAll(
                 () -> assertEquals(HttpStatus.I_AM_A_TEAPOT, responseEntity.getStatusCode()),
-                () -> assertEquals(1, responseEntity.getBody().getErrors().size()),
-                () -> assertEquals(apiException.getErrorMessage(), responseEntity.getBody().getErrors().get(0).errorMessage())
+                () -> assertEquals(1, responseEntity.getBody().errors().size()),
+                () -> assertEquals(apiException.getErrorMessage(), responseEntity.getBody().errors().get(0).errorMessage())
         );
     }
 
@@ -172,9 +187,9 @@ class ExceptionControllerTest {
         assertNotNull(responseEntityBody);
         assertAll(
                 () -> assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode()),
-                () -> assertEquals(responseEntityBody.getStatusCode(), HttpStatus.INTERNAL_SERVER_ERROR.value()),
-                () -> assertEquals(1, responseEntityBody.getErrors().size()),
-                () -> assertEquals("Unknown Error", responseEntityBody.getErrors().get(0).errorMessage())
+                () -> assertEquals(responseEntityBody.statusCode(), HttpStatus.INTERNAL_SERVER_ERROR.value()),
+                () -> assertEquals(1, responseEntityBody.errors().size()),
+                () -> assertEquals("Unknown Error", responseEntityBody.errors().get(0).errorMessage())
         );
 
     }

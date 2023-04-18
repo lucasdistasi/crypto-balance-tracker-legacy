@@ -1,6 +1,6 @@
-package com.distasilucas.cryptobalancetracker.comparators;
+package com.distasilucas.cryptobalancetracker.comparator;
 
-import com.distasilucas.cryptobalancetracker.model.response.CoinResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinResponse;
 
 import java.util.Comparator;
 

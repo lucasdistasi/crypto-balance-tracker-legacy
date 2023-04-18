@@ -17,8 +17,8 @@ import java.security.Key;
 import java.util.Date;
 import java.util.function.Function;
 
-import static com.distasilucas.cryptobalancetracker.constant.Constants.TOKEN_EXPIRED;
-import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN_ERROR;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.TOKEN_EXPIRED;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.UNKNOWN_ERROR;
 
 @Slf4j
 @Service

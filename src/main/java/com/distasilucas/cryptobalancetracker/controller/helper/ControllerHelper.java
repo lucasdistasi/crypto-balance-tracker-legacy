@@ -6,7 +6,7 @@ import java.util.Optional;
 
 public interface ControllerHelper {
 
-    default <T> HttpStatus getHttpStatusCode(Optional<T> response) {
+    default <T> HttpStatus getOkOrNoContentHttpStatusCode(Optional<T> response) {
         return response.isPresent() ? HttpStatus.OK : HttpStatus.NO_CONTENT;
     }
 }

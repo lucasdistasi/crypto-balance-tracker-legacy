@@ -4,7 +4,8 @@ import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.model.request.PlatformDTO;
+import com.distasilucas.cryptobalancetracker.model.request.PlatformRequest;
+import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
@@ -19,7 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.distasilucas.cryptobalancetracker.constant.Constants.PLATFORM_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.PLATFORM_NOT_FOUND;
 
 @Slf4j
 @Service
@@ -28,27 +29,27 @@ public class PlatformServiceImpl implements PlatformService {
 
     private final PlatformRepository platformRepository;
     private final CryptoRepository cryptoRepository;
-    private final Validation<PlatformDTO> addPlatformValidation;
-    private final EntityMapper<Platform, PlatformDTO> platformMapperImpl;
-    private final EntityMapper<PlatformDTO, Platform>  platformDTOMapperImpl;
+    private final Validation<PlatformRequest> addPlatformValidation;
+    private final EntityMapper<Platform, PlatformRequest> platformMapperImpl;
+    private final EntityMapper<PlatformResponse, Platform> platformResponseMapperImpl;
 
     @Override
-    public List<PlatformDTO> getAllPlatforms() {
+    public List<PlatformResponse> getAllPlatforms() {
         return platformRepository.findAll()
                 .stream()
-                .map(platformDTOMapperImpl::mapFrom)
+                .map(platformResponseMapperImpl::mapFrom)
                 .toList();
     }
 
     @Override
-    public PlatformDTO addPlatForm(PlatformDTO platformDTO) {
-        addPlatformValidation.validate(platformDTO);
+    public PlatformResponse addPlatForm(PlatformRequest platformRequest) {
+        addPlatformValidation.validate(platformRequest);
 
-        Platform platformEntity = platformMapperImpl.mapFrom(platformDTO);
+        Platform platformEntity = platformMapperImpl.mapFrom(platformRequest);
         platformRepository.save(platformEntity);
         log.info("Saved platform {}", platformEntity.getName());
 
-        return platformDTO;
+        return new PlatformResponse(platformEntity.getName());
     }
 
     @Override
@@ -67,18 +68,18 @@ public class PlatformServiceImpl implements PlatformService {
     }
 
     @Override
-    public PlatformDTO updatePlatform(PlatformDTO platformDTO, String platformName) {
-        addPlatformValidation.validate(platformDTO);
+    public PlatformResponse updatePlatform(String platformName, PlatformRequest platformRequest) {
+        addPlatformValidation.validate(platformRequest);
 
         Platform platform = findPlatformByName(platformName);
-        String newPlatformName = platformDTO.getName();
+        String newPlatformName = platformRequest.getName();
         platform.setName(newPlatformName);
 
         platformRepository.save(platform);
 
         log.info("Updated {} to {}", newPlatformName, platform.getName());
 
-        return platformDTO;
+        return new PlatformResponse(newPlatformName);
     }
 
     @Override
