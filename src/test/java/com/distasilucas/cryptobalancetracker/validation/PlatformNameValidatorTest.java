@@ -25,7 +25,7 @@ class PlatformNameValidatorTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {" ", "1234", "@/!", "ABC123"})
+    @ValueSource(strings = {"", " ", "1234", "@/!", "ABC123"})
     void shouldThrowApiValidationExceptionWhenInvalidPlatformForCrypto(String platform) {
         var cryptoRequest = new CryptoRequest("bitcoin", BigDecimal.valueOf(0.1), platform);
 
@@ -43,7 +43,7 @@ class PlatformNameValidatorTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {" ", "1234", "@/!", "ABC123"})
+    @ValueSource(strings = {"", " ", "1234", "@/!", "ABC123"})
     void shouldThrowApiValidationExceptionWhenInvalidPlatform(String platform) {
         var platformRequest = new PlatformRequest(platform);
 

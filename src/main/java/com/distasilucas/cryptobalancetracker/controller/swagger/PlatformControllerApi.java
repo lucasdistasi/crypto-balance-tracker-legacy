@@ -36,6 +36,16 @@ public interface PlatformControllerApi {
     })
     ResponseEntity<List<PlatformResponse>> getAllPlatforms();
 
+    @Operation(summary = "Retrieve single platform")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = OK_CODE, description = "Platform",
+                    content = {
+                            @Content(mediaType = APPLICATION_JSON,
+                                    schema = @Schema(implementation = PlatformRequest.class))
+                    })
+    })
+    ResponseEntity<PlatformResponse> getPlatform(String platformName);
+
     @Operation(summary = "Add Platform")
     @ApiResponses(value = {
             @ApiResponse(responseCode = RESOURCE_CREATED_CODE, description = "Added Platform",

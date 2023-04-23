@@ -17,7 +17,7 @@ public class ExceptionConstants {
     public static final String COIN_NAME_NOT_FOUND = "Coin with name %s not found";
     public static final String COIN_ID_NOT_FOUND = "Coin with ID %s not found";
     public static final String COIN_NOT_FOUND = "Coin not found";
-    public static final String INVALID_PLATFORM_FORMAT = "Platform name must be only letters";
+    public static final String INVALID_PLATFORM_FORMAT = "Platform name must be 1-24 characters long, no numbers, special characters or whitespace allowed.";
     public static final String ERROR_VALIDATING_JSON_SCHEMA = "Error validating Json Schema %s";
     public static final String INVALID_CRYPTO_QUANTITY = String.format("Quantity must be greater than 0 and less than %s", MAX_CRYPTO_QUANTITY);
     public static final String USERNAME_NOT_FOUND = "Username not found";
