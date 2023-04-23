@@ -1,6 +1,7 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.MockData;
+import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,6 +46,21 @@ class PlatformControllerTest {
         assertAll(
                 () -> assertNotNull(allPlatforms.getBody()),
                 () -> assertEquals(1, allPlatforms.getBody().size())
+        );
+    }
+
+    @Test
+    void shouldRetrievePlatform() {
+        var platformResponse = new PlatformResponse("BINANCE");
+
+        when(platformServiceMock.findPlatformByName("binance")).thenReturn(new Platform("BINANCE"));
+
+        var platform = platformController.getPlatform("binance");
+
+        assertAll(
+                () -> assertNotNull(platform.getBody()),
+                () -> assertEquals(platformResponse, platform.getBody()),
+                () -> assertEquals(platformResponse.getName(), platform.getBody().getName())
         );
     }
 
