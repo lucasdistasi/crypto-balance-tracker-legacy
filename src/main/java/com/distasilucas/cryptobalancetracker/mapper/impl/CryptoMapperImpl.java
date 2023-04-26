@@ -69,6 +69,8 @@ public class CryptoMapperImpl implements EntityMapper<Crypto, CryptoRequest> {
                             crypto.setPlatformId(platform.getId());
                             crypto.setLastPriceUpdatedAt(LocalDateTime.now());
                             crypto.setLastKnownPrice(marketData.currentPrice().usd());
+                            crypto.setLastKnownPriceInEUR(marketData.currentPrice().eur());
+                            crypto.setLastKnownPriceInBTC(marketData.currentPrice().btc());
                             crypto.setTotalSupply(marketData.totalSupply());
                             crypto.setMaxSupply(marketData.maxSupply());
                         }, () -> {

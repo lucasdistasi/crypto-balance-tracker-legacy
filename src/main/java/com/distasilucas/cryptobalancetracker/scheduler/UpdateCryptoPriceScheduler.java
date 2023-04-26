@@ -40,18 +40,15 @@ public class UpdateCryptoPriceScheduler {
             try {
                 CoinInfo coinInfo = coingeckoService.retrieveCoinInfo(coinId);
                 MarketData marketData = coinInfo.getMarketData();
-                BigDecimal currentPrice = marketData.currentPrice().usd();
+                BigDecimal currentUSDPrice = marketData.currentPrice().usd();
+                BigDecimal currentEURPrice = marketData.currentPrice().eur();
+                BigDecimal currentBTCPrice = marketData.currentPrice().btc();
                 BigDecimal maxSupply = marketData.maxSupply();
                 BigDecimal totalSupply = marketData.totalSupply();
 
-                if (!currentPrice.equals(crypto.getLastKnownPrice())) {
-                    crypto.setLastKnownPrice(currentPrice);
-
-                    log.info("[{}] is now the last known price for [{}]", currentPrice, coinId);
-                } else {
-                    log.info("Price for [{}] remains the same or it was retrieved from cache, therefore has not changed", coinId);
-                }
-
+                crypto.setLastKnownPrice(currentUSDPrice);
+                crypto.setLastKnownPriceInEUR(currentEURPrice);
+                crypto.setLastKnownPriceInBTC(currentBTCPrice);
                 crypto.setMaxSupply(maxSupply);
                 crypto.setTotalSupply(totalSupply);
                 crypto.setLastPriceUpdatedAt(LocalDateTime.now());

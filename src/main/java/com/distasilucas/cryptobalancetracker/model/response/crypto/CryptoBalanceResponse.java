@@ -5,6 +5,8 @@ import java.util.List;
 
 public record CryptoBalanceResponse(
         BigDecimal totalBalance,
+        BigDecimal totalEURBalance,
+        BigDecimal totalBTCBalance,
         List<CoinResponse> coins
 ) {
 }

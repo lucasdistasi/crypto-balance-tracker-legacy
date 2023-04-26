@@ -41,12 +41,14 @@ public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalan
                 .map(this::mapCoinResponse)
                 .collect(Collectors.toList());
 
-        BigDecimal totalMoney = getTotalMoney(coins);
-        coins.forEach(crypto -> setPercentage(totalMoney, crypto));
+        BigDecimal totalMoneyInUSD = getTotalMoneyInUSD(coins);
+        BigDecimal totalMoneyInEUR = getTotalMoneyInEUR(coins);
+        BigDecimal totalMoneyInBTC = getTotalMoneyInBTC(coins);
+        coins.forEach(crypto -> setPercentage(totalMoneyInUSD, crypto));
         coins.sort(new DescendingPercentageComparator());
-        BigDecimal totalBalance = totalMoney.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal totalUSDBalance = totalMoneyInUSD.setScale(2, RoundingMode.HALF_UP);
 
-        return new CryptoBalanceResponse(totalBalance, coins);
+        return new CryptoBalanceResponse(totalUSDBalance, totalMoneyInEUR, totalMoneyInBTC, coins);
     }
 
     private CoinResponse mapCoinResponse(Crypto coin) {
@@ -73,24 +75,38 @@ public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalan
         coinResponse.setPercentage(percentage);
     }
 
-    private BigDecimal getTotalMoney(List<CoinResponse> coins) {
+    private BigDecimal getTotalMoneyInUSD(List<CoinResponse> coins) {
         return coins.stream()
                 .map(CoinResponse::getBalance)
                 .reduce(BigDecimal.valueOf(0), BigDecimal::add);
     }
 
+    private BigDecimal getTotalMoneyInEUR(List<CoinResponse> coins) {
+        return coins.stream()
+                .map(CoinResponse::getBalanceInEUR)
+                .reduce(BigDecimal.valueOf(0), BigDecimal::add);
+    }
+
+    private BigDecimal getTotalMoneyInBTC(List<CoinResponse> coins) {
+        return coins.stream()
+                .map(CoinResponse::getBalanceInBTC)
+                .reduce(BigDecimal.valueOf(0), BigDecimal::add);
+    }
+
     private CoinResponse getCoinResponse(Crypto coin, CoinInfo coinInfo) {
         BigDecimal quantity = coin.getQuantity();
-        BigDecimal balance = coinInfo.getMarketData().currentPrice().usd().multiply(quantity);
+        BigDecimal balanceInUSD = coinInfo.getMarketData().currentPrice().usd().multiply(quantity);
+        BigDecimal balanceInEUR = coinInfo.getMarketData().currentPrice().eur().multiply(quantity);
+        BigDecimal balanceInBTC = coinInfo.getMarketData().currentPrice().btc().multiply(quantity);
         Optional<Platform> platform = platformRepository.findById(coin.getPlatformId());
         String platformName = platform.isPresent() ? platform.get().getName() : UNKNOWN;
 
-        return new CoinResponse(coin.getId(), coinInfo, quantity, balance, platformName);
+        return new CoinResponse(coin.getId(), coinInfo, quantity, balanceInUSD, balanceInEUR, balanceInBTC, platformName);
     }
 
     private Function<Crypto, CoinInfo> mapCoinInfo() {
         return crypto -> {
-            CurrentPrice currentPrice = new CurrentPrice(crypto.getLastKnownPrice());
+            CurrentPrice currentPrice = new CurrentPrice(crypto.getLastKnownPrice(), crypto.getLastKnownPriceInEUR(), crypto.getLastKnownPriceInBTC());
             MarketData marketData = new MarketData(currentPrice, crypto.getTotalSupply(), crypto.getMaxSupply());
 
             CoinInfo coinInfo = new CoinInfo();

@@ -23,7 +23,9 @@ import java.util.Set;
 
 public class MockData {
 
-    private static final BigDecimal TOTAL_BALANCE = BigDecimal.valueOf(1000);
+    private static final BigDecimal TOTAL_BALANCE_USD = BigDecimal.valueOf(1000);
+    private static final BigDecimal TOTAL_BALANCE_EUR = BigDecimal.valueOf(800);
+    private static final BigDecimal TOTAL_BALANCE_BTC = BigDecimal.valueOf(0.01);
 
     public MockData() {
         throw new IllegalArgumentException();
@@ -32,7 +34,8 @@ public class MockData {
     public static CryptoBalanceResponse getCryptoBalanceResponse() {
         var coinInfo = getCoinInfo();
         var coinResponse = getCoinResponse(coinInfo);
-        var cryptoBalanceResponse = new CryptoBalanceResponse(TOTAL_BALANCE, Collections.singletonList(coinResponse));
+        var cryptoBalanceResponse = new CryptoBalanceResponse(TOTAL_BALANCE_USD, TOTAL_BALANCE_EUR,
+                TOTAL_BALANCE_BTC, Collections.singletonList(coinResponse));
         setPercentage(coinResponse);
 
         return cryptoBalanceResponse;
@@ -41,7 +44,7 @@ public class MockData {
     public static CryptoPlatformBalanceResponse getCryptoPlatformBalanceResponse() {
         var coinInfo = getCoinInfoResponse();
 
-        return new CryptoPlatformBalanceResponse(TOTAL_BALANCE, Collections.singletonList(coinInfo));
+        return new CryptoPlatformBalanceResponse(TOTAL_BALANCE_USD, Collections.singletonList(coinInfo));
     }
 
     public static CoinInfoResponse getCoinInfoResponse() {
@@ -50,11 +53,12 @@ public class MockData {
     }
 
     public static CoinResponse getCoinResponse(CoinInfo coinInfo) {
-        return new CoinResponse("ABC123", coinInfo, BigDecimal.valueOf(5), TOTAL_BALANCE, "LEDGER");
+        return new CoinResponse("ABC123", coinInfo, BigDecimal.valueOf(5),
+                TOTAL_BALANCE_USD, TOTAL_BALANCE_EUR, TOTAL_BALANCE_BTC, "LEDGER");
     }
 
     public static CoinInfo getCoinInfo() {
-        var currentPrice = new CurrentPrice(BigDecimal.valueOf(150_000));
+        var currentPrice = new CurrentPrice(BigDecimal.valueOf(150_000), BigDecimal.valueOf(170_000), BigDecimal.valueOf(1));
         var marketData = new MarketData(currentPrice, BigDecimal.valueOf(1000), BigDecimal.valueOf(1000));
         var coinInfo = new CoinInfo();
         coinInfo.setMarketData(marketData);
@@ -129,6 +133,8 @@ public class MockData {
                 .quantity(BigDecimal.valueOf(1))
                 .coinId("bitcoin")
                 .lastKnownPrice(BigDecimal.valueOf(22000))
+                .lastKnownPriceInEUR(BigDecimal.valueOf(24000))
+                .lastKnownPriceInBTC(BigDecimal.ONE)
                 .build();
     }
 
@@ -136,7 +142,7 @@ public class MockData {
         double percentage = coinResponse.getBalance()
                 .setScale(2, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(100))
-                .divide(TOTAL_BALANCE, RoundingMode.HALF_UP)
+                .divide(TOTAL_BALANCE_USD, RoundingMode.HALF_UP)
                 .doubleValue();
 
         coinResponse.setPercentage(percentage);

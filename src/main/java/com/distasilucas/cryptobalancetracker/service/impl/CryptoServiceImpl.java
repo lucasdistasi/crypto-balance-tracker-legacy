@@ -70,6 +70,7 @@ public class CryptoServiceImpl implements CryptoService {
 
     @Override
     public CryptoResponse addCoin(CryptoRequest cryptoRequest) {
+        // TODO - validate crypto and platform inputs
         addCryptoValidation.validate(cryptoRequest);
         Crypto crypto = cryptoMapperImpl.mapFrom(cryptoRequest);
         cryptoRepository.save(crypto);
@@ -91,7 +92,7 @@ public class CryptoServiceImpl implements CryptoService {
                 .orElseThrow(() -> {
                     String message = String.format(PLATFORM_NOT_FOUND, cryptoRequest.platform());
 
-                    throw new PlatformNotFoundException(message);
+                    return new PlatformNotFoundException(message);
                 });
 
         crypto.setQuantity(cryptoRequest.quantity());
