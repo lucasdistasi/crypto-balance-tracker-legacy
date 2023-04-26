@@ -65,7 +65,9 @@ class CryptoMapperImplTest {
                 () -> assertEquals(cryptoRequest.coin_name(), crypto.getName()),
                 () -> assertEquals(cryptoRequest.quantity(), crypto.getQuantity()),
                 () -> assertEquals(platform.getId(), crypto.getPlatformId()),
-                () -> assertEquals(coinInfo.getMarketData().currentPrice().usd(), crypto.getLastKnownPrice())
+                () -> assertEquals(coinInfo.getMarketData().currentPrice().usd(), crypto.getLastKnownPrice()),
+                () -> assertEquals(coinInfo.getMarketData().currentPrice().eur(), crypto.getLastKnownPriceInEUR()),
+                () -> assertEquals(coinInfo.getMarketData().currentPrice().btc(), crypto.getLastKnownPriceInBTC())
         );
     }
 

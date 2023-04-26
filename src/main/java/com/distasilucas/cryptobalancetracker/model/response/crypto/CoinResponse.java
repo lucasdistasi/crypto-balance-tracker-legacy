@@ -15,14 +15,19 @@ public class CoinResponse {
     private CoinInfo coinInfo;
     private BigDecimal quantity;
     private BigDecimal balance;
+    private BigDecimal balanceInEUR;
+    private BigDecimal balanceInBTC;
     private double percentage;
     private String platform;
 
-    public CoinResponse(String coinId, CoinInfo coinInfo, BigDecimal quantity, BigDecimal balance, String platform) {
+    public CoinResponse(String coinId, CoinInfo coinInfo, BigDecimal quantity,
+                        BigDecimal balance, BigDecimal balanceInEUR, BigDecimal balanceInBTC, String platform) {
         this.coinId = coinId;
         this.coinInfo = coinInfo;
         this.quantity = quantity;
         this.balance = balance;
+        this.balanceInEUR = balanceInEUR;
+        this.balanceInBTC = balanceInBTC;
         this.platform = platform;
     }
 }

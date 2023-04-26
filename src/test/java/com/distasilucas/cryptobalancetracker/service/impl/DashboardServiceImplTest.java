@@ -173,7 +173,7 @@ class DashboardServiceImplTest {
     @Test
     void shouldReturnEmptyGetPlatformsBalances() {
         var cryptos = MockData.getAllCryptos();
-        var balanceResponse = new CryptoBalanceResponse(BigDecimal.ZERO, Collections.emptyList());
+        var balanceResponse = new CryptoBalanceResponse(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, Collections.emptyList());
 
         when(cryptoRepositoryMock.findAll()).thenReturn(cryptos);
         when(cryptoBalanceResponseMapperImplMock.mapFrom(cryptos)).thenReturn(balanceResponse);

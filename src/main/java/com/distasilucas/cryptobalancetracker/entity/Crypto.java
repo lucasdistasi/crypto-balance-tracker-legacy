@@ -27,6 +27,8 @@ public class Crypto {
     private BigDecimal quantity;
     private String platformId;
     private BigDecimal lastKnownPrice;
+    private BigDecimal lastKnownPriceInEUR;
+    private BigDecimal lastKnownPriceInBTC;
     private BigDecimal totalSupply;
     private BigDecimal maxSupply;
     private LocalDateTime lastPriceUpdatedAt;

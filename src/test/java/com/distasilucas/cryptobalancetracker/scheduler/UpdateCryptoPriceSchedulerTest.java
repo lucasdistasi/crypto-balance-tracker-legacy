@@ -61,7 +61,7 @@ class UpdateCryptoPriceSchedulerTest {
         crypto.setLastKnownPrice(BigDecimal.valueOf(21750));
         var cryptos = Collections.singletonList(crypto);
         var coinInfo = MockData.getCoinInfo();
-        var currentPrice = new CurrentPrice(BigDecimal.valueOf(21750));
+        var currentPrice = new CurrentPrice(BigDecimal.valueOf(21750), BigDecimal.valueOf(23000), BigDecimal.valueOf(1));
         var marketDate = new MarketData(currentPrice, BigDecimal.valueOf(18000000), new BigDecimal(21000000));
         coinInfo.setMarketData(marketDate);
 
