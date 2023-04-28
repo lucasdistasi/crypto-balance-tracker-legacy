@@ -71,7 +71,7 @@ public class CryptoMapperImpl implements EntityMapper<Crypto, CryptoRequest> {
                             crypto.setLastKnownPrice(marketData.currentPrice().usd());
                             crypto.setLastKnownPriceInEUR(marketData.currentPrice().eur());
                             crypto.setLastKnownPriceInBTC(marketData.currentPrice().btc());
-                            crypto.setTotalSupply(marketData.totalSupply());
+                            crypto.setCirculatingSupply(marketData.circulatingSupply());
                             crypto.setMaxSupply(marketData.maxSupply());
                         }, () -> {
                             String message = String.format(COIN_NAME_NOT_FOUND, coinName);

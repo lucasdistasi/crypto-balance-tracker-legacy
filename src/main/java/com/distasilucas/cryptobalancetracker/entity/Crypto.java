@@ -29,7 +29,7 @@ public class Crypto {
     private BigDecimal lastKnownPrice;
     private BigDecimal lastKnownPriceInEUR;
     private BigDecimal lastKnownPriceInBTC;
-    private BigDecimal totalSupply;
+    private BigDecimal circulatingSupply;
     private BigDecimal maxSupply;
     private LocalDateTime lastPriceUpdatedAt;
 

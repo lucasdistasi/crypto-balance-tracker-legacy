@@ -9,8 +9,8 @@ public record MarketData(
         @JsonProperty("current_price")
         CurrentPrice currentPrice,
 
-        @JsonProperty("total_supply")
-        BigDecimal totalSupply,
+        @JsonProperty("circulating_supply")
+        BigDecimal circulatingSupply,
 
         @JsonProperty("max_supply")
         BigDecimal maxSupply
