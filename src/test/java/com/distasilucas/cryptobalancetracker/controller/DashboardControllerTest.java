@@ -1,6 +1,8 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.MockData;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptosPlatformDistributionResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.PlatformsCryptoDistributionResponse;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformBalanceResponse;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformInfo;
 import com.distasilucas.cryptobalancetracker.service.DashboardService;
@@ -114,6 +116,34 @@ class DashboardControllerTest {
     }
 
     @Test
+    void shouldRetrieveListCryptosPlatformDistribution() {
+        var cryptosPlatformDistribution = new CryptosPlatformDistributionResponse("", Collections.emptyList());
+        var cryptosPlatforms = Collections.singletonList(cryptosPlatformDistribution);
+
+        when(dashboardServiceMock.getCryptosPlatformDistribution()).thenReturn(Optional.of(cryptosPlatforms));
+
+        var responseEntity = dashboardController.retrieveCoinBalance();
+
+        assertNotNull(responseEntity.getBody());
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode())
+        );
+    }
+
+    @Test
+    void shouldRetrieveNoContentForListCryptosPlatformDistribution() {
+        when(dashboardServiceMock.getCryptosPlatformDistribution()).thenReturn(Optional.empty());
+
+        var responseEntity = dashboardController.retrieveCoinBalance();
+
+        assertNotNull(responseEntity.getBody());
+        assertAll(
+                () -> assertTrue(responseEntity.getBody().isEmpty()),
+                () -> assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode())
+        );
+    }
+
+    @Test
     void shouldReturnEmptyCryptosBalances() {
         when(dashboardServiceMock.retrieveCoinBalance("bitcoin")).thenReturn(Optional.empty());
 
@@ -138,6 +168,34 @@ class DashboardControllerTest {
         assertAll(
                 () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
                 () -> assertTrue(responseEntity.getBody().isPresent())
+        );
+    }
+
+    @Test
+    void shouldRetrieveListPlatformsCryptoDistributionResponse() {
+        var platformsCryptoDistribution = new PlatformsCryptoDistributionResponse("platform", Collections.emptyList());
+        var response = Collections.singletonList(platformsCryptoDistribution);
+
+        when(dashboardServiceMock.getPlatformsCryptoDistributionResponse()).thenReturn(Optional.of(response));
+
+        var responseEntity = dashboardController.getPlatformsCryptoDistributionResponse();
+
+        assertNotNull(responseEntity.getBody());
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode())
+        );
+    }
+
+    @Test
+    void shouldRetrieveNoContentListPlatformsCryptoDistributionResponse() {
+        when(dashboardServiceMock.getPlatformsCryptoDistributionResponse()).thenReturn(Optional.empty());
+
+        var responseEntity = dashboardController.getPlatformsCryptoDistributionResponse();
+
+        assertNotNull(responseEntity.getBody());
+        assertAll(
+                () -> assertTrue(responseEntity.getBody().isEmpty()),
+                () -> assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode())
         );
     }
 

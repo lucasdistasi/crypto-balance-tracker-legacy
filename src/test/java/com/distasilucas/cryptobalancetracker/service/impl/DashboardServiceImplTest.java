@@ -2,10 +2,12 @@ package com.distasilucas.cryptobalancetracker.service.impl;
 
 import com.distasilucas.cryptobalancetracker.MockData;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.mapper.BiFunctionMapper;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinInfoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.service.DashboardService;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
@@ -23,10 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -218,6 +217,45 @@ class DashboardServiceImplTest {
         assertAll(
                 () -> assertTrue(allCoins.isEmpty()),
                 () -> verify(cryptoBalanceResponseMapperImplMock, never()).mapFrom(any())
+        );
+    }
+
+    @Test
+    void shouldReturnListOfPlatformsCryptoDistributionResponse() {
+        var platforms = Collections.singletonList(new PlatformResponse("LEDGER"));
+        var allCryptos = MockData.getAllCryptos();
+        var balanceResponse = MockData.getCryptoBalanceResponse();
+        var platform = MockData.getPlatform("LEDGER");
+
+        when(platformServiceMock.getAllPlatforms()).thenReturn(platforms);
+        when(platformServiceMock.findPlatformByName("LEDGER")).thenReturn(platform);
+        when(cryptoRepositoryMock.findAllByPlatformId("1234")).thenReturn(Optional.of(allCryptos));
+        when(cryptoBalanceResponseMapperImplMock.mapFrom(allCryptos)).thenReturn(balanceResponse);
+
+        var platformsCryptoDistributionResponse = dashboardService.getPlatformsCryptoDistributionResponse();
+
+        assertTrue(platformsCryptoDistributionResponse.isPresent());
+        assertAll(
+                () -> assertFalse(platformsCryptoDistributionResponse.get().isEmpty()),
+                () -> assertEquals(platforms.size(), platformsCryptoDistributionResponse.get().size())
+        );
+    }
+
+    @Test
+    void shouldReturnListOfCryptosPlatformDistributionResponse() {
+        var allCryptos = MockData.getAllCryptos();
+        var balanceResponse = MockData.getCryptoBalanceResponse();
+
+        when(cryptoRepositoryMock.findAll()).thenReturn(allCryptos);
+        when(cryptoRepositoryMock.findAllByCoinId("bitcoin")).thenReturn(Optional.of(allCryptos));
+        when(cryptoBalanceResponseMapperImplMock.mapFrom(allCryptos)).thenReturn(balanceResponse);
+
+        var cryptosPlatformDistribution = dashboardService.getCryptosPlatformDistribution();
+
+        assertTrue(cryptosPlatformDistribution.isPresent());
+        assertAll(
+                () -> assertFalse(cryptosPlatformDistribution.get().isEmpty()),
+                () -> assertEquals(allCryptos.size(), cryptosPlatformDistribution.get().size())
         );
     }
 }

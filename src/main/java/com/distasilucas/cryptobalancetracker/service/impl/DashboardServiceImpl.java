@@ -8,8 +8,11 @@ import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinInfoRespo
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinResponse;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoPlatformBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptosPlatformDistributionResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.PlatformsCryptoDistributionResponse;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformBalanceResponse;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformInfo;
+import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.service.DashboardService;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
@@ -95,13 +98,12 @@ public class DashboardServiceImpl implements DashboardService {
         if (CollectionUtils.isNotEmpty(coins)) {
             Map<String, BigDecimal> balancePerPlatform = new HashMap<>();
 
-            coins
-                    .forEach(coin -> {
-                        String platform = coin.getPlatform();
-                        BigDecimal balance = coin.getBalance();
+            coins.forEach(coin -> {
+                String platform = coin.getPlatform();
+                BigDecimal balance = coin.getBalance();
 
-                        balancePerPlatform.compute(platform, (k, v) -> (v == null) ? balance : v.add(balance));
-                    });
+                balancePerPlatform.compute(platform, (k, v) -> (v == null) ? balance : v.add(balance));
+            });
 
             BigDecimal totalBalance = cryptoBalanceResponse.totalBalance();
             List<PlatformInfo> platforms = getPlatformInfo(balancePerPlatform, totalBalance);
@@ -125,6 +127,47 @@ public class DashboardServiceImpl implements DashboardService {
         }
 
         return cryptoBalanceResponse;
+    }
+
+    @Override
+    public Optional<List<PlatformsCryptoDistributionResponse>> getPlatformsCryptoDistributionResponse() {
+        List<String> platformNames = platformService.getAllPlatforms()
+                .stream()
+                .map(PlatformResponse::getName)
+                .toList();
+        List<PlatformsCryptoDistributionResponse> platformsCryptoDistributionResponse = new ArrayList<>();
+
+        if (CollectionUtils.isNotEmpty(platformNames)) {
+            platformNames.forEach(platform -> {
+                Optional<CryptoBalanceResponse> cryptoBalanceResponse = getAllCoins(platform);
+                cryptoBalanceResponse.ifPresent(response -> platformsCryptoDistributionResponse.add(new PlatformsCryptoDistributionResponse(platform, response.coins())));
+            });
+        }
+
+        return CollectionUtils.isNotEmpty(platformsCryptoDistributionResponse) ?
+                Optional.of(platformsCryptoDistributionResponse) :
+                Optional.empty();
+    }
+
+    @Override
+    public Optional<List<CryptosPlatformDistributionResponse>> getCryptosPlatformDistribution() {
+        List<String> cryptosIds = cryptoRepository.findAll()
+                .stream()
+                .map(Crypto::getCoinId)
+                .toList();
+        List<CryptosPlatformDistributionResponse> cryptosPlatformDistribution = new ArrayList<>();
+
+        if (CollectionUtils.isNotEmpty(cryptosIds)) {
+            cryptosIds.forEach(coinId -> {
+                Optional<CryptoBalanceResponse> cryptoBalanceResponse = retrieveCoinBalance(coinId);
+
+                cryptoBalanceResponse.ifPresent(cryptos -> cryptosPlatformDistribution.add(new CryptosPlatformDistributionResponse(coinId, cryptos.coins())));
+            });
+        }
+
+        return CollectionUtils.isNotEmpty(cryptosPlatformDistribution) ?
+                Optional.of(cryptosPlatformDistribution) :
+                Optional.empty();
     }
 
     private List<PlatformInfo> getPlatformInfo(Map<String, BigDecimal> balancePerPlatform, BigDecimal totalBalance) {
