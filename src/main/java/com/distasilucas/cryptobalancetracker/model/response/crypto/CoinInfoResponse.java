@@ -7,7 +7,7 @@ public record CoinInfoResponse(
         String name,
         BigDecimal quantity,
         BigDecimal balance,
-        double percentage,
+        BigDecimal percentage,
         Set<String> platforms
 ) {
 }

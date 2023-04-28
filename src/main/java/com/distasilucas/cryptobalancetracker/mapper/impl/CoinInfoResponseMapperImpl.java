@@ -28,7 +28,7 @@ public class CoinInfoResponseMapperImpl implements BiFunctionMapper<Map<String, 
             coinByPlatform.forEach((coinName, coinTotalBalance) -> {
                 List<CoinResponse> coinsResponse = getCoinsResponse(coins, coinName);
                 BigDecimal totalQuantity = getTotalQuantity(coinsResponse);
-                Double totalPercentage = getTotalPercentage(coinsResponse);
+                BigDecimal totalPercentage = getTotalPercentage(coinsResponse);
                 Set<String> platforms = getPlatforms(coinsResponse);
 
                 CoinInfoResponse coinInfoResponse = new CoinInfoResponse(coinName, totalQuantity, coinTotalBalance,
@@ -55,10 +55,10 @@ public class CoinInfoResponseMapperImpl implements BiFunctionMapper<Map<String, 
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    private Double getTotalPercentage(List<CoinResponse> coinsResponse) {
+    private BigDecimal getTotalPercentage(List<CoinResponse> coinsResponse) {
         return coinsResponse.stream()
                 .map(CoinResponse::getPercentage)
-                .reduce((double) 0, Double::sum);
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     private Set<String> getPlatforms(List<CoinResponse> coinsResponse) {

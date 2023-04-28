@@ -17,9 +17,9 @@ class DescendingBalanceComparatorTest {
     @Test
     void shouldCompareSuccessfully() {
         var higherCoinInfoResponse = new CoinInfoResponse("bitcoin", BigDecimal.valueOf(0.5), BigDecimal.valueOf(100),
-                0, Collections.emptySet());
+                BigDecimal.ZERO, Collections.emptySet());
         var lowerCoinInfoResponse = new CoinInfoResponse("bitcoin", BigDecimal.valueOf(0.5), BigDecimal.valueOf(50),
-                0, Collections.emptySet());
+                BigDecimal.ZERO, Collections.emptySet());
 
         var firstCompare = comparator.compare(higherCoinInfoResponse, lowerCoinInfoResponse);
         var secondCompare = comparator.compare(lowerCoinInfoResponse, higherCoinInfoResponse);
