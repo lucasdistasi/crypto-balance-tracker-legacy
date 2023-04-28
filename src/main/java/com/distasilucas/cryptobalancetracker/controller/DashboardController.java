@@ -4,6 +4,8 @@ import com.distasilucas.cryptobalancetracker.controller.helper.ControllerHelper;
 import com.distasilucas.cryptobalancetracker.controller.swagger.DashboardControllerApi;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoPlatformBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptosPlatformDistributionResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.PlatformsCryptoDistributionResponse;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformBalanceResponse;
 import com.distasilucas.cryptobalancetracker.service.DashboardService;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -42,6 +45,16 @@ public class DashboardController implements DashboardControllerApi, ControllerHe
     }
 
     @Override
+    @GetMapping("/cryptos")
+    public ResponseEntity<Optional<List<CryptosPlatformDistributionResponse>>> retrieveCoinBalance() {
+        Optional<List<CryptosPlatformDistributionResponse>> response = dashboardService.getCryptosPlatformDistribution();
+        HttpStatus httpStatus = getOkOrNoContentHttpStatusCode(response);
+
+        return ResponseEntity.status(httpStatus)
+                .body(response);
+    }
+
+    @Override
     @GetMapping("/crypto/balances/platforms")
     public ResponseEntity<Optional<CryptoPlatformBalanceResponse>> retrieveCoinsBalanceByPlatform() {
         Optional<CryptoPlatformBalanceResponse> response = dashboardService.retrieveCoinsBalanceByPlatform();
@@ -55,6 +68,16 @@ public class DashboardController implements DashboardControllerApi, ControllerHe
     @GetMapping("/platform/{platformName}/coins")
     public ResponseEntity<Optional<CryptoBalanceResponse>> getCoins(@PathVariable String platformName) {
         Optional<CryptoBalanceResponse> response = dashboardService.getAllCoins(platformName);
+        HttpStatus httpStatus = getOkOrNoContentHttpStatusCode(response);
+
+        return ResponseEntity.status(httpStatus)
+                .body(response);
+    }
+
+    @Override
+    @GetMapping("/platforms/coins")
+    public ResponseEntity<Optional<List<PlatformsCryptoDistributionResponse>>> getPlatformsCryptoDistributionResponse() {
+        Optional<List<PlatformsCryptoDistributionResponse>> response = dashboardService.getPlatformsCryptoDistributionResponse();
         HttpStatus httpStatus = getOkOrNoContentHttpStatusCode(response);
 
         return ResponseEntity.status(httpStatus)
