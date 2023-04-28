@@ -44,13 +44,13 @@ public class UpdateCryptoPriceScheduler {
                 BigDecimal currentEURPrice = marketData.currentPrice().eur();
                 BigDecimal currentBTCPrice = marketData.currentPrice().btc();
                 BigDecimal maxSupply = marketData.maxSupply();
-                BigDecimal totalSupply = marketData.totalSupply();
+                BigDecimal circulatingSupply = marketData.circulatingSupply();
 
                 crypto.setLastKnownPrice(currentUSDPrice);
                 crypto.setLastKnownPriceInEUR(currentEURPrice);
                 crypto.setLastKnownPriceInBTC(currentBTCPrice);
                 crypto.setMaxSupply(maxSupply);
-                crypto.setTotalSupply(totalSupply);
+                crypto.setCirculatingSupply(circulatingSupply);
                 crypto.setLastPriceUpdatedAt(LocalDateTime.now());
                 cryptoRepository.save(crypto);
             } catch (WebClientResponseException ex) {

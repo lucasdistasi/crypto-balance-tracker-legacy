@@ -117,7 +117,7 @@ public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalan
     private Function<Crypto, CoinInfo> mapCoinInfo() {
         return crypto -> {
             CurrentPrice currentPrice = new CurrentPrice(crypto.getLastKnownPrice(), crypto.getLastKnownPriceInEUR(), crypto.getLastKnownPriceInBTC());
-            MarketData marketData = new MarketData(currentPrice, crypto.getTotalSupply(), crypto.getMaxSupply()); // use only one, replace the other with circulating supply
+            MarketData marketData = new MarketData(currentPrice, crypto.getCirculatingSupply(), crypto.getMaxSupply());
 
             CoinInfo coinInfo = new CoinInfo();
             coinInfo.setId(crypto.getCoinId());
