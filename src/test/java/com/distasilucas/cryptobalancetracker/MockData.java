@@ -49,7 +49,7 @@ public class MockData {
 
     public static CoinInfoResponse getCoinInfoResponse() {
         return new CoinInfoResponse("bitcoin", BigDecimal.valueOf(0.15), BigDecimal.valueOf(1000),
-                10, Set.of("Trezor", "Ledger"));
+                BigDecimal.valueOf(10), Set.of("Trezor", "Ledger"));
     }
 
     public static CoinResponse getCoinResponse(CoinInfo coinInfo) {
@@ -139,11 +139,10 @@ public class MockData {
     }
 
     private static void setPercentage(CoinResponse coinResponse) {
-        double percentage = coinResponse.getBalance()
+        BigDecimal percentage = coinResponse.getBalance()
                 .setScale(2, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(100))
-                .divide(TOTAL_BALANCE_USD, RoundingMode.HALF_UP)
-                .doubleValue();
+                .divide(TOTAL_BALANCE_USD, RoundingMode.HALF_UP);
 
         coinResponse.setPercentage(percentage);
     }

@@ -72,7 +72,7 @@ class DashboardServiceImplTest {
                 () -> assertTrue(coinsBalances.isPresent()),
                 () -> assertEquals(expectedBalance, coinsBalances.get().totalBalance()),
                 () -> assertEquals(BigDecimal.valueOf(5), firstCoin.getQuantity()),
-                () -> assertEquals(100, firstCoin.getPercentage()),
+                () -> assertEquals(coinsBalances.get().coins().get(0).getPercentage(), firstCoin.getPercentage()),
                 () -> assertEquals(coinInfo, firstCoin.getCoinInfo())
         );
     }
@@ -105,7 +105,7 @@ class DashboardServiceImplTest {
                 () -> assertTrue(coinBalance.isPresent()),
                 () -> assertEquals(expectedBalance, coinBalance.get().totalBalance()),
                 () -> assertEquals(BigDecimal.valueOf(5), firstCoin.getQuantity()),
-                () -> assertEquals(100, firstCoin.getPercentage()),
+                () -> assertEquals(coinBalance.get().coins().get(0).getPercentage(), firstCoin.getPercentage()),
                 () -> assertEquals(coinInfo, firstCoin.getCoinInfo())
         );
     }

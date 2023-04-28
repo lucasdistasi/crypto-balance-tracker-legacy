@@ -65,11 +65,10 @@ public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalan
     }
 
     private void setPercentage(BigDecimal totalMoney, CoinResponse coinResponse) {
-        double percentage = coinResponse.getBalance()
+        BigDecimal percentage = coinResponse.getBalance()
                 .setScale(2, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(100))
-                .divide(totalMoney, RoundingMode.HALF_UP)
-                .doubleValue();
+                .divide(totalMoney, RoundingMode.HALF_UP);
 
         coinResponse.setPercentage(percentage);
     }
