@@ -38,6 +38,8 @@ public class CryptoPlatformValidator implements EntityValidation<CryptoRequest> 
         }
 
         Platform platform = optionalPlatform.get();
+
+        // TODO - Update request should receive crypto id so existing cryptos can be updated
         Optional<Crypto> optionalCrypto = cryptoRepository.findByNameAndPlatformId(cryptoRequest.coin_name(), platform.getId());
 
         if (optionalCrypto.isPresent()) {
