@@ -6,7 +6,8 @@ import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.model.request.CryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.AddCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.UpdateCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
@@ -23,6 +24,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Optional;
 
+import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.COIN_ID_NOT_FOUND;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.PLATFORM_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -40,7 +42,7 @@ import static org.mockito.Mockito.when;
 class CryptoServiceImplTest {
 
     @Mock
-    EntityMapper<Crypto, CryptoRequest> cryptoMapperImplMock;
+    EntityMapper<Crypto, AddCryptoRequest> cryptoMapperImplMock;
 
     @Mock
     EntityMapper<CryptoResponse, Crypto> cryptoResponseMapperImplMock;
@@ -52,10 +54,10 @@ class CryptoServiceImplTest {
     PlatformRepository platformRepository;
 
     @Mock
-    Validation<CryptoRequest> addCryptoValidationMock;
+    Validation<AddCryptoRequest> addCryptoValidationMock;
 
     @Mock
-    Validation<CryptoRequest> updateCryptoValidationMock;
+    Validation<UpdateCryptoRequest> updateCryptoValidationMock;
 
     CryptoService cryptoService;
 
@@ -79,6 +81,23 @@ class CryptoServiceImplTest {
                 () -> assertEquals("Bitcoin", cryptoResponse.getCoinName()),
                 () -> assertEquals(crypto.getQuantity(), cryptoResponse.getQuantity()),
                 () -> assertEquals(platform.getName(), cryptoResponse.getPlatform()),
+                () -> assertEquals(crypto.getId(), cryptoResponse.getCoinId())
+        );
+    }
+
+    @Test
+    void shouldReturnCoinWithUnknownPlatform() {
+        var crypto = MockData.getCrypto("1234");
+
+        when(cryptoRepositoryMock.findById("1234")).thenReturn(Optional.of(crypto));
+        when(platformRepository.findById("1234")).thenReturn(Optional.empty());
+
+        var cryptoResponse = cryptoService.getCoin("1234");
+
+        assertAll(
+                () -> assertEquals("Bitcoin", cryptoResponse.getCoinName()),
+                () -> assertEquals(crypto.getQuantity(), cryptoResponse.getQuantity()),
+                () -> assertEquals(UNKNOWN, cryptoResponse.getPlatform()),
                 () -> assertEquals(crypto.getId(), cryptoResponse.getCoinId())
         );
     }
@@ -122,13 +141,25 @@ class CryptoServiceImplTest {
     }
 
     @Test
+    void shouldReturnEmptyIfCryptosIsEmpty() {
+        when(cryptoRepositoryMock.findAll()).thenReturn(Collections.emptyList());
+
+        var coins = cryptoService.getCoins();
+
+        assertAll(
+                () -> assertEquals(Optional.empty(), coins),
+                () -> assertTrue(coins.isEmpty())
+        );
+    }
+
+    @Test
     void shouldAddCrypto() {
-        var cryptoRequest = new CryptoRequest("Bitcoin", BigDecimal.valueOf(0.2), "Ledger");
+        var cryptoRequest = new AddCryptoRequest("Bitcoin", BigDecimal.valueOf(0.2), "Ledger");
         var cryptoEntity = Crypto.builder()
                 .name("Bitcoin")
                 .build();
         var cryptoResponse = CryptoResponse.builder()
-                .coinName(cryptoRequest.coin_name())
+                .coinName(cryptoRequest.getCoinName())
                 .build();
 
         doNothing().when(addCryptoValidationMock).validate(cryptoRequest);
@@ -138,7 +169,7 @@ class CryptoServiceImplTest {
         var actualCrypto = cryptoService.addCoin(cryptoRequest);
 
         assertAll(
-                () -> assertEquals(cryptoRequest.coin_name(), actualCrypto.getCoinName()),
+                () -> assertEquals(cryptoRequest.getCoinName(), actualCrypto.getCoinName()),
                 () -> verify(addCryptoValidationMock, times(1)).validate(cryptoRequest),
                 () -> verify(cryptoRepositoryMock, times(1)).save(cryptoEntity),
                 () -> verify(cryptoMapperImplMock, times(1)).mapFrom(cryptoRequest),
@@ -148,7 +179,7 @@ class CryptoServiceImplTest {
 
     @Test
     void shouldUpdateCoin() {
-        var newCryptoRequest = new CryptoRequest("Bitcoin", BigDecimal.valueOf(0.15), "BINANCE");
+        var newCryptoRequest = new UpdateCryptoRequest("Bitcoin", BigDecimal.valueOf(0.15), "BINANCE");
         var platform = Platform.builder()
                 .id("321")
                 .build();
@@ -156,13 +187,13 @@ class CryptoServiceImplTest {
                 .id("ABC123")
                 .build();
         var newCryptoResponse = CryptoResponse.builder()
-                .quantity(newCryptoRequest.quantity())
-                .platform(newCryptoRequest.platform())
+                .quantity(newCryptoRequest.getQuantity())
+                .platform(newCryptoRequest.getPlatform())
                 .build();
 
         doNothing().when(updateCryptoValidationMock).validate(newCryptoRequest);
         when(cryptoRepositoryMock.findById("ABC123")).thenReturn(Optional.of(existingCrypto));
-        when(platformRepository.findByName(newCryptoRequest.platform())).thenReturn(Optional.of(platform));
+        when(platformRepository.findByName(newCryptoRequest.getPlatform())).thenReturn(Optional.of(platform));
         when(cryptoResponseMapperImplMock.mapFrom(existingCrypto)).thenReturn(newCryptoResponse);
 
         var cryptoResponse = cryptoService.updateCoin(newCryptoRequest, "ABC123");
@@ -171,13 +202,13 @@ class CryptoServiceImplTest {
                 () -> verify(updateCryptoValidationMock, times(1)).validate(newCryptoRequest),
                 () -> verify(cryptoRepositoryMock, times(1)).findById("ABC123"),
                 () -> verify(cryptoRepositoryMock, times(1)).save(existingCrypto),
-                () -> assertEquals(newCryptoRequest.quantity(), cryptoResponse.getQuantity())
+                () -> assertEquals(newCryptoRequest.getQuantity(), cryptoResponse.getQuantity())
         );
     }
 
     @Test
     void shouldThrowExceptionWhenUpdateNonExistentCrypto() {
-        var cryptoRequest = new CryptoRequest("Bitcoin", BigDecimal.valueOf(0.15), "Ledger");
+        var cryptoRequest = new UpdateCryptoRequest("Bitcoin", BigDecimal.valueOf(0.15), "Ledger");
 
         doNothing().when(updateCryptoValidationMock).validate(cryptoRequest);
         when(cryptoRepositoryMock.findById("ABC123")).thenReturn(Optional.empty());
@@ -192,19 +223,19 @@ class CryptoServiceImplTest {
 
     @Test
     void shouldThrowExceptionWhenUpdateCryptoWithNonExistentPlatform() {
-        var newCryptoRequest = new CryptoRequest("Bitcoin", BigDecimal.valueOf(0.15), "BINANCE");
+        var newCryptoRequest = new UpdateCryptoRequest("Bitcoin", BigDecimal.valueOf(0.15), "BINANCE");
         var existingCrypto = Crypto.builder()
                 .id("ABC123")
                 .build();
 
         doNothing().when(updateCryptoValidationMock).validate(newCryptoRequest);
         when(cryptoRepositoryMock.findById("ABC123")).thenReturn(Optional.of(existingCrypto));
-        when(platformRepository.findByName(newCryptoRequest.platform())).thenReturn(Optional.empty());
+        when(platformRepository.findByName(newCryptoRequest.getPlatform())).thenReturn(Optional.empty());
 
         var platformNotFoundException = assertThrows(PlatformNotFoundException.class,
                 () -> cryptoService.updateCoin(newCryptoRequest, "ABC123"));
 
-        var message = String.format(PLATFORM_NOT_FOUND, newCryptoRequest.platform());
+        var message = String.format(PLATFORM_NOT_FOUND, newCryptoRequest.getPlatform());
 
         assertAll(
                 () -> assertEquals(message, platformNotFoundException.getErrorMessage())

@@ -5,7 +5,8 @@ import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.model.request.CryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.AddCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.UpdateCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
@@ -29,12 +30,12 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 @RequiredArgsConstructor
 public class CryptoServiceImpl implements CryptoService {
 
-    private final EntityMapper<Crypto, CryptoRequest> cryptoMapperImpl;
+    private final EntityMapper<Crypto, AddCryptoRequest> cryptoMapperImpl;
     private final EntityMapper<CryptoResponse, Crypto> cryptoResponseMapperImpl;
     private final CryptoRepository cryptoRepository;
     private final PlatformRepository platformRepository;
-    private final Validation<CryptoRequest> addCryptoValidation;
-    private final Validation<CryptoRequest> updateCryptoValidation;
+    private final Validation<AddCryptoRequest> addCryptoValidation;
+    private final Validation<UpdateCryptoRequest> updateCryptoValidation;
 
     @Override
     public CryptoResponse getCoin(String coinId) {
@@ -69,10 +70,9 @@ public class CryptoServiceImpl implements CryptoService {
     }
 
     @Override
-    public CryptoResponse addCoin(CryptoRequest cryptoRequest) {
-        // TODO - validate crypto and platform inputs
-        addCryptoValidation.validate(cryptoRequest);
-        Crypto crypto = cryptoMapperImpl.mapFrom(cryptoRequest);
+    public CryptoResponse addCoin(AddCryptoRequest addCryptoRequest) {
+        addCryptoValidation.validate(addCryptoRequest);
+        Crypto crypto = cryptoMapperImpl.mapFrom(addCryptoRequest);
         cryptoRepository.save(crypto);
 
         CryptoResponse cryptoResponse = cryptoResponseMapperImpl.mapFrom(crypto);
@@ -82,20 +82,21 @@ public class CryptoServiceImpl implements CryptoService {
     }
 
     @Override
-    public CryptoResponse updateCoin(CryptoRequest cryptoRequest, String coinId) {
-        updateCryptoValidation.validate(cryptoRequest);
+    public CryptoResponse updateCoin(UpdateCryptoRequest updateCryptoRequest, String coinId) {
+        updateCryptoRequest.setCryptoId(coinId);
+        updateCryptoValidation.validate(updateCryptoRequest);
 
         Crypto crypto = cryptoRepository.findById(coinId)
                 .orElseThrow(() -> new CoinNotFoundException(COIN_NOT_FOUND));
 
-        Platform platform = platformRepository.findByName(cryptoRequest.platform().toUpperCase())
+        Platform platform = platformRepository.findByName(updateCryptoRequest.getPlatform().toUpperCase())
                 .orElseThrow(() -> {
-                    String message = String.format(PLATFORM_NOT_FOUND, cryptoRequest.platform());
+                    String message = String.format(PLATFORM_NOT_FOUND, updateCryptoRequest.getPlatform());
 
                     return new PlatformNotFoundException(message);
                 });
 
-        crypto.setQuantity(cryptoRequest.quantity());
+        crypto.setQuantity(updateCryptoRequest.getQuantity());
         crypto.setPlatformId(platform.getId());
         cryptoRepository.save(crypto);
 

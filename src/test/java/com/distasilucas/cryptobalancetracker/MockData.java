@@ -6,7 +6,7 @@ import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CurrentPrice;
 import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
-import com.distasilucas.cryptobalancetracker.model.request.CryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.AddCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.PlatformRequest;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinInfoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinResponse;
@@ -111,8 +111,8 @@ public class MockData {
         return Collections.singletonList(coin);
     }
 
-    public static CryptoRequest getCryptoRequest() {
-        return new CryptoRequest("Ethereum", BigDecimal.valueOf(1), "Ledger");
+    public static AddCryptoRequest getAddCryptoRequest() {
+        return new AddCryptoRequest("Ethereum", BigDecimal.valueOf(1), "Ledger");
     }
 
     public static CryptoResponse getCryptoResponse() {
@@ -126,7 +126,7 @@ public class MockData {
 
     public static Crypto getCrypto(String platformId) {
         return Crypto.builder()
-                .id("id")
+                .id("ABC1234")
                 .name("Bitcoin")
                 .ticker("BTC")
                 .platformId(platformId)

@@ -1,7 +1,7 @@
 package com.distasilucas.cryptobalancetracker.validation;
 
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
-import com.distasilucas.cryptobalancetracker.model.request.CryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.AddCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.PlatformRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,7 +19,7 @@ class PlatformNameValidatorTest {
 
     @Test
     void shouldValidateCryptoRequestSuccessfully() {
-        var cryptoRequest = new CryptoRequest("bitcoin", BigDecimal.valueOf(0.1), "Trezor");
+        var cryptoRequest = new AddCryptoRequest("bitcoin", BigDecimal.valueOf(0.1), "Trezor");
 
         entityValidation.validate(cryptoRequest);
     }
@@ -27,7 +27,7 @@ class PlatformNameValidatorTest {
     @ParameterizedTest
     @ValueSource(strings = {"", " ", "1234", "@/!", "ABC123"})
     void shouldThrowApiValidationExceptionWhenInvalidPlatformForCrypto(String platform) {
-        var cryptoRequest = new CryptoRequest("bitcoin", BigDecimal.valueOf(0.1), platform);
+        var cryptoRequest = new AddCryptoRequest("bitcoin", BigDecimal.valueOf(0.1), platform);
 
         var apiValidationException = assertThrows(ApiValidationException.class,
                 () -> entityValidation.validate(cryptoRequest));

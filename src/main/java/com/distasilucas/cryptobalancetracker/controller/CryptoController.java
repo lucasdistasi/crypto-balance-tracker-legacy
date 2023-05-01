@@ -2,7 +2,8 @@ package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.controller.helper.ControllerHelper;
 import com.distasilucas.cryptobalancetracker.controller.swagger.CryptoControllerApi;
-import com.distasilucas.cryptobalancetracker.model.request.CryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.AddCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.UpdateCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import lombok.RequiredArgsConstructor;
@@ -51,7 +52,7 @@ public class CryptoController implements CryptoControllerApi, ControllerHelper {
 
     @Override
     @PostMapping
-    public ResponseEntity<CryptoResponse> addCoin(@RequestBody CryptoRequest cryptoRequest) {
+    public ResponseEntity<CryptoResponse> addCoin(@RequestBody AddCryptoRequest cryptoRequest) {
         CryptoResponse crypto = cryptoService.addCoin(cryptoRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -60,9 +61,9 @@ public class CryptoController implements CryptoControllerApi, ControllerHelper {
 
     @Override
     @PutMapping("/{coinId}")
-    public ResponseEntity<CryptoResponse> updateCoin(@RequestBody CryptoRequest cryptoRequest,
-                                                    @PathVariable String coinId) {
-        CryptoResponse updatedCrypto = cryptoService.updateCoin(cryptoRequest, coinId);
+    public ResponseEntity<CryptoResponse> updateCoin(@RequestBody UpdateCryptoRequest updateCryptoRequest,
+                                                     @PathVariable String coinId) {
+        CryptoResponse updatedCrypto = cryptoService.updateCoin(updateCryptoRequest, coinId);
 
         return ResponseEntity.ok(updatedCrypto);
     }

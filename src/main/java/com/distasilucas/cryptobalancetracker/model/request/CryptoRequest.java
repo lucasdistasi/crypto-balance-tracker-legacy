@@ -1,10 +1,16 @@
 package com.distasilucas.cryptobalancetracker.model.request;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 
-public record CryptoRequest(
-        String coin_name,
-        BigDecimal quantity,
-        String platform
-) {
+@Getter
+@Setter
+@AllArgsConstructor
+public class CryptoRequest {
+
+    private BigDecimal quantity;
+    private String platform;
 }

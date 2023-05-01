@@ -1,7 +1,7 @@
 package com.distasilucas.cryptobalancetracker.validation.crypto;
 
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
-import com.distasilucas.cryptobalancetracker.model.request.CryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.AddCryptoRequest;
 import com.distasilucas.cryptobalancetracker.validation.EntityValidation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class QuantityValueValidatorTest {
 
-    EntityValidation<CryptoRequest> entityValidation = new QuantityValueValidator();
+    EntityValidation<AddCryptoRequest> entityValidation = new QuantityValueValidator();
 
     @Test
     void shouldValidateQuantitySuccessfully() {
@@ -78,8 +78,8 @@ class QuantityValueValidatorTest {
         );
     }
 
-    private CryptoRequest getCryptoRequest(BigDecimal quantity) {
-        return new CryptoRequest("Bitcoin", quantity, "Safepal");
+    private AddCryptoRequest getCryptoRequest(BigDecimal quantity) {
+        return new AddCryptoRequest("Bitcoin", quantity, "Safepal");
     }
 
 }

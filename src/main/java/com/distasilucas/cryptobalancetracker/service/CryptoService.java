@@ -1,6 +1,7 @@
 package com.distasilucas.cryptobalancetracker.service;
 
-import com.distasilucas.cryptobalancetracker.model.request.CryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.AddCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.UpdateCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
 
 import java.util.List;
@@ -10,7 +11,7 @@ public interface CryptoService {
 
     CryptoResponse getCoin(String coinId);
     Optional<List<CryptoResponse>> getCoins();
-    CryptoResponse addCoin(CryptoRequest cryptoRequest);
-    CryptoResponse updateCoin(CryptoRequest cryptoRequest, String coinId);
+    CryptoResponse addCoin(AddCryptoRequest cryptoRequest);
+    CryptoResponse updateCoin(UpdateCryptoRequest updateCryptoRequest, String coinId);
     void deleteCoin(String coinId);
 }

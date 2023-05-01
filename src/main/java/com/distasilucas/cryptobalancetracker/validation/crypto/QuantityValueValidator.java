@@ -7,15 +7,15 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
-import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.INVALID_CRYPTO_QUANTITY;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.MAX_CRYPTO_QUANTITY;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.INVALID_CRYPTO_QUANTITY;
 
 @Component
-public class QuantityValueValidator implements EntityValidation<CryptoRequest> {
+public class QuantityValueValidator<T extends CryptoRequest> implements EntityValidation<T> {
 
     @Override
-    public void validate(CryptoRequest cryptoRequest) {
-        if (!isValid(cryptoRequest.quantity())) {
+    public void validate(T cryptoRequest) {
+        if (!isValid(cryptoRequest.getQuantity())) {
             throw new ApiValidationException(INVALID_CRYPTO_QUANTITY);
         }
     }

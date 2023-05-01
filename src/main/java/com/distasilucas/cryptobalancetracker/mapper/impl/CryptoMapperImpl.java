@@ -8,7 +8,7 @@ import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
-import com.distasilucas.cryptobalancetracker.model.request.CryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.AddCryptoRequest;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import lombok.RequiredArgsConstructor;
@@ -27,15 +27,15 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CryptoMapperImpl implements EntityMapper<Crypto, CryptoRequest> {
+public class CryptoMapperImpl implements EntityMapper<Crypto, AddCryptoRequest> {
 
     private final CoingeckoService coingeckoService;
     private final PlatformService platformService;
 
     @Override
-    public Crypto mapFrom(CryptoRequest cryptoRequest) {
+    public Crypto mapFrom(AddCryptoRequest cryptoRequest) {
         try {
-            log.info("Attempting to retrieve [{}] information from Coingecko or cache", cryptoRequest.coin_name());
+            log.info("Attempting to retrieve [{}] information from Coingecko or cache", cryptoRequest.getCoinName());
             List<Coin> coins = coingeckoService.retrieveAllCoins();
 
             return getCrypto(cryptoRequest, coins);
@@ -50,10 +50,10 @@ public class CryptoMapperImpl implements EntityMapper<Crypto, CryptoRequest> {
         }
     }
 
-    private Crypto getCrypto(CryptoRequest cryptoRequest, List<Coin> coins) {
+    private Crypto getCrypto(AddCryptoRequest cryptoRequest, List<Coin> coins) {
         Crypto crypto = new Crypto();
-        Platform platform = platformService.findPlatformByName(cryptoRequest.platform());
-        String coinName = cryptoRequest.coin_name();
+        Platform platform = platformService.findPlatformByName(cryptoRequest.getPlatform());
+        String coinName = cryptoRequest.getCoinName();
 
         coins.stream()
                 .filter(coin -> coin.getName().equalsIgnoreCase(coinName))
@@ -65,7 +65,7 @@ public class CryptoMapperImpl implements EntityMapper<Crypto, CryptoRequest> {
                             crypto.setCoinId(coin.getId());
                             crypto.setName(coin.getName());
                             crypto.setTicker(coin.getSymbol());
-                            crypto.setQuantity(cryptoRequest.quantity());
+                            crypto.setQuantity(cryptoRequest.getQuantity());
                             crypto.setPlatformId(platform.getId());
                             crypto.setLastPriceUpdatedAt(LocalDateTime.now());
                             crypto.setLastKnownPrice(marketData.currentPrice().usd());

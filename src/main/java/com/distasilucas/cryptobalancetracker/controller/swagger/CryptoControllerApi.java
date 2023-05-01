@@ -1,7 +1,8 @@
 package com.distasilucas.cryptobalancetracker.controller.swagger;
 
 import com.distasilucas.cryptobalancetracker.model.error.ErrorResponse;
-import com.distasilucas.cryptobalancetracker.model.request.CryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.AddCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.UpdateCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -75,7 +76,7 @@ public interface CryptoControllerApi {
             @ApiResponse(responseCode = RESOURCE_CREATED_CODE, description = "Added Crypto",
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
-                                    schema = @Schema(implementation = CryptoRequest.class))
+                                    schema = @Schema(implementation = AddCryptoRequest.class))
                     }),
             @ApiResponse(responseCode = BAD_REQUEST_CODE, description = INVALID_DATA,
                     content = {
@@ -94,14 +95,14 @@ public interface CryptoControllerApi {
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-    ResponseEntity<CryptoResponse> addCoin(CryptoRequest cryptoRequest);
+    ResponseEntity<CryptoResponse> addCoin(AddCryptoRequest cryptoRequest);
 
     @Operation(summary = "Update Crypto from a specific Platform")
     @ApiResponses(value = {
             @ApiResponse(responseCode = OK_CODE, description = "Updated Crypto",
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
-                                    schema = @Schema(implementation = CryptoRequest.class))
+                                    schema = @Schema(implementation = UpdateCryptoRequest.class))
                     }),
             @ApiResponse(responseCode = BAD_REQUEST_CODE, description = INVALID_DATA,
                     content = {
@@ -120,7 +121,7 @@ public interface CryptoControllerApi {
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-    ResponseEntity<CryptoResponse> updateCoin(CryptoRequest cryptoRequest, String coinId);
+    ResponseEntity<CryptoResponse> updateCoin(UpdateCryptoRequest cryptoRequest, String coinId);
 
     @Operation(summary = "Delete Crypto from a specific Platform")
     @ApiResponses(value = {
