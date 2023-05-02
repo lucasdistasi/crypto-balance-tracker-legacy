@@ -6,7 +6,7 @@ import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.exception.ApiException;
 import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.model.request.CryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.AddCryptoRequest;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,7 +37,7 @@ class CryptoMapperImplTest {
     @Mock
     PlatformService platformServiceMock;
 
-    EntityMapper<Crypto, CryptoRequest> entityMapper;
+    EntityMapper<Crypto, AddCryptoRequest> entityMapper;
 
     @BeforeEach
     void setUp() {
@@ -46,8 +46,8 @@ class CryptoMapperImplTest {
 
     @Test
     void shouldMapSuccessfully() {
-        var cryptoRequest = MockData.getCryptoRequest();
-        var platformName = cryptoRequest.platform();
+        var addCryptoRequest = MockData.getAddCryptoRequest();
+        var platformName = addCryptoRequest.getPlatform();
         var platform = Platform.builder()
                 .id("1234")
                 .name(platformName)
@@ -59,11 +59,11 @@ class CryptoMapperImplTest {
         when(platformServiceMock.findPlatformByName(platformName)).thenReturn(platform);
         when(coingeckoServiceMock.retrieveCoinInfo("ethereum")).thenReturn(coinInfo);
 
-        var crypto = entityMapper.mapFrom(cryptoRequest);
+        var crypto = entityMapper.mapFrom(addCryptoRequest);
 
         assertAll(
-                () -> assertEquals(cryptoRequest.coin_name(), crypto.getName()),
-                () -> assertEquals(cryptoRequest.quantity(), crypto.getQuantity()),
+                () -> assertEquals(addCryptoRequest.getCoinName(), crypto.getName()),
+                () -> assertEquals(addCryptoRequest.getQuantity(), crypto.getQuantity()),
                 () -> assertEquals(platform.getId(), crypto.getPlatformId()),
                 () -> assertEquals(coinInfo.getMarketData().currentPrice().usd(), crypto.getLastKnownPrice()),
                 () -> assertEquals(coinInfo.getMarketData().currentPrice().eur(), crypto.getLastKnownPriceInEUR()),
@@ -73,30 +73,30 @@ class CryptoMapperImplTest {
 
     @Test
     void shouldThrowExceptionWhenMappingNonExistentCoin() {
-        var cryptoRequest = MockData.getCryptoRequest();
-        var platformName = cryptoRequest.platform();
+        var addCryptoRequest = MockData.getAddCryptoRequest();
+        var platformName = addCryptoRequest.getPlatform();
         var platform = MockData.getPlatform(platformName);
 
         when(platformServiceMock.findPlatformByName(platformName)).thenReturn(platform);
         when(coingeckoServiceMock.retrieveAllCoins()).thenReturn(Collections.emptyList());
 
         var coinNotFoundException = assertThrows(CoinNotFoundException.class,
-                () -> entityMapper.mapFrom(cryptoRequest));
+                () -> entityMapper.mapFrom(addCryptoRequest));
 
-        var expectedMessage = String.format(COIN_NAME_NOT_FOUND, cryptoRequest.coin_name());
+        var expectedMessage = String.format(COIN_NAME_NOT_FOUND, addCryptoRequest.getCoinName());
 
         assertEquals(expectedMessage, coinNotFoundException.getErrorMessage());
     }
 
     @Test
     void shouldThrowApiExceptionWhenReachingRateLimit() {
-        var cryptoRequest = MockData.getCryptoRequest();
+        var addCryptoRequest = MockData.getAddCryptoRequest();
         var webClientResponseException = new WebClientResponseException(HttpStatus.TOO_MANY_REQUESTS.value(), "TOO_MANY_REQUESTS", null, null, null);
 
         doThrow(webClientResponseException).when(coingeckoServiceMock).retrieveAllCoins();
 
         var apiException = assertThrows(ApiException.class,
-                () -> entityMapper.mapFrom(cryptoRequest));
+                () -> entityMapper.mapFrom(addCryptoRequest));
 
         assertAll(
                 () -> assertEquals(HttpStatus.TOO_MANY_REQUESTS, apiException.getHttpStatusCode()),
@@ -106,13 +106,13 @@ class CryptoMapperImplTest {
 
     @Test
     void shouldThrowApiExceptionWhenCallingRetrieveAllCoins() {
-        var cryptoRequest = MockData.getCryptoRequest();
+        var addCryptoRequest = MockData.getAddCryptoRequest();
         var webClientResponseException = new WebClientResponseException(HttpStatus.TOO_EARLY.value(), "TOO_EARLY", null, null, null);
 
         doThrow(webClientResponseException).when(coingeckoServiceMock).retrieveAllCoins();
 
         var apiException = assertThrows(ApiException.class,
-                () -> entityMapper.mapFrom(cryptoRequest));
+                () -> entityMapper.mapFrom(addCryptoRequest));
 
         assertAll(
                 () -> assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, apiException.getHttpStatusCode()),
@@ -123,8 +123,8 @@ class CryptoMapperImplTest {
     @Test
     void shouldThrowApiExceptionWhenCallingRetrieveCoinInfo() {
         var webClientResponseException = new WebClientResponseException(HttpStatus.TOO_EARLY.value(), "TOO_EARLY", null, null, null);
-        var cryptoRequest = MockData.getCryptoRequest();
-        var platformName = cryptoRequest.platform();
+        var addCryptoRequest = MockData.getAddCryptoRequest();
+        var platformName = addCryptoRequest.getPlatform();
         var platform = Platform.builder()
                 .id("1234")
                 .name(platformName)
@@ -136,7 +136,7 @@ class CryptoMapperImplTest {
         doThrow(webClientResponseException).when(coingeckoServiceMock).retrieveCoinInfo(allCoins.get(0).getId());
 
         var apiException = assertThrows(ApiException.class,
-                () -> entityMapper.mapFrom(cryptoRequest));
+                () -> entityMapper.mapFrom(addCryptoRequest));
 
         assertAll(
                 () -> assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, apiException.getHttpStatusCode()),
@@ -146,9 +146,9 @@ class CryptoMapperImplTest {
 
     @Test
     void shouldThrowApiExceptionWhenReachingRateLimitForRetrieveCoinInfo() {
-        var cryptoRequest = MockData.getCryptoRequest();
+        var addCryptoRequest = MockData.getAddCryptoRequest();
         var webClientResponseException = new WebClientResponseException(HttpStatus.TOO_MANY_REQUESTS.value(), "TOO_MANY_REQUESTS", null, null, null);
-        var platformName = cryptoRequest.platform();
+        var platformName = addCryptoRequest.getPlatform();
         var platform = Platform.builder()
                 .id("1234")
                 .name(platformName)
@@ -160,7 +160,7 @@ class CryptoMapperImplTest {
         doThrow(webClientResponseException).when(coingeckoServiceMock).retrieveCoinInfo(allCoins.get(0).getId());
 
         var apiException = assertThrows(ApiException.class,
-                () -> entityMapper.mapFrom(cryptoRequest));
+                () -> entityMapper.mapFrom(addCryptoRequest));
 
         assertAll(
                 () -> assertEquals(HttpStatus.TOO_MANY_REQUESTS, apiException.getHttpStatusCode()),

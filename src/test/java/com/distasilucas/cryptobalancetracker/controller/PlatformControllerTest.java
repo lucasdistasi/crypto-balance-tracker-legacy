@@ -45,7 +45,21 @@ class PlatformControllerTest {
 
         assertAll(
                 () -> assertNotNull(allPlatforms.getBody()),
-                () -> assertEquals(1, allPlatforms.getBody().size())
+                () -> assertEquals(1, allPlatforms.getBody().size()),
+                () -> assertEquals(HttpStatus.OK, allPlatforms.getStatusCode())
+        );
+    }
+
+    @Test
+    void shouldReturnNoContentIfPlatformsIsEmpty() {
+        when(platformServiceMock.getAllPlatforms()).thenReturn(Collections.emptyList());
+
+        var allPlatforms = platformController.getAllPlatforms();
+
+        assertAll(
+                () -> assertNotNull(allPlatforms.getBody()),
+                () -> assertEquals(0, allPlatforms.getBody().size()),
+                () -> assertEquals(HttpStatus.NO_CONTENT, allPlatforms.getStatusCode())
         );
     }
 
@@ -60,7 +74,8 @@ class PlatformControllerTest {
         assertAll(
                 () -> assertNotNull(platform.getBody()),
                 () -> assertEquals(platformResponse, platform.getBody()),
-                () -> assertEquals(platformResponse.getName(), platform.getBody().getName())
+                () -> assertEquals(platformResponse.getName(), platform.getBody().getName()),
+                () -> assertEquals(HttpStatus.OK, platform.getStatusCode())
         );
     }
 

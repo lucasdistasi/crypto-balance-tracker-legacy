@@ -1,7 +1,7 @@
 package com.distasilucas.cryptobalancetracker.validation;
 
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
-import com.distasilucas.cryptobalancetracker.model.request.CryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.AddCryptoRequest;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +24,7 @@ class JsonSchemaValidationServiceTest {
     @Mock
     Schema schemaMock;
 
-    EntityValidation<CryptoRequest> cryptoRequestEntityValidation;
+    EntityValidation<AddCryptoRequest> cryptoRequestEntityValidation;
 
     @BeforeEach
     void setUp() {
@@ -33,14 +33,14 @@ class JsonSchemaValidationServiceTest {
 
     @Test
     void shouldValidateJsonSchemaSuccessfully() {
-        var cryptoRequest = new CryptoRequest("Ethereum", BigDecimal.valueOf(1), "Ledger");
+        var cryptoRequest = new AddCryptoRequest("Ethereum", BigDecimal.valueOf(1), "Ledger");
 
         cryptoRequestEntityValidation.validate(cryptoRequest);
     }
 
     @Test
     void shouldThrowApiValidationExceptionIfJsonSchemaIsInvalid() {
-        var cryptoRequest = new CryptoRequest("Ethereum", BigDecimal.valueOf(1), "Ledger");
+        var cryptoRequest = new AddCryptoRequest("Ethereum", BigDecimal.valueOf(1), "Ledger");
         var validationException = new ValidationException(schemaMock, "required key [name] not found", "keyword", "schemaLocation");
 
         doThrow(validationException).when(schemaMock).validate(any());

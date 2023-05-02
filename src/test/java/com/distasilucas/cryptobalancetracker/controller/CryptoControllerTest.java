@@ -1,7 +1,7 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.MockData;
-import com.distasilucas.cryptobalancetracker.model.request.CryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.UpdateCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
@@ -84,23 +85,23 @@ class CryptoControllerTest {
 
     @Test
     void shouldReturnCreatedCrypto() {
-        var cryptoRequest = MockData.getCryptoRequest();
+        var addCryptoRequest = MockData.getAddCryptoRequest();
         var cryptoResponse = MockData.getCryptoResponse();
 
-        when(cryptoServiceMocK.addCoin(cryptoRequest)).thenReturn(cryptoResponse);
+        when(cryptoServiceMocK.addCoin(addCryptoRequest)).thenReturn(cryptoResponse);
 
-        var cryptoResponseEntity = cryptoController.addCoin(cryptoRequest);
+        var cryptoResponseEntity = cryptoController.addCoin(addCryptoRequest);
 
         assertNotNull(cryptoResponseEntity.getBody());
         assertAll(
                 () -> assertEquals(HttpStatus.CREATED, cryptoResponseEntity.getStatusCode()),
-                () -> assertEquals(cryptoRequest.coin_name(), cryptoResponseEntity.getBody().getCoinName())
+                () -> assertEquals(addCryptoRequest.getCoinName(), cryptoResponseEntity.getBody().getCoinName())
         );
     }
 
     @Test
     void shouldUpdateCoin() {
-        var newCrypto = new CryptoRequest("Bitcoin", BigDecimal.valueOf(0.15), "Binance");
+        var newCrypto = new UpdateCryptoRequest("ABC123", BigDecimal.valueOf(0.15), "Binance");
         var newCryptoResponse = CryptoResponse.builder()
                 .coinName("Bitcoin")
                 .quantity(BigDecimal.valueOf(0.10))

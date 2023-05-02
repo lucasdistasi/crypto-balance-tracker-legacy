@@ -17,7 +17,7 @@ public class PlatformNameValidator<T> implements EntityValidation<T> {
         String platformName = "";
 
         if (input instanceof CryptoRequest cryptoRequest)
-            platformName = cryptoRequest.platform();
+            platformName = cryptoRequest.getPlatform();
 
         if (input instanceof PlatformRequest platformRequest)
             platformName = platformRequest.getName();

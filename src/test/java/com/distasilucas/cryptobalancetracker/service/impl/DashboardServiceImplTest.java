@@ -242,6 +242,18 @@ class DashboardServiceImplTest {
     }
 
     @Test
+    void shouldReturnEmptyListOfPlatformsCryptoDistributionResponse() {
+        when(platformServiceMock.getAllPlatforms()).thenReturn(Collections.emptyList());
+
+        var platformsCryptoDistributionResponse = dashboardService.getPlatformsCryptoDistributionResponse();
+
+        assertAll(
+                () -> assertEquals(Optional.empty(), platformsCryptoDistributionResponse),
+                () -> assertTrue(platformsCryptoDistributionResponse.isEmpty())
+        );
+    }
+
+    @Test
     void shouldReturnListOfCryptosPlatformDistributionResponse() {
         var allCryptos = MockData.getAllCryptos();
         var balanceResponse = MockData.getCryptoBalanceResponse();
@@ -256,6 +268,18 @@ class DashboardServiceImplTest {
         assertAll(
                 () -> assertFalse(cryptosPlatformDistribution.get().isEmpty()),
                 () -> assertEquals(allCryptos.size(), cryptosPlatformDistribution.get().size())
+        );
+    }
+
+    @Test
+    void shouldReturnEmptyListOfCryptosPlatformDistributionResponse() {
+        when(cryptoRepositoryMock.findAll()).thenReturn(Collections.emptyList());
+
+        var cryptosPlatformDistribution = dashboardService.getCryptosPlatformDistribution();
+
+        assertAll(
+                () -> assertEquals(Optional.empty(), cryptosPlatformDistribution),
+                () -> assertTrue(cryptosPlatformDistribution.isEmpty())
         );
     }
 }

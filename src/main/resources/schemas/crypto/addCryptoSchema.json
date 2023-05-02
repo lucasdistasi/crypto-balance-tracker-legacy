@@ -19,7 +19,7 @@
   },
   "required": [
     "quantity",
-    "coin_name",
+    "coinName",
     "platform"
   ]
 }
