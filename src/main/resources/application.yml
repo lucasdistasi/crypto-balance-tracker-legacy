@@ -40,3 +40,6 @@ management:
       enabled: true
     prometheus:
       enabled: true
+
+allowed:
+  origins: "http://localhost:5173"
