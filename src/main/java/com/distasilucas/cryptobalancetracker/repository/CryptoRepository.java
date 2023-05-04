@@ -4,19 +4,20 @@ import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 public interface CryptoRepository extends MongoRepository<Crypto, String> {
 
     Optional<Crypto> findByNameAndPlatformId(String coinName, String platformId);
-    Optional<Crypto> findByCoinIdAndPlatformId(String coinId, String platformId);
     Optional<List<Crypto>> findAllByPlatformId(String platformId);
     Optional<List<Crypto>> findAllByCoinId(String coinId);
 
     @Aggregation(pipeline = {
-            "{ $sort: {lastPriceUpdatedAt: 1} }",
+            "{ $match: { lastPriceUpdatedAt: { $lte: :#{#dateFilter} } } }",
+            "{ $sort: { lastPriceUpdatedAt: 1 } }",
             "{ $limit: :#{#limit} }"
     })
-    List<Crypto> findTopNCryptosOrderByLastPriceUpdatedAtAsc(int limit);
+    List<Crypto> findTopNCryptosOrderByLastPriceUpdatedAtAsc(LocalDateTime dateFilter, int limit);
 }

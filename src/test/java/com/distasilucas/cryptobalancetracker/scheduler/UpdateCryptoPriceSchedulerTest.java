@@ -1,102 +1,115 @@
 package com.distasilucas.cryptobalancetracker.scheduler;
 
 import com.distasilucas.cryptobalancetracker.MockData;
-import com.distasilucas.cryptobalancetracker.model.coingecko.CurrentPrice;
-import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
+import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
-import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
-import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import java.math.BigDecimal;
-import java.util.Collections;
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UpdateCryptoPriceSchedulerTest {
 
     @Mock
+    Clock clock;
+
+    @Mock
     CryptoRepository cryptoRepositoryMock;
 
     @Mock
-    PlatformRepository platformRepositoryMock;
-
-    @Mock
-    CoingeckoService coingeckoServiceMock;
+    EntityMapper<Crypto, Crypto> updateCryptoSchedulerMapperImplMock;
 
     UpdateCryptoPriceScheduler updateCryptoPriceScheduler;
 
     @BeforeEach
     void setUp() {
-        updateCryptoPriceScheduler = new UpdateCryptoPriceScheduler(cryptoRepositoryMock, platformRepositoryMock, coingeckoServiceMock);
+        updateCryptoPriceScheduler = new UpdateCryptoPriceScheduler(clock, cryptoRepositoryMock, updateCryptoSchedulerMapperImplMock);
     }
 
     @Test
-    void shouldExecuteSchedulerWithDifferentPrices() {
+    void shouldExecuteSchedulerWithMinLimit() {
+        var localDateMinusFiveMinutes = LocalDateTime.of(2023, 5, 3, 18, 55, 0);
+        var zonedDateTime = ZonedDateTime.of(2023, 5, 3, 19, 0, 0, 0, ZoneId.of("UTC"));
         var cryptos = MockData.getAllCryptos();
-        var coinInfo = MockData.getCoinInfo();
 
-        when(cryptoRepositoryMock.findTopNCryptosOrderByLastPriceUpdatedAtAsc(5)).thenReturn(cryptos);
-        when(coingeckoServiceMock.retrieveCoinInfo("bitcoin")).thenReturn(coinInfo);
+        when(clock.getZone()).thenReturn(zonedDateTime.getZone());
+        when(clock.instant()).thenReturn(zonedDateTime.toInstant());
+        when(cryptoRepositoryMock.findTopNCryptosOrderByLastPriceUpdatedAtAsc(localDateMinusFiveMinutes, 8)).thenReturn(cryptos);
+        when(cryptoRepositoryMock.findAllByCoinId("bitcoin")).thenReturn(Optional.of(cryptos));
+        when(updateCryptoSchedulerMapperImplMock.mapFrom(cryptos.get(0))).thenReturn(cryptos.get(0));
 
-        updateCryptoPriceScheduler.updateCryptoLastKnownPrice();
+        updateCryptoPriceScheduler.updateCryptosMarketData();
 
-        verify(cryptoRepositoryMock, times(1)).save(cryptos.get(0));
+        verify(updateCryptoSchedulerMapperImplMock, times(1)).mapFrom(cryptos.get(0));
+        verify(cryptoRepositoryMock, times(1)).saveAll(cryptos);
     }
 
     @Test
-    void shouldExecuteSchedulerWithSamePrices() {
-        var crypto = MockData.getCrypto("123");
-        crypto.setLastKnownPrice(BigDecimal.valueOf(21750));
-        var cryptos = Collections.singletonList(crypto);
-        var coinInfo = MockData.getCoinInfo();
-        var currentPrice = new CurrentPrice(BigDecimal.valueOf(21750), BigDecimal.valueOf(23000), BigDecimal.valueOf(1));
-        var marketDate = new MarketData(currentPrice, BigDecimal.valueOf(18000000), new BigDecimal(21000000));
-        coinInfo.setMarketData(marketDate);
-
-        when(cryptoRepositoryMock.findTopNCryptosOrderByLastPriceUpdatedAtAsc(5)).thenReturn(cryptos);
-        when(coingeckoServiceMock.retrieveCoinInfo("bitcoin")).thenReturn(coinInfo);
-
-        updateCryptoPriceScheduler.updateCryptoLastKnownPrice();
-
-        verify(cryptoRepositoryMock, times(1)).save(cryptos.get(0));
-    }
-
-    @Test
-    void shouldNotUpdateIfWebClientResponseExceptionIsThrown() {
+    void shouldExecuteSchedulerWithMaxLimit() {
+        var localDateMinusFiveMinutes = LocalDateTime.of(2023, 5, 3, 18, 55, 0);
+        var zonedDateTime = ZonedDateTime.of(2023, 5, 3, 19, 0, 0, 0, ZoneId.of("UTC"));
         var cryptos = MockData.getAllCryptos();
-        var webClientResponseException = new WebClientResponseException(HttpStatus.TOO_MANY_REQUESTS.value(), "TOO_MANY_REQUESTS", null, null, null);
+        var maxCryptos = getMaxCryptos();
 
-        when(cryptoRepositoryMock.findTopNCryptosOrderByLastPriceUpdatedAtAsc(5)).thenReturn(cryptos);
-        doThrow(webClientResponseException).when(coingeckoServiceMock).retrieveCoinInfo("bitcoin");
+        when(clock.getZone()).thenReturn(zonedDateTime.getZone());
+        when(clock.instant()).thenReturn(zonedDateTime.toInstant());
+        when(cryptoRepositoryMock.findTopNCryptosOrderByLastPriceUpdatedAtAsc(localDateMinusFiveMinutes, 8)).thenReturn(maxCryptos);
+        when(cryptoRepositoryMock.findAllByCoinId(any())).thenReturn(Optional.of(cryptos));
+        when(updateCryptoSchedulerMapperImplMock.mapFrom(cryptos.get(0))).thenReturn(cryptos.get(0));
 
-        updateCryptoPriceScheduler.updateCryptoLastKnownPrice();
+        updateCryptoPriceScheduler.updateCryptosMarketData();
 
-        verify(cryptoRepositoryMock, never()).save(cryptos.get(0));
+        verify(cryptoRepositoryMock, times(7)).saveAll(cryptos);
     }
 
     @Test
-    void shouldNotUpdateIfNonCaughtExceptionIsThrown() {
+    void shouldExecuteSchedulerWithMinLimitWhenOccurrencesArGreaterThanMaxLimit() {
+        var localDateMinusFiveMinutes = LocalDateTime.of(2023, 5, 3, 18, 55, 0);
+        var zonedDateTime = ZonedDateTime.of(2023, 5, 3, 19, 0, 0, 0, ZoneId.of("UTC"));
         var cryptos = MockData.getAllCryptos();
-        var runtimeException = new RuntimeException("RuntimeException");
+        var maxCryptos = getMaxCryptos();
+        maxCryptos.add(Crypto.builder().coinId("doge").build());
+        maxCryptos.add(Crypto.builder().coinId("shiba").build());
+        maxCryptos.add(Crypto.builder().coinId("pepe").build());
+        maxCryptos.add(Crypto.builder().coinId("kadena").build());
 
-        when(cryptoRepositoryMock.findTopNCryptosOrderByLastPriceUpdatedAtAsc(5)).thenReturn(cryptos);
-        doThrow(runtimeException).when(coingeckoServiceMock).retrieveCoinInfo("bitcoin");
+        when(clock.getZone()).thenReturn(zonedDateTime.getZone());
+        when(clock.instant()).thenReturn(zonedDateTime.toInstant());
+        when(cryptoRepositoryMock.findTopNCryptosOrderByLastPriceUpdatedAtAsc(localDateMinusFiveMinutes, 8)).thenReturn(maxCryptos);
+        when(cryptoRepositoryMock.findTopNCryptosOrderByLastPriceUpdatedAtAsc(localDateMinusFiveMinutes, 5)).thenReturn(cryptos);
+        when(cryptoRepositoryMock.findAllByCoinId("bitcoin")).thenReturn(Optional.of(cryptos));
+        when(updateCryptoSchedulerMapperImplMock.mapFrom(cryptos.get(0))).thenReturn(cryptos.get(0));
 
-        updateCryptoPriceScheduler.updateCryptoLastKnownPrice();
+        updateCryptoPriceScheduler.updateCryptosMarketData();
 
-        verify(cryptoRepositoryMock, never()).save(cryptos.get(0));
+        verify(updateCryptoSchedulerMapperImplMock, times(1)).mapFrom(cryptos.get(0));
+        verify(cryptoRepositoryMock, times(1)).saveAll(cryptos);
     }
 
+    private List<Crypto> getMaxCryptos() {
+        List<Crypto> cryptos = new ArrayList<>();
+        cryptos.add(Crypto.builder().coinId("bitcoin").build());
+        cryptos.add(Crypto.builder().coinId("ethereum").build());
+        cryptos.add(Crypto.builder().coinId("binancecoin").build());
+        cryptos.add(Crypto.builder().coinId("tether").build());
+        cryptos.add(Crypto.builder().coinId("cardano").build());
+        cryptos.add(Crypto.builder().coinId("polkadot").build());
+        cryptos.add(Crypto.builder().coinId("polygon").build());
+
+        return cryptos;
+    }
 }
