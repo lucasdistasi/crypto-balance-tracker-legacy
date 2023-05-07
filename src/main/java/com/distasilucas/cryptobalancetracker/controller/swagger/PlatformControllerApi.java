@@ -4,6 +4,7 @@ import com.distasilucas.cryptobalancetracker.model.error.ErrorResponse;
 import com.distasilucas.cryptobalancetracker.model.request.PlatformRequest;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -30,35 +31,64 @@ public interface PlatformControllerApi {
     @ApiResponses(value = {
             @ApiResponse(responseCode = OK_CODE, description = "Platforms",
                     content = {
-                            @Content(mediaType = APPLICATION_JSON,
-                                    schema = @Schema(implementation = PlatformRequest.class))
-                    })
+                            @Content(
+                                    mediaType = APPLICATION_JSON,
+                                    array = @ArraySchema(schema = @Schema(implementation = PlatformResponse.class))
+                            )
+                    }),
+            @ApiResponse(responseCode = NO_CONTENT_CODE, description = "No platforms saved",
+                    content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden",
+                    content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = INTERNAL_SERVER_ERROR_CODE, description = INTERNAL_SERVER_ERROR,
+                    content = @Content(
+                            mediaType = APPLICATION_JSON,
+                            schema = @Schema(implementation = ErrorResponse.class))
+            ),
     })
     ResponseEntity<List<PlatformResponse>> getAllPlatforms();
 
     @Operation(summary = "Retrieve single platform")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = OK_CODE, description = "Platform",
+            @ApiResponse(responseCode = OK_CODE, description = "Platform Response",
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
-                                    schema = @Schema(implementation = PlatformRequest.class))
-                    })
-    })
-    ResponseEntity<PlatformResponse> getPlatform(String platformName);
-
-    @Operation(summary = "Add Platform")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = RESOURCE_CREATED_CODE, description = "Added Platform",
-                    content = {
-                            @Content(mediaType = APPLICATION_JSON,
-                                    schema = @Schema(implementation = PlatformRequest.class))
+                                    schema = @Schema(implementation = PlatformResponse.class))
                     }),
             @ApiResponse(responseCode = BAD_REQUEST_CODE, description = INVALID_DATA,
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
                                     schema = @Schema(implementation = ErrorResponse.class))
                     }),
-            @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden"),
+            @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden",
+                    content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = NOT_FOUND_CODE, description = PLATFORM_NOT_FOUND_DESCRIPTION,
+                    content = {
+                            @Content(mediaType = APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    }),
+            @ApiResponse(responseCode = INTERNAL_SERVER_ERROR_CODE, description = INTERNAL_SERVER_ERROR,
+                    content = {
+                            @Content(mediaType = APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    }),
+    })
+    ResponseEntity<PlatformResponse> getPlatform(String platformName);
+
+    @Operation(summary = "Add Platform")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = RESOURCE_CREATED_CODE, description = "Platform added",
+                    content = {
+                            @Content(mediaType = APPLICATION_JSON,
+                                    schema = @Schema(implementation = PlatformResponse.class))
+                    }),
+            @ApiResponse(responseCode = BAD_REQUEST_CODE, description = INVALID_DATA,
+                    content = {
+                            @Content(mediaType = APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    }),
+            @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden",
+                    content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = INTERNAL_SERVER_ERROR_CODE, description = INTERNAL_SERVER_ERROR,
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
@@ -67,9 +97,9 @@ public interface PlatformControllerApi {
     })
     ResponseEntity<PlatformResponse> addPlatform(PlatformRequest platformRequest);
 
-    @Operation(summary = "Update Platform. This will also modify the platform name for those cryptos stored in the specified platform")
+    @Operation(summary = "Update Platform. This will also modify the platform name for those cryptos saved in the given platform")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = OK_CODE, description = "Updated Platform Name",
+            @ApiResponse(responseCode = OK_CODE, description = "Platform name updated",
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
                                     schema = @Schema(implementation = PlatformRequest.class))
@@ -79,7 +109,8 @@ public interface PlatformControllerApi {
                             @Content(mediaType = APPLICATION_JSON,
                                     schema = @Schema(implementation = ErrorResponse.class))
                     }),
-            @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden"),
+            @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden",
+                    content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = NOT_FOUND_CODE, description = PLATFORM_NOT_FOUND_DESCRIPTION,
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
@@ -93,15 +124,17 @@ public interface PlatformControllerApi {
     })
     ResponseEntity<PlatformResponse> updatePlatform(String platformName, PlatformRequest platformRequest);
 
-    @Operation(summary = "Delete Platform. This will also delete all cryptos in the specified platform")
+    @Operation(summary = "Delete Platform. This will also delete all cryptos in the given platform")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = NO_CONTENT_CODE, description = "Deleted Platform"),
+            @ApiResponse(responseCode = NO_CONTENT_CODE, description = "Platform Deleted",
+                    content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = BAD_REQUEST_CODE, description = INVALID_DATA,
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
                                     schema = @Schema(implementation = ErrorResponse.class))
                     }),
-            @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden"),
+            @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden",
+                    content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = NOT_FOUND_CODE, description = PLATFORM_NOT_FOUND_DESCRIPTION,
                     content = {
                             @Content(mediaType = APPLICATION_JSON,

@@ -9,6 +9,7 @@ import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformRes
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
+import com.distasilucas.cryptobalancetracker.validation.UtilValidations;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 @RequiredArgsConstructor
 public class PlatformServiceImpl implements PlatformService {
 
+    private final UtilValidations utilValidations;
     private final PlatformRepository platformRepository;
     private final CryptoRepository cryptoRepository;
     private final Validation<PlatformRequest> addPlatformValidation;
@@ -54,6 +56,7 @@ public class PlatformServiceImpl implements PlatformService {
 
     @Override
     public Platform findPlatformByName(String platformName) {
+        utilValidations.validatePlatformNameFormat(platformName);
         platformName = platformName.toUpperCase();
         log.info("Checking if {} it's an existing platform", platformName);
         Optional<Platform> platform = platformRepository.findByName(platformName);

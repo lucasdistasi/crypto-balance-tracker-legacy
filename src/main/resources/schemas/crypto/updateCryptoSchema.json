@@ -3,6 +3,11 @@
   "title": "Crypto",
   "type": "object",
   "properties": {
+    "cryptoId" : {
+      "type": "string",
+      "minLength": 24,
+      "maxLength": 24
+    },
     "quantity": {
       "type": "number"
     },
@@ -13,6 +18,7 @@
     }
   },
   "required": [
+    "cryptoId",
     "quantity",
     "platform"
   ]

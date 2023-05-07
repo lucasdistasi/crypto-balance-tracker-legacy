@@ -12,6 +12,7 @@ import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoRespons
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
+import com.distasilucas.cryptobalancetracker.validation.UtilValidations;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -59,12 +60,15 @@ class CryptoServiceImplTest {
     @Mock
     Validation<UpdateCryptoRequest> updateCryptoValidationMock;
 
+    @Mock
+    UtilValidations utilValidationsMock;
+
     CryptoService cryptoService;
 
     @BeforeEach
     void setUp() {
-        cryptoService = new CryptoServiceImpl(cryptoMapperImplMock, cryptoResponseMapperImplMock, cryptoRepositoryMock,
-                platformRepository, addCryptoValidationMock, updateCryptoValidationMock);
+        cryptoService = new CryptoServiceImpl(utilValidationsMock, cryptoMapperImplMock, cryptoResponseMapperImplMock,
+                cryptoRepositoryMock, platformRepository, addCryptoValidationMock, updateCryptoValidationMock);
     }
 
     @Test

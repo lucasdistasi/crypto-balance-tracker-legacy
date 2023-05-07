@@ -14,11 +14,13 @@ public class CryptoSchemaValidator {
 
     @Bean
     public Validation<AddCryptoRequest> addCryptoValidation(Schema addCryptoJsonSchemaValidator,
+                                                            CryptoNameValidator cryptoNameValidator,
                                                             QuantityValueValidator<AddCryptoRequest> quantityValueValidator,
                                                             PlatformNameValidator<AddCryptoRequest> platformNameValidator,
                                                             CryptoPlatformValidator<AddCryptoRequest> cryptoPlatformValidator) {
         return new Validation<>(
                 new JsonSchemaValidationService<>(addCryptoJsonSchemaValidator),
+                cryptoNameValidator,
                 quantityValueValidator,
                 platformNameValidator,
                 cryptoPlatformValidator
@@ -27,11 +29,13 @@ public class CryptoSchemaValidator {
 
     @Bean
     public Validation<UpdateCryptoRequest> updateCryptoValidation(Schema updateCryptoJsonSchemaValidator,
+                                                                  CryptoIdValidator cryptoIdValidator,
                                                                   QuantityValueValidator<UpdateCryptoRequest> quantityValueValidator,
                                                                   PlatformNameValidator<UpdateCryptoRequest> platformNameValidator,
                                                                   CryptoPlatformValidator<UpdateCryptoRequest> cryptoPlatformValidator) {
         return new Validation<>(
                 new JsonSchemaValidationService<>(updateCryptoJsonSchemaValidator),
+                cryptoIdValidator,
                 quantityValueValidator,
                 platformNameValidator,
                 cryptoPlatformValidator
