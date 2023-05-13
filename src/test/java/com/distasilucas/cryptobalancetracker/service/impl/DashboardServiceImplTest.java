@@ -11,6 +11,7 @@ import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformRes
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.service.DashboardService;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
+import com.distasilucas.cryptobalancetracker.validation.UtilValidations;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,11 +47,14 @@ class DashboardServiceImplTest {
     @Mock
     BiFunctionMapper<Map<String, BigDecimal>, CryptoBalanceResponse, List<CoinInfoResponse>> coinInfoResponseMapperImplMock;
 
+    @Mock
+    UtilValidations utilValidationsMock;
+
     DashboardService dashboardService;
 
     @BeforeEach
     void setUp() {
-        dashboardService = new DashboardServiceImpl(cryptoRepositoryMock, platformServiceMock,
+        dashboardService = new DashboardServiceImpl(utilValidationsMock, cryptoRepositoryMock, platformServiceMock,
                 cryptoBalanceResponseMapperImplMock, coinInfoResponseMapperImplMock);
     }
 

@@ -11,6 +11,7 @@ import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoRespons
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
+import com.distasilucas.cryptobalancetracker.validation.UtilValidations;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,7 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 @RequiredArgsConstructor
 public class CryptoServiceImpl implements CryptoService {
 
+    private final UtilValidations utilValidations;
     private final EntityMapper<Crypto, AddCryptoRequest> cryptoMapperImpl;
     private final EntityMapper<CryptoResponse, Crypto> cryptoResponseMapperImpl;
     private final CryptoRepository cryptoRepository;
@@ -39,6 +41,7 @@ public class CryptoServiceImpl implements CryptoService {
 
     @Override
     public CryptoResponse getCoin(String coinId) {
+        utilValidations.validateCryptoIdFormat(coinId);
         Optional<Crypto> optionalCrypto = cryptoRepository.findById(coinId);
 
         if (optionalCrypto.isEmpty())
@@ -108,6 +111,7 @@ public class CryptoServiceImpl implements CryptoService {
 
     @Override
     public void deleteCoin(String coinId) {
+        utilValidations.validateCryptoIdFormat(coinId);
         cryptoRepository.findById(coinId)
                 .ifPresentOrElse(crypto -> {
                     log.info("Deleted crypto [{}] in platform id [{}]", crypto.getName(), crypto.getPlatformId());

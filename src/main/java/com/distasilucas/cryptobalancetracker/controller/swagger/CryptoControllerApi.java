@@ -5,6 +5,7 @@ import com.distasilucas.cryptobalancetracker.model.request.AddCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.UpdateCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -29,14 +30,20 @@ import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.RE
 
 public interface CryptoControllerApi {
 
-    @Operation(summary = "Retrieve Crypto")
+    @Operation(summary = "Returns Crypto information for the given ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = RESOURCE_CREATED_CODE, description = "Returns Crypto information for the given ID",
+            @ApiResponse(responseCode = OK_CODE, description = "Crypto Response",
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
                                     schema = @Schema(implementation = CryptoResponse.class))
                     }),
-            @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden"),
+            @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden",
+                    content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = BAD_REQUEST_CODE, description = INVALID_DATA,
+                    content = {
+                            @Content(mediaType = APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    }),
             @ApiResponse(responseCode = NOT_FOUND_CODE, description = CRYPTO_NOT_FOUND_DESCRIPTION,
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
@@ -52,17 +59,17 @@ public interface CryptoControllerApi {
 
     @Operation(summary = "Retrieve all Cryptos")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = RESOURCE_CREATED_CODE, description = "Returns all Crypto information for the given ID",
+            @ApiResponse(responseCode = OK_CODE, description = "All Cryptos",
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
-                                    schema = @Schema(implementation = CryptoResponse.class))
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = CryptoResponse.class)
+                                    ))
                     }),
-            @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden"),
-            @ApiResponse(responseCode = NO_CONTENT_CODE, description = CRYPTO_NOT_FOUND_DESCRIPTION,
-                    content = {
-                            @Content(mediaType = APPLICATION_JSON,
-                                    schema = @Schema(implementation = ErrorResponse.class))
-                    }),
+            @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden",
+                    content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = NO_CONTENT_CODE, description = "No cryptos saved",
+                    content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = INTERNAL_SERVER_ERROR_CODE, description = INTERNAL_SERVER_ERROR,
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
@@ -73,22 +80,18 @@ public interface CryptoControllerApi {
 
     @Operation(summary = "Add Crypto")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = RESOURCE_CREATED_CODE, description = "Added Crypto",
+            @ApiResponse(responseCode = RESOURCE_CREATED_CODE, description = "Crypto Added",
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
-                                    schema = @Schema(implementation = AddCryptoRequest.class))
+                                    schema = @Schema(implementation = CryptoResponse.class))
                     }),
             @ApiResponse(responseCode = BAD_REQUEST_CODE, description = INVALID_DATA,
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
                                     schema = @Schema(implementation = ErrorResponse.class))
                     }),
-            @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden"),
-            @ApiResponse(responseCode = NOT_FOUND_CODE, description = CRYPTO_NOT_FOUND_DESCRIPTION,
-                    content = {
-                            @Content(mediaType = APPLICATION_JSON,
-                                    schema = @Schema(implementation = ErrorResponse.class))
-                    }),
+            @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden",
+                    content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = INTERNAL_SERVER_ERROR_CODE, description = INTERNAL_SERVER_ERROR,
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
@@ -97,19 +100,20 @@ public interface CryptoControllerApi {
     })
     ResponseEntity<CryptoResponse> addCoin(AddCryptoRequest cryptoRequest);
 
-    @Operation(summary = "Update Crypto from a specific Platform")
+    @Operation(summary = "Update Crypto")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = OK_CODE, description = "Updated Crypto",
+            @ApiResponse(responseCode = OK_CODE, description = "Crypto Updated",
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
-                                    schema = @Schema(implementation = UpdateCryptoRequest.class))
+                                    schema = @Schema(implementation = CryptoResponse.class))
                     }),
             @ApiResponse(responseCode = BAD_REQUEST_CODE, description = INVALID_DATA,
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
                                     schema = @Schema(implementation = ErrorResponse.class))
                     }),
-            @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden"),
+            @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden",
+                    content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = NOT_FOUND_CODE, description = CRYPTO_OR_PLATFORM_NOT_FOUND_DESCRIPTION,
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
@@ -123,10 +127,12 @@ public interface CryptoControllerApi {
     })
     ResponseEntity<CryptoResponse> updateCoin(UpdateCryptoRequest cryptoRequest, String coinId);
 
-    @Operation(summary = "Delete Crypto from a specific Platform")
+    @Operation(summary = "Delete Crypto")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = NO_CONTENT_CODE, description = "Crypto deleted from Platform"),
-            @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden"),
+            @ApiResponse(responseCode = NO_CONTENT_CODE, description = "Crypto deleted",
+                    content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden",
+                    content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = NOT_FOUND_CODE, description = CRYPTO_NOT_FOUND_DESCRIPTION,
                     content = {
                             @Content(mediaType = APPLICATION_JSON,

@@ -10,6 +10,7 @@ import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformRes
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
+import com.distasilucas.cryptobalancetracker.validation.UtilValidations;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,11 +52,14 @@ class PlatformServiceImplTest {
     @Mock
     EntityMapper<PlatformResponse, Platform> platformResponseMapperImplMock;
 
+    @Mock
+    UtilValidations utilValidationsMock;
+
     PlatformService platformService;
 
     @BeforeEach
     void setUp() {
-        platformService = new PlatformServiceImpl(platformRepositoryMock, cryptoRepositoryMock, addPlatformValidationMock,
+        platformService = new PlatformServiceImpl(utilValidationsMock, platformRepositoryMock, cryptoRepositoryMock, addPlatformValidationMock,
                 platformMapperImplMock, platformResponseMapperImplMock);
     }
 

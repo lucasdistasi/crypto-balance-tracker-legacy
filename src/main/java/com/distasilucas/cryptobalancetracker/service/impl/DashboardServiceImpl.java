@@ -16,6 +16,7 @@ import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformRes
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.service.DashboardService;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
+import com.distasilucas.cryptobalancetracker.validation.UtilValidations;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DashboardServiceImpl implements DashboardService {
 
+    private final UtilValidations utilValidations;
     private final CryptoRepository cryptoRepository;
     private final PlatformService platformService;
     private final EntityMapper<CryptoBalanceResponse, List<Crypto>> cryptoBalanceResponseMapperImpl;
@@ -48,6 +50,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public Optional<CryptoBalanceResponse> retrieveCoinBalance(String coinId) {
+        utilValidations.validateCryptoIdFormat(coinId);
         log.info("Retrieving balances for coin [{}]", coinId);
         Optional<List<Crypto>> allCoins = cryptoRepository.findAllByCoinId(coinId);
 
@@ -113,6 +116,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public Optional<CryptoBalanceResponse> getAllCoins(String platformName) {
+        utilValidations.validatePlatformNameFormat(platformName);
         log.info("Retrieving coins in platform {}", platformName);
         Platform platform = platformService.findPlatformByName(platformName);
         Optional<List<Crypto>> cryptos = cryptoRepository.findAllByPlatformId(platform.getId());
