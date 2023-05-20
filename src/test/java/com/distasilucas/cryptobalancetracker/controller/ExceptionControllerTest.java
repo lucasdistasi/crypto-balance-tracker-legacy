@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.mock.http.client.MockClientHttpResponse;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -166,7 +167,7 @@ class ExceptionControllerTest {
     }
 
     @Test
-    void shouldThrowApiException() {
+    void shouldHandleApiException() {
         var apiException = new ApiException("You've found the easter egg", HttpStatus.I_AM_A_TEAPOT);
 
         var responseEntity = exceptionController.handleApiException(apiException);
@@ -176,6 +177,34 @@ class ExceptionControllerTest {
                 () -> assertEquals(HttpStatus.I_AM_A_TEAPOT, responseEntity.getStatusCode()),
                 () -> assertEquals(1, responseEntity.getBody().errors().size()),
                 () -> assertEquals(apiException.getErrorMessage(), responseEntity.getBody().errors().get(0).errorMessage())
+        );
+    }
+
+    @Test
+    void shouldHandleMissingServletRequestParameterException() {
+        var exception = new MissingServletRequestParameterException("parameter", "string");
+
+        var responseEntity = exceptionController.handleMissingServletRequestParameterException(exception);
+
+        assertNotNull(responseEntity.getBody());
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode()),
+                () -> assertEquals(1, responseEntity.getBody().errors().size()),
+                () -> assertEquals("Required parameter 'parameter' is not present.", responseEntity.getBody().errors().get(0).errorMessage())
+        );
+    }
+
+    @Test
+    void shouldHandleIllegalArgumentException() {
+        var exception = new IllegalArgumentException("IllegalArgumentException");
+
+        var responseEntity = exceptionController.handleIllegalArgumentException(exception);
+
+        assertNotNull(responseEntity.getBody());
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode()),
+                () -> assertEquals(1, responseEntity.getBody().errors().size()),
+                () -> assertEquals("IllegalArgumentException", responseEntity.getBody().errors().get(0).errorMessage())
         );
     }
 

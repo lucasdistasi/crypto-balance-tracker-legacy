@@ -8,11 +8,7 @@ import com.distasilucas.cryptobalancetracker.model.coingecko.CurrentPrice;
 import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.model.request.AddCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.PlatformRequest;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinInfoResponse;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinResponse;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoBalanceResponse;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoPlatformBalanceResponse;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.*;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
 
 import java.math.BigDecimal;
@@ -122,6 +118,10 @@ public class MockData {
                 .quantity(BigDecimal.valueOf(1))
                 .platform("Ledger")
                 .build();
+    }
+
+    public static PageCryptoResponse getPageCryptoResponse() {
+        return new PageCryptoResponse(1, 1, Collections.singletonList(getCryptoResponse()));
     }
 
     public static Crypto getCrypto(String platformId) {

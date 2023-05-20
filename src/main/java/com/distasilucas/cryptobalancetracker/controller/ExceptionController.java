@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -31,10 +32,9 @@ public class ExceptionController {
 
     @ExceptionHandler(value = CoinNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleCoinNotFoundException(CoinNotFoundException coinNotFoundException) {
-        log.warn("An CoinNotFoundException has occurred: ", coinNotFoundException);
+        log.warn("A CoinNotFoundException has occurred: ", coinNotFoundException);
 
         Error error = new Error(coinNotFoundException.getErrorMessage());
-
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), Collections.singletonList(error));
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -43,7 +43,7 @@ public class ExceptionController {
 
     @ExceptionHandler(value = PlatformNotFoundException.class)
     public ResponseEntity<ErrorResponse> handlePlatformNotFoundException(PlatformNotFoundException platformNotFoundException) {
-        log.warn("An PlatformNotFoundException has occurred: ", platformNotFoundException);
+        log.warn("A PlatformNotFoundException has occurred: ", platformNotFoundException);
 
         Error error = new Error(platformNotFoundException.getErrorMessage());
 
@@ -76,7 +76,7 @@ public class ExceptionController {
 
     @ExceptionHandler(value = HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException httpMessageNotReadableException) {
-        log.warn("An HttpMessageNotReadableException has occurred: ", httpMessageNotReadableException);
+        log.warn("A HttpMessageNotReadableException has occurred: ", httpMessageNotReadableException);
 
         String originalMessage = UNKNOWN_ERROR;
 
@@ -98,10 +98,9 @@ public class ExceptionController {
 
     @ExceptionHandler(value = DuplicatedPlatformCoinException.class)
     public ResponseEntity<ErrorResponse> handleDuplicatedPlatformCoinException(DuplicatedPlatformCoinException duplicatedPlatformCoinException) {
-        log.warn("An DuplicatedPlatformCoinException has occurred: ", duplicatedPlatformCoinException);
+        log.warn("A DuplicatedPlatformCoinException has occurred: ", duplicatedPlatformCoinException);
 
         Error error = new Error(duplicatedPlatformCoinException.getErrorMessage());
-
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), Collections.singletonList(error));
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -118,6 +117,28 @@ public class ExceptionController {
         ErrorResponse errorResponse = new ErrorResponse(httpStatusCode.value(), Collections.singletonList(error));
 
         return ResponseEntity.status(httpStatusCode)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(value = MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(MissingServletRequestParameterException exception) {
+        log.warn("A MissingServletRequestParameterException has occurred: ", exception);
+
+        Error error = new Error(exception.getBody().getDetail());
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), Collections.singletonList(error));
+
+        return ResponseEntity.badRequest()
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(value = IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException exception) {
+        log.warn("An IllegalArgumentException has occurred: ", exception);
+
+        Error error = new Error(exception.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), Collections.singletonList(error));
+
+        return ResponseEntity.badRequest()
                 .body(errorResponse);
     }
 

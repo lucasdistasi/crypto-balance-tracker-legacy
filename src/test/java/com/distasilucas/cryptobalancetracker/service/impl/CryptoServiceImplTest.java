@@ -19,6 +19,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
@@ -120,35 +124,40 @@ class CryptoServiceImplTest {
     }
 
     @Test
-    void shouldRetrieveAllCoins() {
+    void shouldRetrieveCoinsPage() {
         var crypto = Crypto.builder()
                 .name("Ethereum")
                 .quantity(BigDecimal.valueOf(1))
                 .build();
         var platform = MockData.getPlatform("Ledger");
         var cryptoResponse = MockData.getCryptoResponse();
+        var page = 0;
+        var pageable = PageRequest.of(page, 10);
 
-        when(cryptoRepositoryMock.findAll()).thenReturn(Collections.singletonList(crypto));
+        when(cryptoRepositoryMock.findAll(pageable)).thenReturn(new PageImpl<>(Collections.singletonList(crypto)));
         when(cryptoResponseMapperImplMock.mapFrom(crypto)).thenReturn(cryptoResponse);
 
-        var coins = cryptoService.getCoins();
+        var coins = cryptoService.getCoins(page);
 
         assertAll(
                 () -> assertTrue(coins.isPresent()),
                 () -> assertNotNull(coins.get()),
-                () -> assertNotEquals(0, coins.get().size()),
-                () -> assertEquals(platform.getName(), coins.get().get(0).getPlatform()),
-                () -> assertEquals(crypto.getQuantity(), coins.get().get(0).getQuantity()),
-                () -> assertEquals(crypto.getName(), coins.get().get(0).getCoinName()),
-                () -> assertEquals(platform.getName(), coins.get().get(0).getPlatform())
+                () -> assertNotEquals(0, coins.get().getCryptos().size()),
+                () -> assertEquals(platform.getName(), coins.get().getCryptos().get(0).getPlatform()),
+                () -> assertEquals(crypto.getQuantity(), coins.get().getCryptos().get(0).getQuantity()),
+                () -> assertEquals(crypto.getName(), coins.get().getCryptos().get(0).getCoinName()),
+                () -> assertEquals(platform.getName(), coins.get().getCryptos().get(0).getPlatform())
         );
     }
 
     @Test
     void shouldReturnEmptyIfCryptosIsEmpty() {
-        when(cryptoRepositoryMock.findAll()).thenReturn(Collections.emptyList());
+        var page = 0;
+        var pageable = PageRequest.of(page, 10);
 
-        var coins = cryptoService.getCoins();
+        when(cryptoRepositoryMock.findAll(pageable)).thenReturn(Page.empty());
+
+        var coins = cryptoService.getCoins(page);
 
         assertAll(
                 () -> assertEquals(Optional.empty(), coins),

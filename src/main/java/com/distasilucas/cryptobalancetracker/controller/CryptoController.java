@@ -5,6 +5,7 @@ import com.distasilucas.cryptobalancetracker.controller.swagger.CryptoController
 import com.distasilucas.cryptobalancetracker.model.request.AddCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.UpdateCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.PageCryptoResponse;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,9 +19,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -42,8 +43,8 @@ public class CryptoController implements CryptoControllerApi, ControllerHelper {
 
     @Override
     @GetMapping
-    public ResponseEntity<Optional<List<CryptoResponse>>> getCoins() {
-        Optional<List<CryptoResponse>> coins = cryptoService.getCoins();
+    public ResponseEntity<Optional<PageCryptoResponse>> getCoins(@RequestParam int page) {
+        Optional<PageCryptoResponse> coins = cryptoService.getCoins(page);
         HttpStatus httpStatus = getOkOrNoContentHttpStatusCode(coins);
 
         return ResponseEntity.status(httpStatus)
