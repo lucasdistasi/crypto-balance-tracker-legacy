@@ -8,6 +8,7 @@ import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.request.AddCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.UpdateCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.PageCryptoResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
@@ -15,16 +16,16 @@ import com.distasilucas.cryptobalancetracker.validation.UtilValidations;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN;
-import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.COIN_ID_NOT_FOUND;
-import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.COIN_NOT_FOUND;
-import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.PLATFORM_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.*;
 
 @Slf4j
 @Service
@@ -60,16 +61,19 @@ public class CryptoServiceImpl implements CryptoService {
     }
 
     @Override
-    public Optional<List<CryptoResponse>> getCoins() {
-        List<Crypto> cryptos = cryptoRepository.findAll();
+    public Optional<PageCryptoResponse> getCoins(int page) {
+        Pageable pageable = PageRequest.of(page, 10);
+        Page<Crypto> cryptos = cryptoRepository.findAll(pageable);
 
-        if (CollectionUtils.isEmpty(cryptos)) return Optional.empty();
+        if (cryptos.isEmpty()) return Optional.empty();
 
-        return Optional.of(
-                cryptos.stream()
-                        .map(cryptoResponseMapperImpl::mapFrom)
-                        .toList()
-        );
+        List<CryptoResponse> cryptosResponse = cryptos.stream()
+                .map(cryptoResponseMapperImpl::mapFrom)
+                .toList();
+
+        PageCryptoResponse pageCryptoResponse = new PageCryptoResponse(page, cryptos.getTotalPages(), cryptosResponse);
+
+        return Optional.of(pageCryptoResponse);
     }
 
     @Override

@@ -56,25 +56,27 @@ class CryptoControllerTest {
 
     @Test
     void shouldRetrieveAllCoins() {
-        var cryptos = Collections.singletonList(MockData.getCryptoResponse());
+        var cryptos = MockData.getPageCryptoResponse();
+        var page = 0;
 
-        when(cryptoServiceMocK.getCoins()).thenReturn(Optional.of(cryptos));
+        when(cryptoServiceMocK.getCoins(page)).thenReturn(Optional.of(cryptos));
 
-        var responseEntity = cryptoController.getCoins();
+        var responseEntity = cryptoController.getCoins(page);
 
         assertAll(
                 () -> assertNotNull(responseEntity.getBody()),
                 () -> assertTrue(responseEntity.getBody().isPresent()),
-                () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
-                () -> assertEquals(1, responseEntity.getBody().get().size())
+                () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode())
         );
     }
 
     @Test
     void shouldReturnNoContentIfNoCoinsAreFound() {
-        when(cryptoServiceMocK.getCoins()).thenReturn(Optional.empty());
+        var page = 0;
 
-        var responseEntity = cryptoController.getCoins();
+        when(cryptoServiceMocK.getCoins(page)).thenReturn(Optional.empty());
+
+        var responseEntity = cryptoController.getCoins(page);
 
         assertAll(
                 () -> assertNotNull(responseEntity.getBody()),

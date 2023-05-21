@@ -4,29 +4,17 @@ import com.distasilucas.cryptobalancetracker.model.error.ErrorResponse;
 import com.distasilucas.cryptobalancetracker.model.request.AddCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.UpdateCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.PageCryptoResponse;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 
-import java.util.List;
 import java.util.Optional;
 
-import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.APPLICATION_JSON;
-import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.BAD_REQUEST_CODE;
-import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.CRYPTO_NOT_FOUND_DESCRIPTION;
-import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.CRYPTO_OR_PLATFORM_NOT_FOUND_DESCRIPTION;
-import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.FORBIDDEN_CODE;
-import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.INTERNAL_SERVER_ERROR;
-import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.INTERNAL_SERVER_ERROR_CODE;
-import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.INVALID_DATA;
-import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.NOT_FOUND_CODE;
-import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.NO_CONTENT_CODE;
-import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.OK_CODE;
-import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.RESOURCE_CREATED_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.*;
 
 public interface CryptoControllerApi {
 
@@ -57,14 +45,12 @@ public interface CryptoControllerApi {
     })
     ResponseEntity<CryptoResponse> getCoin(String coinId);
 
-    @Operation(summary = "Retrieve all Cryptos")
+    @Operation(summary = "Retrieve Cryptos by page")
     @ApiResponses(value = {
             @ApiResponse(responseCode = OK_CODE, description = "All Cryptos",
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
-                                    array = @ArraySchema(
-                                            schema = @Schema(implementation = CryptoResponse.class)
-                                    ))
+                                    schema = @Schema(implementation = PageCryptoResponse.class))
                     }),
             @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden",
                     content = @Content(schema = @Schema())),
@@ -76,7 +62,7 @@ public interface CryptoControllerApi {
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-    ResponseEntity<Optional<List<CryptoResponse>>> getCoins();
+    ResponseEntity<Optional<PageCryptoResponse>> getCoins(int page);
 
     @Operation(summary = "Add Crypto")
     @ApiResponses(value = {

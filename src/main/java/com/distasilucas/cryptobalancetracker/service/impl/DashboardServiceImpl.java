@@ -50,7 +50,6 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public Optional<CryptoBalanceResponse> retrieveCoinBalance(String coinId) {
-        utilValidations.validateCryptoIdFormat(coinId);
         log.info("Retrieving balances for coin [{}]", coinId);
         Optional<List<Crypto>> allCoins = cryptoRepository.findAllByCoinId(coinId);
 
