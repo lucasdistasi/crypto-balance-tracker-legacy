@@ -42,7 +42,7 @@ public class CryptoServiceImpl implements CryptoService {
 
     @Override
     public CryptoResponse getCoin(String coinId) {
-        utilValidations.validateCryptoIdFormat(coinId);
+        utilValidations.validateIdMongoEntityFormat(coinId);
         Optional<Crypto> optionalCrypto = cryptoRepository.findById(coinId);
 
         if (optionalCrypto.isEmpty())
@@ -115,7 +115,7 @@ public class CryptoServiceImpl implements CryptoService {
 
     @Override
     public void deleteCoin(String coinId) {
-        utilValidations.validateCryptoIdFormat(coinId);
+        utilValidations.validateIdMongoEntityFormat(coinId);
         cryptoRepository.findById(coinId)
                 .ifPresentOrElse(crypto -> {
                     log.info("Deleted crypto [{}] in platform id [{}]", crypto.getName(), crypto.getPlatformId());

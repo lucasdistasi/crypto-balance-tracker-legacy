@@ -21,6 +21,9 @@ public class ExceptionConstants {
     public static final String ERROR_VALIDATING_JSON_SCHEMA = "Error validating Json Schema %s";
     public static final String INVALID_CRYPTO_QUANTITY = String.format("Quantity must be greater than 0 and less than %s", MAX_CRYPTO_QUANTITY);
     public static final String USERNAME_NOT_FOUND = "Username not found";
-    public static final String INVALID_CRYPTO_ID_FORMAT = "Invalid crypto ID format";
+    public static final String INVALID_ID_MONGO_FORMAT = "Invalid ID format";
+    public static final String GOAL_ID_NOT_FOUND = "Goal with ID %s not found";
+    public static final String DUPLICATED_GOAL = "Goal for %s already exists";
+    public static final String GOAL_CRYPTO_NOT_FOUND = "You must own %s to set a Goal";
 
 }

@@ -1,10 +1,6 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
-import com.distasilucas.cryptobalancetracker.exception.ApiException;
-import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
-import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
-import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformCoinException;
-import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.*;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
@@ -54,6 +50,32 @@ class ExceptionControllerTest {
                 () -> assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode()),
                 () -> assertEquals(1, responseEntity.getBody().errors().size()),
                 () -> assertEquals(platformNotFoundException.getErrorMessage(), responseEntity.getBody().errors().get(0).errorMessage())
+        );
+    }
+
+    @Test
+    void shouldHandleGoalNotFoundException() {
+        var goalNotFoundException = new GoalNotFoundException("Goal not found");
+        var responseEntity = exceptionController.handleGoalNotFoundException(goalNotFoundException);
+
+        assertNotNull(responseEntity.getBody());
+        assertAll(
+                () -> assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode()),
+                () -> assertEquals(1, responseEntity.getBody().errors().size()),
+                () -> assertEquals(goalNotFoundException.getErrorMessage(), responseEntity.getBody().errors().get(0).errorMessage())
+        );
+    }
+
+    @Test
+    void shouldHandleGoalDuplicatedException() {
+        var goalDuplicated = new GoalDuplicatedException("Goal duplicated");
+        var responseEntity = exceptionController.handleGoalDuplicatedException(goalDuplicated);
+
+        assertNotNull(responseEntity.getBody());
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode()),
+                () -> assertEquals(1, responseEntity.getBody().errors().size()),
+                () -> assertEquals(goalDuplicated.getErrorMessage(), responseEntity.getBody().errors().get(0).errorMessage())
         );
     }
 

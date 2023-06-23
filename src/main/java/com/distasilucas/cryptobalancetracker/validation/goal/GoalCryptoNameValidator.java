@@ -1,18 +1,18 @@
-package com.distasilucas.cryptobalancetracker.validation.crypto;
+package com.distasilucas.cryptobalancetracker.validation.goal;
 
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
-import com.distasilucas.cryptobalancetracker.model.request.AddCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.AddGoalRequest;
 import com.distasilucas.cryptobalancetracker.validation.EntityValidation;
 import org.springframework.stereotype.Service;
 
 import static com.distasilucas.cryptobalancetracker.constant.RegexConstants.CRYPTO_NAME_REGEX_VALIDATION;
 
 @Service
-public class CryptoNameValidator implements EntityValidation<AddCryptoRequest> {
+public class GoalCryptoNameValidator implements EntityValidation<AddGoalRequest> {
 
     @Override
-    public void validate(AddCryptoRequest cryptoRequest) {
-        String coinName = cryptoRequest.getCoinName();
+    public void validate(AddGoalRequest addGoalRequest) {
+        String coinName = addGoalRequest.cryptoName();
 
         if (!coinName.matches(CRYPTO_NAME_REGEX_VALIDATION)) {
             throw new ApiValidationException("Invalid crypto name");
