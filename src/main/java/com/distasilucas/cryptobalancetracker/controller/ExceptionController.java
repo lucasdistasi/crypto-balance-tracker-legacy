@@ -1,10 +1,6 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
-import com.distasilucas.cryptobalancetracker.exception.ApiException;
-import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
-import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
-import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformCoinException;
-import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.*;
 import com.distasilucas.cryptobalancetracker.model.error.Error;
 import com.distasilucas.cryptobalancetracker.model.error.ErrorResponse;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -50,6 +46,30 @@ public class ExceptionController {
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), Collections.singletonList(error));
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(value = GoalNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleGoalNotFoundException(GoalNotFoundException goalNotFoundException) {
+        log.warn("A GoalNotFoundException has occurred: ", goalNotFoundException);
+
+        Error error = new Error(goalNotFoundException.getErrorMessage());
+
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), Collections.singletonList(error));
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(value = GoalDuplicatedException.class)
+    public ResponseEntity<ErrorResponse> handleGoalDuplicatedException(GoalDuplicatedException goalDuplicatedException) {
+        log.warn("A GoalDuplicatedException has occurred: ", goalDuplicatedException);
+
+        Error error = new Error(goalDuplicatedException.getErrorMessage());
+
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), Collections.singletonList(error));
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(errorResponse);
     }
 

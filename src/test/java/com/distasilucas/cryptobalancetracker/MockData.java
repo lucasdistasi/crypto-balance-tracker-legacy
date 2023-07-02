@@ -1,6 +1,7 @@
 package com.distasilucas.cryptobalancetracker;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.Goal;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
@@ -9,6 +10,7 @@ import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.model.request.AddCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.PlatformRequest;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.*;
+import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
 
 import java.math.BigDecimal;
@@ -73,6 +75,7 @@ public class MockData {
                         .coinId("bitcoin")
                         .quantity(BigDecimal.valueOf(1.15))
                         .platformId("1234")
+                        .lastKnownPrice(BigDecimal.valueOf(30_000))
                         .build()
         );
     }
@@ -136,6 +139,27 @@ public class MockData {
                 .lastKnownPriceInEUR(BigDecimal.valueOf(24000))
                 .lastKnownPriceInBTC(BigDecimal.ONE)
                 .build();
+    }
+
+    public static GoalResponse getGoalResponse() {
+        return new GoalResponse(
+                "ABC123",
+                "bitcoin",
+                BigDecimal.valueOf(0.5),
+                BigDecimal.valueOf(50),
+                BigDecimal.valueOf(0.5),
+                BigDecimal.ONE,
+                BigDecimal.valueOf(10_000)
+        );
+    }
+
+    public static Goal getGoal() {
+        return new Goal(
+                "ABC123",
+                "bitcoin",
+                "bitcoin",
+                BigDecimal.ONE
+        );
     }
 
     private static void setPercentage(CoinResponse coinResponse) {

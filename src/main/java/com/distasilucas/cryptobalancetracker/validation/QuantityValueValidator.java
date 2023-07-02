@@ -1,21 +1,18 @@
-package com.distasilucas.cryptobalancetracker.validation.crypto;
+package com.distasilucas.cryptobalancetracker.validation;
 
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
-import com.distasilucas.cryptobalancetracker.model.request.CryptoRequest;
-import com.distasilucas.cryptobalancetracker.validation.EntityValidation;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
 import static com.distasilucas.cryptobalancetracker.constant.Constants.MAX_CRYPTO_QUANTITY;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.INVALID_CRYPTO_QUANTITY;
 
-@Component
-public class QuantityValueValidator<T extends CryptoRequest> implements EntityValidation<T> {
+@Service
+public class QuantityValueValidator {
 
-    @Override
-    public void validate(T cryptoRequest) {
-        if (!isValid(cryptoRequest.getQuantity())) {
+    public void validateCryptoQuantity(BigDecimal quantity) {
+        if (!isValid(quantity)) {
             throw new ApiValidationException(INVALID_CRYPTO_QUANTITY);
         }
     }
