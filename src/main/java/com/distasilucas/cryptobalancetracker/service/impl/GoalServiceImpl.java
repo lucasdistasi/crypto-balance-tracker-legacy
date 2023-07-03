@@ -49,7 +49,7 @@ public class GoalServiceImpl implements GoalService {
         return goalRepository.findAll()
                 .stream()
                 .map(goalResponseMapper::mapFrom)
-                .sorted(Comparator.comparing(GoalResponse::progress).reversed())
+                .sorted(Comparator.comparing(GoalResponse::moneyNeeded))
                 .toList();
     }
 

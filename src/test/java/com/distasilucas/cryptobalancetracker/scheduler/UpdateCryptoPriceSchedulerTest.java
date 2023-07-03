@@ -37,29 +37,11 @@ class UpdateCryptoPriceSchedulerTest {
 
     @BeforeEach
     void setUp() {
-        updateCryptoPriceScheduler = new UpdateCryptoPriceScheduler(clock, cryptoRepositoryMock, updateCryptoSchedulerMapperImplMock);
+        updateCryptoPriceScheduler = new UpdateCryptoPriceScheduler(9, clock, cryptoRepositoryMock, updateCryptoSchedulerMapperImplMock);
     }
 
     @Test
-    void shouldExecuteSchedulerWithMinLimit() {
-        var localDateMinusFiveMinutes = LocalDateTime.of(2023, 5, 3, 18, 55, 0);
-        var zonedDateTime = ZonedDateTime.of(2023, 5, 3, 19, 0, 0, 0, ZoneId.of("UTC"));
-        var cryptos = MockData.getAllCryptos();
-
-        when(clock.getZone()).thenReturn(zonedDateTime.getZone());
-        when(clock.instant()).thenReturn(zonedDateTime.toInstant());
-        when(cryptoRepositoryMock.findTopNCryptosOrderByLastPriceUpdatedAtAsc(localDateMinusFiveMinutes, 8)).thenReturn(cryptos);
-        when(cryptoRepositoryMock.findAllByCoinId("bitcoin")).thenReturn(Optional.of(cryptos));
-        when(updateCryptoSchedulerMapperImplMock.mapFrom(cryptos.get(0))).thenReturn(cryptos.get(0));
-
-        updateCryptoPriceScheduler.updateCryptosMarketData();
-
-        verify(updateCryptoSchedulerMapperImplMock, times(1)).mapFrom(cryptos.get(0));
-        verify(cryptoRepositoryMock, times(1)).saveAll(cryptos);
-    }
-
-    @Test
-    void shouldExecuteSchedulerWithMaxLimit() {
+    void shouldExecuteScheduler() {
         var localDateMinusFiveMinutes = LocalDateTime.of(2023, 5, 3, 18, 55, 0);
         var zonedDateTime = ZonedDateTime.of(2023, 5, 3, 19, 0, 0, 0, ZoneId.of("UTC"));
         var cryptos = MockData.getAllCryptos();
@@ -67,37 +49,13 @@ class UpdateCryptoPriceSchedulerTest {
 
         when(clock.getZone()).thenReturn(zonedDateTime.getZone());
         when(clock.instant()).thenReturn(zonedDateTime.toInstant());
-        when(cryptoRepositoryMock.findTopNCryptosOrderByLastPriceUpdatedAtAsc(localDateMinusFiveMinutes, 8)).thenReturn(maxCryptos);
+        when(cryptoRepositoryMock.findTopNCryptosOrderByLastPriceUpdatedAtAsc(localDateMinusFiveMinutes, 9)).thenReturn(maxCryptos);
         when(cryptoRepositoryMock.findAllByCoinId(any())).thenReturn(Optional.of(cryptos));
         when(updateCryptoSchedulerMapperImplMock.mapFrom(cryptos.get(0))).thenReturn(cryptos.get(0));
 
         updateCryptoPriceScheduler.updateCryptosMarketData();
 
         verify(cryptoRepositoryMock, times(7)).saveAll(cryptos);
-    }
-
-    @Test
-    void shouldExecuteSchedulerWithMinLimitWhenOccurrencesArGreaterThanMaxLimit() {
-        var localDateMinusFiveMinutes = LocalDateTime.of(2023, 5, 3, 18, 55, 0);
-        var zonedDateTime = ZonedDateTime.of(2023, 5, 3, 19, 0, 0, 0, ZoneId.of("UTC"));
-        var cryptos = MockData.getAllCryptos();
-        var maxCryptos = getMaxCryptos();
-        maxCryptos.add(Crypto.builder().coinId("doge").build());
-        maxCryptos.add(Crypto.builder().coinId("shiba").build());
-        maxCryptos.add(Crypto.builder().coinId("pepe").build());
-        maxCryptos.add(Crypto.builder().coinId("kadena").build());
-
-        when(clock.getZone()).thenReturn(zonedDateTime.getZone());
-        when(clock.instant()).thenReturn(zonedDateTime.toInstant());
-        when(cryptoRepositoryMock.findTopNCryptosOrderByLastPriceUpdatedAtAsc(localDateMinusFiveMinutes, 8)).thenReturn(maxCryptos);
-        when(cryptoRepositoryMock.findTopNCryptosOrderByLastPriceUpdatedAtAsc(localDateMinusFiveMinutes, 5)).thenReturn(cryptos);
-        when(cryptoRepositoryMock.findAllByCoinId("bitcoin")).thenReturn(Optional.of(cryptos));
-        when(updateCryptoSchedulerMapperImplMock.mapFrom(cryptos.get(0))).thenReturn(cryptos.get(0));
-
-        updateCryptoPriceScheduler.updateCryptosMarketData();
-
-        verify(updateCryptoSchedulerMapperImplMock, times(1)).mapFrom(cryptos.get(0));
-        verify(cryptoRepositoryMock, times(1)).saveAll(cryptos);
     }
 
     private List<Crypto> getMaxCryptos() {
