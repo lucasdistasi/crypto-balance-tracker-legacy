@@ -17,7 +17,13 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 import java.util.Optional;
 
-import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.*;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.APPLICATION_JSON;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.BAD_REQUEST_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.INTERNAL_SERVER_ERROR;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.INTERNAL_SERVER_ERROR_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.INVALID_DATA;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.NO_CONTENT_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.OK_CODE;
 
 public interface DashboardControllerApi {
 

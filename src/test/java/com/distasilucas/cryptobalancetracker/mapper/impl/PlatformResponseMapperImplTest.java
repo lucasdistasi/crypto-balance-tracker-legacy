@@ -2,7 +2,7 @@ package com.distasilucas.cryptobalancetracker.mapper.impl;
 
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.model.request.PlatformRequest;
+import com.distasilucas.cryptobalancetracker.mapper.impl.platform.PlatformResponseMapperImpl;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
 import org.junit.jupiter.api.Test;
 

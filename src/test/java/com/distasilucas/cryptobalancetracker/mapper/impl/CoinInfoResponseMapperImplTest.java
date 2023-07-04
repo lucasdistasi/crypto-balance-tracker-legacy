@@ -2,6 +2,7 @@ package com.distasilucas.cryptobalancetracker.mapper.impl;
 
 import com.distasilucas.cryptobalancetracker.MockData;
 import com.distasilucas.cryptobalancetracker.mapper.BiFunctionMapper;
+import com.distasilucas.cryptobalancetracker.mapper.impl.dashboard.CoinInfoResponseMapperImpl;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinInfoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoBalanceResponse;
 import org.junit.jupiter.api.Test;

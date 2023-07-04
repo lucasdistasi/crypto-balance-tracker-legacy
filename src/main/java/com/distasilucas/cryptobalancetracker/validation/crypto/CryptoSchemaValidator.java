@@ -1,7 +1,7 @@
 package com.distasilucas.cryptobalancetracker.validation.crypto;
 
-import com.distasilucas.cryptobalancetracker.model.request.AddCryptoRequest;
-import com.distasilucas.cryptobalancetracker.model.request.UpdateCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.crypto.UpdateCryptoRequest;
 import com.distasilucas.cryptobalancetracker.validation.JsonSchemaValidationService;
 import com.distasilucas.cryptobalancetracker.validation.PlatformNameValidator;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
