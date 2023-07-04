@@ -5,8 +5,8 @@ import com.distasilucas.cryptobalancetracker.entity.Goal;
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
 import com.distasilucas.cryptobalancetracker.exception.GoalNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.model.request.AddGoalRequest;
-import com.distasilucas.cryptobalancetracker.model.request.UpdateGoalRequest;
+import com.distasilucas.cryptobalancetracker.model.request.goal.AddGoalRequest;
+import com.distasilucas.cryptobalancetracker.model.request.goal.UpdateGoalRequest;
 import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
 import com.distasilucas.cryptobalancetracker.repository.GoalRepository;
 import com.distasilucas.cryptobalancetracker.service.GoalService;
@@ -24,8 +24,16 @@ import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.GOAL_ID_NOT_FOUND;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.INVALID_ID_MONGO_FORMAT;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GoalServiceImplTest {

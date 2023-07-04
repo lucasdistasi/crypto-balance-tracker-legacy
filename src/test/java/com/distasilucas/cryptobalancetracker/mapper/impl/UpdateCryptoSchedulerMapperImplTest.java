@@ -3,6 +3,7 @@ package com.distasilucas.cryptobalancetracker.mapper.impl;
 import com.distasilucas.cryptobalancetracker.MockData;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
+import com.distasilucas.cryptobalancetracker.mapper.impl.scheduler.UpdateCryptoSchedulerMapperImpl;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,11 +14,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.math.BigDecimal;
-import java.time.*;
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UpdateCryptoSchedulerMapperImplTest {

@@ -1,4 +1,4 @@
-package com.distasilucas.cryptobalancetracker.model.request;
+package com.distasilucas.cryptobalancetracker.model.request.goal;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

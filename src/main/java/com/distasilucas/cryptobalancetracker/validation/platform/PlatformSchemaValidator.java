@@ -1,6 +1,6 @@
 package com.distasilucas.cryptobalancetracker.validation.platform;
 
-import com.distasilucas.cryptobalancetracker.model.request.PlatformRequest;
+import com.distasilucas.cryptobalancetracker.model.request.platform.PlatformRequest;
 import com.distasilucas.cryptobalancetracker.validation.JsonSchemaValidationService;
 import com.distasilucas.cryptobalancetracker.validation.PlatformNameValidator;
 import com.distasilucas.cryptobalancetracker.validation.Validation;

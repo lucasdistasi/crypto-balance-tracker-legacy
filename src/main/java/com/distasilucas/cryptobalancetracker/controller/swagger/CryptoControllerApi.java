@@ -1,8 +1,8 @@
 package com.distasilucas.cryptobalancetracker.controller.swagger;
 
 import com.distasilucas.cryptobalancetracker.model.error.ErrorResponse;
-import com.distasilucas.cryptobalancetracker.model.request.AddCryptoRequest;
-import com.distasilucas.cryptobalancetracker.model.request.UpdateCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.crypto.UpdateCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.PageCryptoResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,7 +14,18 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Optional;
 
-import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.*;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.APPLICATION_JSON;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.BAD_REQUEST_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.CRYPTO_NOT_FOUND_DESCRIPTION;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.CRYPTO_OR_PLATFORM_NOT_FOUND_DESCRIPTION;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.FORBIDDEN_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.INTERNAL_SERVER_ERROR;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.INTERNAL_SERVER_ERROR_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.INVALID_DATA;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.NOT_FOUND_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.NO_CONTENT_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.OK_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.RESOURCE_CREATED_CODE;
 
 public interface CryptoControllerApi {
 

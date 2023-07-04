@@ -1,4 +1,4 @@
-package com.distasilucas.cryptobalancetracker.mapper.impl;
+package com.distasilucas.cryptobalancetracker.mapper.impl.platform;
 
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;

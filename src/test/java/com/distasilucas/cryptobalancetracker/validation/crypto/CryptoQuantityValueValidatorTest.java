@@ -1,6 +1,6 @@
 package com.distasilucas.cryptobalancetracker.validation.crypto;
 
-import com.distasilucas.cryptobalancetracker.model.request.AddCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoRequest;
 import com.distasilucas.cryptobalancetracker.validation.EntityValidation;
 import com.distasilucas.cryptobalancetracker.validation.QuantityValueValidator;
 import org.junit.jupiter.api.BeforeEach;

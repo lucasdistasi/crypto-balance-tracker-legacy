@@ -1,7 +1,7 @@
 package com.distasilucas.cryptobalancetracker.service;
 
 import com.distasilucas.cryptobalancetracker.entity.Platform;
-import com.distasilucas.cryptobalancetracker.model.request.PlatformRequest;
+import com.distasilucas.cryptobalancetracker.model.request.platform.PlatformRequest;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
 
 import java.util.List;

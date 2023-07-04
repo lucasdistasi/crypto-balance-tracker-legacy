@@ -1,8 +1,8 @@
 package com.distasilucas.cryptobalancetracker.controller.swagger;
 
 import com.distasilucas.cryptobalancetracker.model.error.ErrorResponse;
-import com.distasilucas.cryptobalancetracker.model.request.AddGoalRequest;
-import com.distasilucas.cryptobalancetracker.model.request.UpdateGoalRequest;
+import com.distasilucas.cryptobalancetracker.model.request.goal.AddGoalRequest;
+import com.distasilucas.cryptobalancetracker.model.request.goal.UpdateGoalRequest;
 import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -14,7 +14,15 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
-import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.*;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.APPLICATION_JSON;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.BAD_REQUEST_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.INTERNAL_SERVER_ERROR;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.INTERNAL_SERVER_ERROR_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.INVALID_DATA;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.NOT_FOUND_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.NO_CONTENT_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.OK_CODE;
+import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.RESOURCE_CREATED_CODE;
 
 public interface GoalControllerApi {
 

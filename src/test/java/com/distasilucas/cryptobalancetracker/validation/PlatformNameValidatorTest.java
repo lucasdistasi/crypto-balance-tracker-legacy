@@ -1,8 +1,8 @@
 package com.distasilucas.cryptobalancetracker.validation;
 
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
-import com.distasilucas.cryptobalancetracker.model.request.AddCryptoRequest;
-import com.distasilucas.cryptobalancetracker.model.request.PlatformRequest;
+import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.platform.PlatformRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;

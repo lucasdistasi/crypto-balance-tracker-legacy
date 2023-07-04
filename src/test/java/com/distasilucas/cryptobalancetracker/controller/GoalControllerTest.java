@@ -1,8 +1,8 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.MockData;
-import com.distasilucas.cryptobalancetracker.model.request.AddGoalRequest;
-import com.distasilucas.cryptobalancetracker.model.request.UpdateGoalRequest;
+import com.distasilucas.cryptobalancetracker.model.request.goal.AddGoalRequest;
+import com.distasilucas.cryptobalancetracker.model.request.goal.UpdateGoalRequest;
 import com.distasilucas.cryptobalancetracker.service.GoalService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,10 @@ import org.springframework.http.HttpStatus;
 import java.math.BigDecimal;
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 

@@ -1,8 +1,8 @@
 package com.distasilucas.cryptobalancetracker.validation.goal;
 
-import com.distasilucas.cryptobalancetracker.model.request.AddGoalRequest;
-import com.distasilucas.cryptobalancetracker.model.request.GoalRequest;
-import com.distasilucas.cryptobalancetracker.model.request.UpdateGoalRequest;
+import com.distasilucas.cryptobalancetracker.model.request.goal.AddGoalRequest;
+import com.distasilucas.cryptobalancetracker.model.request.goal.GoalRequest;
+import com.distasilucas.cryptobalancetracker.model.request.goal.UpdateGoalRequest;
 import com.distasilucas.cryptobalancetracker.validation.EntityValidation;
 import com.distasilucas.cryptobalancetracker.validation.QuantityValueValidator;
 import org.junit.jupiter.api.BeforeEach;

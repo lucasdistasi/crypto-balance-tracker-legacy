@@ -1,6 +1,6 @@
 package com.distasilucas.cryptobalancetracker.validation.goal;
 
-import com.distasilucas.cryptobalancetracker.model.request.GoalRequest;
+import com.distasilucas.cryptobalancetracker.model.request.goal.GoalRequest;
 import com.distasilucas.cryptobalancetracker.validation.EntityValidation;
 import com.distasilucas.cryptobalancetracker.validation.QuantityValueValidator;
 import lombok.RequiredArgsConstructor;

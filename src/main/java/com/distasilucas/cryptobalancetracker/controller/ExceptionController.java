@@ -1,6 +1,12 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
-import com.distasilucas.cryptobalancetracker.exception.*;
+import com.distasilucas.cryptobalancetracker.exception.ApiException;
+import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
+import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformCoinException;
+import com.distasilucas.cryptobalancetracker.exception.GoalDuplicatedException;
+import com.distasilucas.cryptobalancetracker.exception.GoalNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.error.Error;
 import com.distasilucas.cryptobalancetracker.model.error.ErrorResponse;
 import com.fasterxml.jackson.core.JsonParseException;

@@ -1,8 +1,8 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.controller.swagger.GoalControllerApi;
-import com.distasilucas.cryptobalancetracker.model.request.AddGoalRequest;
-import com.distasilucas.cryptobalancetracker.model.request.UpdateGoalRequest;
+import com.distasilucas.cryptobalancetracker.model.request.goal.AddGoalRequest;
+import com.distasilucas.cryptobalancetracker.model.request.goal.UpdateGoalRequest;
 import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
 import com.distasilucas.cryptobalancetracker.service.GoalService;
 import lombok.RequiredArgsConstructor;

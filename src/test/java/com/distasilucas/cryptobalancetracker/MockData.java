@@ -7,9 +7,14 @@ import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CurrentPrice;
 import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
-import com.distasilucas.cryptobalancetracker.model.request.AddCryptoRequest;
-import com.distasilucas.cryptobalancetracker.model.request.PlatformRequest;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.*;
+import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.platform.PlatformRequest;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinInfoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoPlatformBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.PageCryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
 

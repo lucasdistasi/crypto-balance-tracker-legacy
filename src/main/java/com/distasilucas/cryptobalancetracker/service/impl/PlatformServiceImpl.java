@@ -4,7 +4,7 @@ import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.model.request.PlatformRequest;
+import com.distasilucas.cryptobalancetracker.model.request.platform.PlatformRequest;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;

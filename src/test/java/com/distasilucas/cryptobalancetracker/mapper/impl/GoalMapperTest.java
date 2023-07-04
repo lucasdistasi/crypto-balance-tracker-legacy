@@ -7,9 +7,9 @@ import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.GoalDuplicatedException;
 import com.distasilucas.cryptobalancetracker.exception.GoalNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
-import com.distasilucas.cryptobalancetracker.model.request.AddGoalRequest;
-import com.distasilucas.cryptobalancetracker.model.request.UpdateGoalRequest;
+import com.distasilucas.cryptobalancetracker.mapper.impl.goal.GoalMapper;
+import com.distasilucas.cryptobalancetracker.model.request.goal.AddGoalRequest;
+import com.distasilucas.cryptobalancetracker.model.request.goal.UpdateGoalRequest;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.GoalRepository;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
@@ -22,8 +22,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.COIN_NAME_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.DUPLICATED_GOAL;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.GOAL_CRYPTO_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.GOAL_ID_NOT_FOUND;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)

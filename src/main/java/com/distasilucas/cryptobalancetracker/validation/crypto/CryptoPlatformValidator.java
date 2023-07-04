@@ -6,9 +6,9 @@ import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
 import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
-import com.distasilucas.cryptobalancetracker.model.request.AddCryptoRequest;
-import com.distasilucas.cryptobalancetracker.model.request.CryptoRequest;
-import com.distasilucas.cryptobalancetracker.model.request.UpdateCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.crypto.CryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.crypto.UpdateCryptoRequest;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
@@ -19,7 +19,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.*;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.COIN_ID_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.COIN_NAME_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.DUPLICATED_PLATFORM_COIN;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.PLATFORM_NOT_FOUND;
 
 @Slf4j
 @Service

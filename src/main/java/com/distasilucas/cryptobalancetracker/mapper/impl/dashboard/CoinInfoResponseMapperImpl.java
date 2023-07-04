@@ -1,4 +1,4 @@
-package com.distasilucas.cryptobalancetracker.mapper.impl;
+package com.distasilucas.cryptobalancetracker.mapper.impl.dashboard;
 
 import com.distasilucas.cryptobalancetracker.comparator.DescendingBalanceComparator;
 import com.distasilucas.cryptobalancetracker.mapper.BiFunctionMapper;

@@ -2,8 +2,8 @@ package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.controller.helper.ControllerHelper;
 import com.distasilucas.cryptobalancetracker.controller.swagger.CryptoControllerApi;
-import com.distasilucas.cryptobalancetracker.model.request.AddCryptoRequest;
-import com.distasilucas.cryptobalancetracker.model.request.UpdateCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.crypto.UpdateCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.PageCryptoResponse;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
