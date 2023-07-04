@@ -3,8 +3,8 @@ package com.distasilucas.cryptobalancetracker.scheduler;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -16,19 +16,26 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class UpdateCryptoPriceScheduler {
 
+    private final int maxLimit;
     private final Clock clock;
     private final CryptoRepository cryptoRepository;
     private final EntityMapper<Crypto, Crypto> updateCryptoSchedulerMapperImpl;
 
+    public UpdateCryptoPriceScheduler(@Value("${max-limit-crypto}") int maxLimit,
+                                      Clock clock,
+                                      CryptoRepository cryptoRepository,
+                                      EntityMapper<Crypto, Crypto> updateCryptoSchedulerMapperImpl) {
+        this.maxLimit = maxLimit;
+        this.clock = clock;
+        this.cryptoRepository = cryptoRepository;
+        this.updateCryptoSchedulerMapperImpl = updateCryptoSchedulerMapperImpl;
+    }
+
     @Scheduled(cron = "0 */3 * ? * *")
     public void updateCryptosMarketData() {
-        int maxLimit = 8;
-        LocalDateTime lastUpdatedPrice = LocalDateTime.now(clock).minusMinutes(5);
-        Set<String> lastMaxLimitCryptos = getLatestCryptosIds(lastUpdatedPrice, maxLimit);
-        Set<String> cryptosToUpdate = lastMaxLimitCryptos.size() <= maxLimit ? lastMaxLimitCryptos : getLatestCryptosIds(lastUpdatedPrice, 5);
+        Set<String> cryptosToUpdate = getCryptosToUpdate();
 
         cryptosToUpdate.forEach(coinId -> {
             log.info("Running cron to update last known price for [{}]", coinId);
@@ -45,8 +52,10 @@ public class UpdateCryptoPriceScheduler {
         });
     }
 
-    private Set<String> getLatestCryptosIds(LocalDateTime lastUpdatedPrice, int limit) {
-        return cryptoRepository.findTopNCryptosOrderByLastPriceUpdatedAtAsc(lastUpdatedPrice, limit)
+    private Set<String> getCryptosToUpdate() {
+        LocalDateTime lastUpdatedPrice = LocalDateTime.now(clock).minusMinutes(5);
+
+        return cryptoRepository.findTopNCryptosOrderByLastPriceUpdatedAtAsc(lastUpdatedPrice, maxLimit)
                 .stream()
                 .map(Crypto::getCoinId)
                 .collect(Collectors.toSet());

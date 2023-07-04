@@ -43,3 +43,5 @@ management:
 
 allowed:
   origins: "http://localhost:5173"
+
+max-limit-crypto: 9
