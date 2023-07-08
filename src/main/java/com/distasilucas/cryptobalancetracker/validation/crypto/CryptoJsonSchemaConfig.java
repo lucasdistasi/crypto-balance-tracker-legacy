@@ -17,4 +17,9 @@ public class CryptoJsonSchemaConfig implements JsonSchemaValidator {
     public Schema updateCryptoJsonSchemaValidator() {
         return validateJsonSchema(getClass().getResourceAsStream("/schemas/crypto/updateCryptoSchema.json"));
     }
+
+    @Bean
+    public Schema transferCryptoJsonSchemaValidator() {
+        return validateJsonSchema(getClass().getResourceAsStream("/schemas/crypto/transferCryptoSchema.json"));
+    }
 }

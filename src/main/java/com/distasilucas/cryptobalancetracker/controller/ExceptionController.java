@@ -6,6 +6,7 @@ import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformCoinException;
 import com.distasilucas.cryptobalancetracker.exception.GoalDuplicatedException;
 import com.distasilucas.cryptobalancetracker.exception.GoalNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.InsufficientBalanceException;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.error.Error;
 import com.distasilucas.cryptobalancetracker.model.error.ErrorResponse;
@@ -64,6 +65,18 @@ public class ExceptionController {
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), Collections.singletonList(error));
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(value = InsufficientBalanceException.class)
+    public ResponseEntity<ErrorResponse> handleInsufficientBalanceException(InsufficientBalanceException insufficientBalanceException) {
+        log.warn("A InsufficientBalanceException has occurred: ", insufficientBalanceException);
+
+        Error error = new Error(insufficientBalanceException.getErrorMessage());
+
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), Collections.singletonList(error));
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(errorResponse);
     }
 
