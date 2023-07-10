@@ -1,6 +1,7 @@
 package com.distasilucas.cryptobalancetracker.validation.crypto;
 
 import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.crypto.TransferCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.UpdateCryptoRequest;
 import com.distasilucas.cryptobalancetracker.validation.JsonSchemaValidationService;
 import com.distasilucas.cryptobalancetracker.validation.PlatformNameValidator;
@@ -39,6 +40,15 @@ public class CryptoSchemaValidator {
                 cryptoQuantityValueValidator,
                 platformNameValidator,
                 cryptoPlatformValidator
+        );
+    }
+
+    @Bean
+    public Validation<TransferCryptoRequest> transferCryptoValidation(Schema transferCryptoJsonSchemaValidator,
+                                                                      TransferCryptoValidator transferCryptoValidator) {
+        return new Validation<>(
+                new JsonSchemaValidationService<>(transferCryptoJsonSchemaValidator),
+                transferCryptoValidator
         );
     }
 }

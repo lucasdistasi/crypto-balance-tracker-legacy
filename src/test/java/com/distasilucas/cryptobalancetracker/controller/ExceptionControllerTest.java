@@ -6,6 +6,7 @@ import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformCoinException;
 import com.distasilucas.cryptobalancetracker.exception.GoalDuplicatedException;
 import com.distasilucas.cryptobalancetracker.exception.GoalNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.InsufficientBalanceException;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -69,6 +70,19 @@ class ExceptionControllerTest {
                 () -> assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode()),
                 () -> assertEquals(1, responseEntity.getBody().errors().size()),
                 () -> assertEquals(goalNotFoundException.getErrorMessage(), responseEntity.getBody().errors().get(0).errorMessage())
+        );
+    }
+
+    @Test
+    void shouldHandleInsufficientBalanceException() {
+        var insufficientBalanceException = new InsufficientBalanceException("Insufficient balance");
+        var responseEntity = exceptionController.handleInsufficientBalanceException(insufficientBalanceException);
+
+        assertNotNull(responseEntity.getBody());
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode()),
+                () -> assertEquals(1, responseEntity.getBody().errors().size()),
+                () -> assertEquals(insufficientBalanceException.getErrorMessage(), responseEntity.getBody().errors().get(0).errorMessage())
         );
     }
 

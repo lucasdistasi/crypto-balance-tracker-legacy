@@ -3,10 +3,13 @@ package com.distasilucas.cryptobalancetracker.controller;
 import com.distasilucas.cryptobalancetracker.controller.helper.ControllerHelper;
 import com.distasilucas.cryptobalancetracker.controller.swagger.CryptoControllerApi;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.crypto.TransferCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.crypto.TransferCryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.UpdateCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.PageCryptoResponse;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
+import com.distasilucas.cryptobalancetracker.service.TransferCryptoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +35,7 @@ import java.util.Optional;
 public class CryptoController implements CryptoControllerApi, ControllerHelper {
 
     private final CryptoService cryptoService;
+    private final TransferCryptoService transferCryptoService;
 
     @Override
     @GetMapping("/{coinId}")
@@ -75,5 +79,12 @@ public class CryptoController implements CryptoControllerApi, ControllerHelper {
         cryptoService.deleteCoin(coinId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/transfer")
+    public ResponseEntity<TransferCryptoResponse> transferCrypto(@RequestBody TransferCryptoRequest transferCryptoRequest) {
+        TransferCryptoResponse response = transferCryptoService.transferCrypto(transferCryptoRequest);
+
+        return ResponseEntity.ok(response);
     }
 }

@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "title": "Transfer Crypto",
+  "type": "object",
+  "properties": {
+    "cryptoId" : {
+      "type": "string",
+      "minLength": 24,
+      "maxLength": 24
+    },
+    "quantity": {
+      "type": "number"
+    },
+    "networkFee": {
+      "type": "number"
+    },
+    "fromPlatform": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 24
+    },
+    "toPlatform": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 24
+    }
+  },
+  "required": [
+    "cryptoId",
+    "quantity",
+    "networkFee",
+    "fromPlatform",
+    "toPlatform"
+  ]
+}

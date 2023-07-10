@@ -1,9 +1,14 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.MockData;
+import com.distasilucas.cryptobalancetracker.model.request.crypto.FromPlatform;
+import com.distasilucas.cryptobalancetracker.model.request.crypto.ToPlatform;
+import com.distasilucas.cryptobalancetracker.model.request.crypto.TransferCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.crypto.TransferCryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.UpdateCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
+import com.distasilucas.cryptobalancetracker.service.TransferCryptoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,11 +34,14 @@ class CryptoControllerTest {
     @Mock
     CryptoService cryptoServiceMocK;
 
+    @Mock
+    TransferCryptoService transferCryptoServiceMock;
+
     CryptoController cryptoController;
 
     @BeforeEach
     void setUp() {
-        cryptoController = new CryptoController(cryptoServiceMocK);
+        cryptoController = new CryptoController(cryptoServiceMocK, transferCryptoServiceMock);
     }
 
     @Test
@@ -128,6 +136,31 @@ class CryptoControllerTest {
         assertNull(responseEntity.getBody());
         assertAll(
                 () -> assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode())
+        );
+    }
+
+    @Test
+    void shouldTransferCrypto() {
+        var fromPlatform = new FromPlatform();
+        var toPlatform = new ToPlatform();
+        var transferCryptoResponse = new TransferCryptoResponse(fromPlatform, toPlatform);
+
+        var transferCryptoRequest = new TransferCryptoRequest(
+                "bitcoin",
+                BigDecimal.valueOf(0.2),
+                BigDecimal.valueOf(0.001),
+                "Binance",
+                "Safepal"
+        );
+
+        when(transferCryptoServiceMock.transferCrypto(transferCryptoRequest))
+                .thenReturn(transferCryptoResponse);
+
+        var responseEntity = cryptoController.transferCrypto(transferCryptoRequest);
+
+        assertNotNull(responseEntity.getBody());
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode())
         );
     }
 }
