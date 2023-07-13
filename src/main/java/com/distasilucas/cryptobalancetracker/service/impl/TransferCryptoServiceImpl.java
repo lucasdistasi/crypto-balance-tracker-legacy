@@ -58,7 +58,7 @@ public class TransferCryptoServiceImpl implements TransferCryptoService {
         if (hasInsufficientBalance(actualCryptoQuantity, quantityToTransfer))
             throw new InsufficientBalanceException(NOT_ENOUGH_BALANCE);
 
-        Optional<Crypto> toPlatformOptionalCrypto = getToPlatformOptionalCrypto(transferCryptoRequest, toPlatform);
+        Optional<Crypto> toPlatformOptionalCrypto = getToPlatformOptionalCrypto(fromPlatformCrypto.getCoinId(), toPlatform);
         BigDecimal remainingCryptoQuantity = getRemainingCryptoQuantity(actualCryptoQuantity, totalToSubtract);
         ToPlatform to = new ToPlatform();
         FromPlatform from = new FromPlatform();
@@ -122,7 +122,7 @@ public class TransferCryptoServiceImpl implements TransferCryptoService {
     }
 
     private Crypto getFromPlatformCrypto(TransferCryptoRequest transferCryptoRequest, Platform fromPlatform) {
-        return cryptoRepository.findByCoinIdAndPlatformId(
+        return cryptoRepository.findByIdAndPlatformId(
                 transferCryptoRequest.getCryptoId(),
                 fromPlatform.getId()
         ).orElseThrow(() -> {
@@ -132,11 +132,8 @@ public class TransferCryptoServiceImpl implements TransferCryptoService {
         });
     }
 
-    private Optional<Crypto> getToPlatformOptionalCrypto(TransferCryptoRequest transferCryptoRequest, Platform toPlatform) {
-        return cryptoRepository.findByCoinIdAndPlatformId(
-                transferCryptoRequest.getCryptoId(),
-                toPlatform.getId()
-        );
+    private Optional<Crypto> getToPlatformOptionalCrypto(String coinId, Platform toPlatform) {
+        return cryptoRepository.findByCoinIdAndPlatformId(coinId, toPlatform.getId());
     }
 
     private boolean isToAndFromSame(Platform toPlatform, Platform fromPlatform) {
