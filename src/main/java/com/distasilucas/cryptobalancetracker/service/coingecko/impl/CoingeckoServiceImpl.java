@@ -5,16 +5,20 @@ import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.util.UriBuilder;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.Function;
 
@@ -41,7 +45,7 @@ public class CoingeckoServiceImpl implements CoingeckoService {
         log.info("Hitting Coingecko API... Retrieving all cryptos");
 
         return coingeckoWebClient.get()
-                .uri(getUriBuilder("/coins/list"))
+                .uri(getAllCoinsUriBuilder("/coins/list"))
                 .retrieve()
                 .bodyToFlux(Coin.class)
                 .collectList()
@@ -56,7 +60,7 @@ public class CoingeckoServiceImpl implements CoingeckoService {
         String uri = String.format("/coins/%s", coinId);
 
         CoinInfo coinInfo = coingeckoWebClient.get()
-                .uri(getUriBuilder(uri))
+                .uri(getCoinInfoUriBuilder(uri))
                 .retrieve()
                 .bodyToMono(CoinInfo.class)
                 .block();
@@ -64,12 +68,32 @@ public class CoingeckoServiceImpl implements CoingeckoService {
         return mapCoinInfo().apply(coinInfo);
     }
 
-    private Function<UriBuilder, URI> getUriBuilder(String url) {
-        Function<UriBuilder, URI> proCoingekoUri = uriBuilder -> uriBuilder.path(url)
+    private Function<UriBuilder, URI> getAllCoinsUriBuilder(String url) {
+        Function<UriBuilder, URI> proCoingeckoUri = uriBuilder -> uriBuilder.path(url)
                 .queryParam("x_cg_pro_api_key", coingeckoApiKey)
                 .build();
 
         Function<UriBuilder, URI> freeCoingekoUri = uriBuilder -> uriBuilder.path(url)
+                .build();
+
+        return StringUtils.isNotBlank(coingeckoApiKey) ?
+                proCoingeckoUri :
+                freeCoingekoUri;
+    }
+
+    private Function<UriBuilder, URI> getCoinInfoUriBuilder(String url) {
+        MultiValueMap<String, String> commonParams = new HttpHeaders();
+        commonParams.add("tickers", Boolean.FALSE.toString());
+        commonParams.add("community_data", Boolean.FALSE.toString());
+        commonParams.add("developer_data", Boolean.FALSE.toString());
+
+        Function<UriBuilder, URI> proCoingekoUri = uriBuilder -> uriBuilder.path(url)
+                .queryParam("x_cg_pro_api_key", coingeckoApiKey)
+                .queryParams(commonParams)
+                .build();
+
+        Function<UriBuilder, URI> freeCoingekoUri = uriBuilder -> uriBuilder.path(url)
+                .queryParams(commonParams)
                 .build();
 
         return StringUtils.isNotBlank(coingeckoApiKey) ?
