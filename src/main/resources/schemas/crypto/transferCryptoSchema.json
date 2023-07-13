@@ -14,11 +14,6 @@
     "networkFee": {
       "type": "number"
     },
-    "fromPlatform": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 24
-    },
     "toPlatform": {
       "type": "string",
       "minLength": 1,
@@ -29,7 +24,6 @@
     "cryptoId",
     "quantityToTransfer",
     "networkFee",
-    "fromPlatform",
     "toPlatform"
   ]
 }

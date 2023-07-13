@@ -12,6 +12,5 @@ public class TransferCryptoRequest {
     private String cryptoId;
     private BigDecimal quantityToTransfer;
     private BigDecimal networkFee;
-    private String fromPlatform;
     private String toPlatform;
 }
