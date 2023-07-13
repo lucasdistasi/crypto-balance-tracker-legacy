@@ -60,10 +60,10 @@ class TransferCryptoServiceImplTest {
     //  no remaining    |   hasn't the crypto   ---> Maybe it's easier to update FROM with the new platform and quantity
 
     @Test
-    // from has remaining   |   to has the crypto      ---> Update FROM and TO
+    // from has remaining   |   to has the crypto   ---> Update FROM and TO
     void shouldTransferToPlatformWithExistingCryptoAndHaveRemaining() {
         var transferCryptoRequest = new TransferCryptoRequest(
-                "bitcoin",
+                "ABC123",
                 BigDecimal.valueOf(0.5),
                 BigDecimal.valueOf(0.001),
                 "BINANCE",
@@ -80,6 +80,7 @@ class TransferCryptoServiceImplTest {
                 .build();
         var fromPlatformCrypto = Crypto.builder()
                 .name("Bitcoin")
+                .coinId("bitcoin")
                 .quantity(BigDecimal.valueOf(1.25))
                 .build();
         var toPlatformCrypto = Crypto.builder()
@@ -98,9 +99,9 @@ class TransferCryptoServiceImplTest {
                 .thenReturn(Optional.of(fromPlatform));
         when(platformRepositoryMock.findByName(transferCryptoRequest.getToPlatform()))
                 .thenReturn(Optional.of(toPlatform));
-        when(cryptoRepositoryMock.findByCoinIdAndPlatformId(transferCryptoRequest.getCryptoId(), fromPlatform.getId()))
+        when(cryptoRepositoryMock.findByIdAndPlatformId(transferCryptoRequest.getCryptoId(), fromPlatform.getId()))
                 .thenReturn(Optional.of(fromPlatformCrypto));
-        when(cryptoRepositoryMock.findByCoinIdAndPlatformId(transferCryptoRequest.getCryptoId(), toPlatform.getId()))
+        when(cryptoRepositoryMock.findByCoinIdAndPlatformId(fromPlatformCrypto.getCoinId(), toPlatform.getId()))
                 .thenReturn(Optional.of(toPlatformCrypto));
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
@@ -124,7 +125,7 @@ class TransferCryptoServiceImplTest {
     // from has remaining   |   to hasn't the crypto   ---> Update FROM. Add TO
     void shouldTransferToPlatformWithoutExistingCryptoAndHaveRemaining() {
         var transferCryptoRequest = new TransferCryptoRequest(
-                "bitcoin",
+                "ABC123",
                 BigDecimal.valueOf(0.5),
                 BigDecimal.valueOf(0.001),
                 "BINANCE",
@@ -141,6 +142,7 @@ class TransferCryptoServiceImplTest {
                 .build();
         var fromPlatformCrypto = Crypto.builder()
                 .name("Bitcoin")
+                .coinId("bitcoin")
                 .quantity(BigDecimal.valueOf(1.25))
                 .build();
 
@@ -152,9 +154,9 @@ class TransferCryptoServiceImplTest {
                 .thenReturn(Optional.of(fromPlatform));
         when(platformRepositoryMock.findByName(transferCryptoRequest.getToPlatform()))
                 .thenReturn(Optional.of(toPlatform));
-        when(cryptoRepositoryMock.findByCoinIdAndPlatformId(transferCryptoRequest.getCryptoId(), fromPlatform.getId()))
+        when(cryptoRepositoryMock.findByIdAndPlatformId(transferCryptoRequest.getCryptoId(), fromPlatform.getId()))
                 .thenReturn(Optional.of(fromPlatformCrypto));
-        when(cryptoRepositoryMock.findByCoinIdAndPlatformId(transferCryptoRequest.getCryptoId(), toPlatform.getId()))
+        when(cryptoRepositoryMock.findByCoinIdAndPlatformId(fromPlatformCrypto.getCoinId(), toPlatform.getId()))
                 .thenReturn(Optional.empty());
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
@@ -172,10 +174,10 @@ class TransferCryptoServiceImplTest {
     }
 
     @Test
-    // from no remaining    |   has the crypto      ---> Remove it from FROM. Update TO
+    // from no remaining    |   has the crypto   ---> Remove it from FROM. Update TO
     void shouldTransferToPlatformWithExistingCryptoAndNoRemaining() {
         var transferCryptoRequest = new TransferCryptoRequest(
-                "bitcoin",
+                "ABC123",
                 BigDecimal.valueOf(1.25),
                 BigDecimal.valueOf(0.001),
                 "BINANCE",
@@ -192,6 +194,7 @@ class TransferCryptoServiceImplTest {
                 .build();
         var fromPlatformCrypto = Crypto.builder()
                 .name("Bitcoin")
+                .coinId("bitcoin")
                 .quantity(BigDecimal.valueOf(1.25))
                 .build();
         var toPlatformCrypto = Crypto.builder()
@@ -206,9 +209,9 @@ class TransferCryptoServiceImplTest {
                 .thenReturn(Optional.of(fromPlatform));
         when(platformRepositoryMock.findByName(transferCryptoRequest.getToPlatform()))
                 .thenReturn(Optional.of(toPlatform));
-        when(cryptoRepositoryMock.findByCoinIdAndPlatformId(transferCryptoRequest.getCryptoId(), fromPlatform.getId()))
+        when(cryptoRepositoryMock.findByIdAndPlatformId(transferCryptoRequest.getCryptoId(), fromPlatform.getId()))
                 .thenReturn(Optional.of(fromPlatformCrypto));
-        when(cryptoRepositoryMock.findByCoinIdAndPlatformId(transferCryptoRequest.getCryptoId(), toPlatform.getId()))
+        when(cryptoRepositoryMock.findByCoinIdAndPlatformId(fromPlatformCrypto.getCoinId(), toPlatform.getId()))
                 .thenReturn(Optional.of(toPlatformCrypto));
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
@@ -229,10 +232,10 @@ class TransferCryptoServiceImplTest {
     }
 
     @Test
-    // from no remaining    |   hasn't the crypto   ---> Maybe it's easier to update FROM with the new platform and quantity
+    // from no remaining    |   hasn't the crypto    ---> Maybe it's easier to update FROM with the new platform and quantity
     void shouldTransferToPlatformWithoutExistingCryptoAndNoRemaining() {
         var transferCryptoRequest = new TransferCryptoRequest(
-                "bitcoin",
+                "ABC123",
                 BigDecimal.valueOf(1.25),
                 BigDecimal.valueOf(0.001),
                 "BINANCE",
@@ -249,6 +252,7 @@ class TransferCryptoServiceImplTest {
                 .build();
         var fromPlatformCrypto = Crypto.builder()
                 .name("Bitcoin")
+                .coinId("bitcoin")
                 .quantity(BigDecimal.valueOf(1.25))
                 .build();
 
@@ -264,9 +268,9 @@ class TransferCryptoServiceImplTest {
                 .thenReturn(Optional.of(fromPlatform));
         when(platformRepositoryMock.findByName(transferCryptoRequest.getToPlatform()))
                 .thenReturn(Optional.of(toPlatform));
-        when(cryptoRepositoryMock.findByCoinIdAndPlatformId(transferCryptoRequest.getCryptoId(), fromPlatform.getId()))
+        when(cryptoRepositoryMock.findByIdAndPlatformId(transferCryptoRequest.getCryptoId(), fromPlatform.getId()))
                 .thenReturn(Optional.of(fromPlatformCrypto));
-        when(cryptoRepositoryMock.findByCoinIdAndPlatformId(transferCryptoRequest.getCryptoId(), toPlatform.getId()))
+        when(cryptoRepositoryMock.findByCoinIdAndPlatformId(fromPlatformCrypto.getCoinId(), toPlatform.getId()))
                 .thenReturn(Optional.empty());
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
@@ -290,7 +294,7 @@ class TransferCryptoServiceImplTest {
     @Test
     void shouldThrowPlatformNotFoundExceptionForUnknownToPlatform() {
         var transferCryptoRequest = new TransferCryptoRequest(
-                "bitcoin",
+                "ABC123",
                 BigDecimal.valueOf(1.25),
                 BigDecimal.valueOf(0.001),
                 "BINANCE",
@@ -309,7 +313,7 @@ class TransferCryptoServiceImplTest {
     @Test
     void shouldThrowPlatformNotFoundExceptionForUnknownFromPlatform() {
         var transferCryptoRequest = new TransferCryptoRequest(
-                "bitcoin",
+                "ABC123",
                 BigDecimal.valueOf(1.25),
                 BigDecimal.valueOf(0.001),
                 "BINANCE",
@@ -334,7 +338,7 @@ class TransferCryptoServiceImplTest {
     @Test
     void shouldThrowExceptionIfFromPlatformAndToPlatformAreTheSame() {
         var transferCryptoRequest = new TransferCryptoRequest(
-                "bitcoin",
+                "ABC123",
                 BigDecimal.valueOf(1.25),
                 BigDecimal.valueOf(0.001),
                 "BINANCE",
@@ -360,7 +364,7 @@ class TransferCryptoServiceImplTest {
     @Test
     void shouldThrowCoinNotFoundExceptionIfCoinIsNotInFromPlatform() {
         var transferCryptoRequest = new TransferCryptoRequest(
-                "bitcoin",
+                "ABC123",
                 BigDecimal.valueOf(0.5),
                 BigDecimal.valueOf(0.001),
                 "BINANCE",
@@ -380,7 +384,7 @@ class TransferCryptoServiceImplTest {
                 .thenReturn(Optional.of(fromPlatform));
         when(platformRepositoryMock.findByName(transferCryptoRequest.getToPlatform()))
                 .thenReturn(Optional.of(toPlatform));
-        when(cryptoRepositoryMock.findByCoinIdAndPlatformId(
+        when(cryptoRepositoryMock.findByIdAndPlatformId(
                 transferCryptoRequest.getCryptoId(),
                 fromPlatform.getId()
         )).thenReturn(Optional.empty());
@@ -395,7 +399,7 @@ class TransferCryptoServiceImplTest {
     @Test
     void shouldThrowInsufficientBalanceExceptionIfQuantityToTransferIsHigherThanActualQuantity() {
         var transferCryptoRequest = new TransferCryptoRequest(
-                "bitcoin",
+                "ABC123",
                 BigDecimal.valueOf(15),
                 BigDecimal.valueOf(0.001),
                 "BINANCE",
@@ -419,7 +423,7 @@ class TransferCryptoServiceImplTest {
                 .thenReturn(Optional.of(fromPlatform));
         when(platformRepositoryMock.findByName(transferCryptoRequest.getToPlatform()))
                 .thenReturn(Optional.of(toPlatform));
-        when(cryptoRepositoryMock.findByCoinIdAndPlatformId(transferCryptoRequest.getCryptoId(), fromPlatform.getId()))
+        when(cryptoRepositoryMock.findByIdAndPlatformId(transferCryptoRequest.getCryptoId(), fromPlatform.getId()))
                 .thenReturn(Optional.of(fromPlatformCrypto));
 
         var exception = assertThrows(InsufficientBalanceException.class,

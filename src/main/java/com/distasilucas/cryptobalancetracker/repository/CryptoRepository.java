@@ -27,4 +27,5 @@ public interface CryptoRepository extends MongoRepository<Crypto, String> {
     })
     List<Crypto> findTopNCryptosOrderByLastPriceUpdatedAtAsc(LocalDateTime dateFilter, int limit);
     Optional<Crypto> findByCoinIdAndPlatformId(String coinId, String platformId);
+    Optional<Crypto> findByIdAndPlatformId(String id, String platformId);
 }
