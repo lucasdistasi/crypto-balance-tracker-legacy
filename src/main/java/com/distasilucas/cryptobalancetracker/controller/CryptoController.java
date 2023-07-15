@@ -81,6 +81,7 @@ public class CryptoController implements CryptoControllerApi, ControllerHelper {
         return ResponseEntity.noContent().build();
     }
 
+    @Override
     @PostMapping("/transfer")
     public ResponseEntity<TransferCryptoResponse> transferCrypto(@RequestBody TransferCryptoRequest transferCryptoRequest) {
         TransferCryptoResponse response = transferCryptoService.transferCrypto(transferCryptoRequest);

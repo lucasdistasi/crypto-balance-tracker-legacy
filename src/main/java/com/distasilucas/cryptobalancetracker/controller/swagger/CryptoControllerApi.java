@@ -2,6 +2,8 @@ package com.distasilucas.cryptobalancetracker.controller.swagger;
 
 import com.distasilucas.cryptobalancetracker.model.error.ErrorResponse;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.crypto.TransferCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.request.crypto.TransferCryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.UpdateCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.PageCryptoResponse;
@@ -142,4 +144,28 @@ public interface CryptoControllerApi {
                     })
     })
     ResponseEntity<Void> deleteCoin(String coinId);
+
+    @Operation(summary = "Transfer Crypto")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = OK_CODE, description = "Crypto transferred",
+                    content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = BAD_REQUEST_CODE, description = INVALID_DATA,
+                    content = {
+                            @Content(mediaType = APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    }),
+            @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden",
+                    content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = NOT_FOUND_CODE, description = CRYPTO_OR_PLATFORM_NOT_FOUND_DESCRIPTION,
+                    content = {
+                            @Content(mediaType = APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    }),
+            @ApiResponse(responseCode = INTERNAL_SERVER_ERROR_CODE, description = INTERNAL_SERVER_ERROR,
+                    content = {
+                            @Content(mediaType = APPLICATION_JSON,
+                                    schema = @Schema(implementation = ErrorResponse.class))
+                    })
+    })
+    ResponseEntity<TransferCryptoResponse> transferCrypto(TransferCryptoRequest transferCryptoRequest);
 }
