@@ -149,8 +149,7 @@ class CryptoControllerTest {
                 "bitcoin",
                 BigDecimal.valueOf(0.2),
                 BigDecimal.valueOf(0.001),
-                "Binance",
-                "Safepal"
+                "Binance"
         );
 
         when(transferCryptoServiceMock.transferCrypto(transferCryptoRequest))

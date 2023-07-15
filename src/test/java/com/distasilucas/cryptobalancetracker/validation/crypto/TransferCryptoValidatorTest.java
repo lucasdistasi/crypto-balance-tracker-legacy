@@ -41,8 +41,7 @@ class TransferCryptoValidatorTest {
                 "bitcoin",
                 BigDecimal.valueOf(0.5),
                 BigDecimal.valueOf(0.001),
-                "Binance",
-                "Safepal"
+                "Binance"
         );
 
         entityValidation.validate(transferCryptoRequest);
@@ -54,8 +53,7 @@ class TransferCryptoValidatorTest {
                 "bitcoin",
                 BigDecimal.valueOf(0.5),
                 BigDecimal.valueOf(1),
-                "Binance",
-                "Safepal"
+                "Binance"
         );
 
         var exception = assertThrows(InsufficientBalanceException.class,
@@ -65,17 +63,15 @@ class TransferCryptoValidatorTest {
     }
 
     @ParameterizedTest
-    @CsvSource({
-            ",ab", "ab,", "a, ", ", a", "$a,ab", "ab,$a",
-            "12,abc", "abc,12", "abcabcabcabcabcabcabcabca,abc", "abc,abcabcabcabcabcabcabcabca"
+    @ValueSource(strings = {
+            "ab,", " a", "$a", "12", "abcabcabcabcabcabcabcabca"
     })
-    void shouldThrowApiValidationExceptionWhenInvalidPlatform(String fromPlatform, String toPlatform) {
+    void shouldThrowApiValidationExceptionWhenInvalidPlatform(String fromPlatform) {
         var transferCryptoRequest = new TransferCryptoRequest(
                 "bitcoin",
                 BigDecimal.valueOf(5),
                 BigDecimal.valueOf(0.001),
-                fromPlatform,
-                toPlatform
+                fromPlatform
         );
 
         var exception = assertThrows(ApiValidationException.class,
@@ -92,8 +88,7 @@ class TransferCryptoValidatorTest {
                 "bitcoin",
                 BigDecimal.valueOf(0.5),
                 new BigDecimal(networkFee),
-                "Binance",
-                "Safepal"
+                "Binance"
         );
 
         var exception = assertThrows(ApiValidationException.class,

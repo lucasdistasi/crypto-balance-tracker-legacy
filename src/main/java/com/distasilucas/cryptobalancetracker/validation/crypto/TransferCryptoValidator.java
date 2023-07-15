@@ -29,7 +29,7 @@ public class TransferCryptoValidator implements EntityValidation<TransferCryptoR
         if (isNetworkFeeHigherThanQuantity(transferCryptoRequest))
             throw new InsufficientBalanceException(NETWORK_FEE_HIGHER);
 
-        if (isInvalidPlatform(transferCryptoRequest.getFromPlatform(), transferCryptoRequest.getToPlatform()))
+        if (isInvalidPlatform(transferCryptoRequest.getToPlatform()))
             throw new ApiValidationException(INVALID_PLATFORM_FORMAT);
 
         quantityValueValidator.validateCryptoQuantity(transferCryptoRequest.getQuantityToTransfer());
@@ -39,10 +39,8 @@ public class TransferCryptoValidator implements EntityValidation<TransferCryptoR
         return transferCryptoRequest.getNetworkFee().compareTo(transferCryptoRequest.getQuantityToTransfer()) > 0;
     }
 
-    private boolean isInvalidPlatform(String fromPlatform, String toPlatform) {
-        return StringUtils.isEmpty(fromPlatform) ||
-                StringUtils.isEmpty(toPlatform) ||
-                !fromPlatform.matches(PLATFORM_NAME_REGEX_VALIDATION) ||
+    private boolean isInvalidPlatform(String toPlatform) {
+        return StringUtils.isEmpty(toPlatform) ||
                 !toPlatform.matches(PLATFORM_NAME_REGEX_VALIDATION);
     }
 
