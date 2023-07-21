@@ -16,6 +16,9 @@ springdoc:
   swagger-ui:
     defaultModelsExpandDepth: -1
 
+security:
+  enabled: false
+
 jwt:
   signing-key: ${JWT_SIGNING_KEY}
 
