@@ -1,50 +1,37 @@
 # Crypto Balance Tracker :rocket:
+Crypto Balance Tracker is a Java-Spring application that acts as a portfolio tracker for monitoring your crypto assets. 
+It allows you to retrieve data such as the percentage of each coin owned, the total value of your assets, 
+the current price of each coin, and the balance per platform. The application makes use of the 
+[Coingecko](https://www.coingecko.com) API to fetch all the required information about the coins.
 
-Crypto Balance Tracker it's a Java-Spring application that works like a portfolio tracker where you can monitor your
-assets
-and retrieve data like the percentage owned of each coin, the amount of money, the price of each coin, balance per
-platform etc.
-Crypto Balance Tracker makes use of [Coingecko](https://www.coingecko.com/) API in order to retrieve all information
-about the coins.
+:warning: Please note that the Coingecko API has [rate limits for the Free Plan](https://www.coingecko.com/en/api/pricing). 
+To avoid hitting the rate limit, a scheduler periodically retrieves the price of the saved coins every 180 seconds. 
+This ensures that the end-users do not exceed the rate limit by making multiple API calls. Also, keep in mind 
+that the balances displayed in the  app might not be 100% accurate due to variations in price data from different exchanges. 
+However, any discrepancies should be minimal.
 <br>
-Please bear in mind that Coingecko has a [rate limit for the Free Plan](https://www.coingecko.com/en/api/pricing).
-To avoid getting a rate limit, a scheduler retrieves the price of a few saved coins every 180 seconds. By doing so, the
-final user does not call Coingecko API multiple times exceeding the rate limit.
+
+## Approach and Challenges
+Initially, the idea was to allow users to add their wallet addresses to track their coins. However, this approach posed 
+some challenges, such as specifying the network for the address and the difficulty of tracking coins held in exchange 
+addresses shared by multiple users. Due to these complexities, tracking coins based on non cold/hard-wallet addresses became unfeasible. 
+Instead, the current approach was adopted to provide a more reliable and feasible solution.
 <br>
-I might add new features in the future alongside with a front-end application in order to display all the data with
-charts/graphics.
-<br>
-<br>
-My first idea was to let the user add a wallet address but I faced problems with this approach,
-like specifying a network for the address. Also if you are using an exchange, your coins are in an address from the
-exchange with coins from others users, so is not possible to track just your coins. This approach might be doable only if the
-address it's from a hardware-cold wallet you own.
-Another issue is that services that provide an API to track balances from an address are not cheap and I've not found
-any API capeable of track address with networks like Polygon, Algorand, etc.
-So I ended up with the current approach.
-<br>
-<br>
-Feel free to star, fork or study from the code :)
 
 ## IMPORTANT :fire:
 
 ---
 
-This API uses ***Spring Security*** and ***Docker Compose***. If you want to test or play with it you must have
-knowledge with
-Docker, an ADMIN user in the database
-and [crypto-balance-tracker-login](https://gitlab.com/lucas.distasi/crypto-balance-tracker-login),
+This API uses ***Spring Security*** and ***Docker Compose***. If you want to fully test or play with it you must have
+knowledge with Docker, an ADMIN user in the database and [crypto-balance-tracker-login](https://github.com/lucasdistasi/crypto-balance-tracker-login),
 a Kotlin-Spring project to generate a JWT and consume the endpoints from this project.
-If you don't want Authentication-Authorization make sure to use the branch
-[***no-security***](https://gitlab.com/lucas.distasi/crypto-balance-tracker/-/tree/no-security) from this project.
+If you don't want Authentication-Authorization make sure to disable the security in application.yml file.
 
 <br>
 
 #### TODO
 
-- ~~Develop a front-end application (I don't know yet if I'm going to use ReactJS, VueJS, Angular, Svelte)~~ Working on
-  it
-- Maybe let the microservices be ready to be deployed to the Cloud.
+- Migrate the app to Kotlin.
 
 ## Technologies used :sparkles:
 
@@ -64,42 +51,39 @@ If you don't want Authentication-Authorization make sure to use the branch
 
 ---
 
-- #### If you are using the **_no-security_** branch
-
-1. You must have **MongoDB** installed in your machine.
-2. Download the project.
-3. Create the database. You can use a custom database name if you want.
-4. Once you downloaded the project, you need to set up some environment variables.
-    1. _MONGODB_DATABASE_. The database name.
-    2. _MONGODB_USERNAME_. The username of your database.
-    3. _MONGODB_PASSWORD_. The password of your user.
-    4. _JWT_SIGNING_KEY_. The Signing Key if you are working with the secured branch.
-    5. _COINGEKO_API_KEY_. The Coingeko API Key (If you have one).
-5. Start the program in your favourite IDE or run `./gradlew bootRun` from the CLI.
-
-<br>
-
-- #### If you are using the _**master**_ branch
-
 1. Have Docker installed and running.
 2. Set up environment variables in _.env_ file.
 3. Download mongo-seed and set your desired values.
-4. Run docker build on [crypto-balance-tracker](https://gitlab.com/lucas.distasi/crypto-balance-tracker)
-   and [crypto-balance-tracker-login](https://gitlab.com/lucas.distasi/crypto-balance-tracker-login)
-5. On crypto-balance-tracker folder run `docker compose up`
+4. If you want to secure the app, set the security.enabled property to true. Default value is false.
+5. Create docker images (`docker build`) for 
+   - [crypto-balance-tracker](https://github.com/lucasdistasi/crypto-balance-tracker)
+   - [crypto-balance-tracker-ui](https://github.com/lucasdistasi/crypto-balance-tracker-ui)
+   - [crypto-balance-tracker-login](https://github.com/lucasdistasi/crypto-balance-tracker-login) (not needed if security is disabled)
+6. On crypto-balance-tracker folder run `docker compose up`
 
 <br>
 
-### If you found this project useful or you learnt something from it, you can consider gifting me a coup of coffee :coffee:
+### Contributing :coffee:
 
-| Crypto | Network | Address                                    | QR      |
-|--------|---------|--------------------------------------------|---------|
-| BTC    | BEP20   | 0x03c5551d3122e9c2d6bda94521e2f75bab74de21 | [BEP20] |
-| USDT   | TRC20   | TWBfjXcKcgZVajVxTZpp8qA3fyJVoEsqer         | [TRC20] |
-| USDT   | BEP20   | 0x03c5551d3122e9c2d6bda94521e2f75bab74de21 | [BEP20] |
+Feel free to star, fork, or study from the code! If you'd like to contribute, you can gift me a coffee.
 
-[BEP20]: https://i.imgur.com/ADeTSXC.png "BEP20"
-[TRC20]: https://i.imgur.com/PbgZwew.png "TRC20"
+| Crypto | Network | Address                                    | QR            |
+|--------|---------|--------------------------------------------|---------------|
+| BTC    | Bitcoin | 15gJYCyCwoHVE3MpjwDYLM51zLRoKo2Q9h         | [BTC-bitcoin] |
+| BTC    | TRC20   | TFVmahp7YQiEwd9bh4dEgF7fZyGjrQ7TRW         | [BTC-trc20]   |
+| ETH    | BEP20   | 0x304714FDA2060c570B1afb1BC231C0973abBEC23 | [ETH-bep20]   |
+| ETH    | ERC20   | 0x304714FDA2060c570B1afb1BC231C0973abBEC23 | [ETH-erc20]   |
+| USDT   | TRC20   | TFVmahp7YQiEwd9bh4dEgF7fZyGjrQ7TRW         | [USDT-trc20]  |
+| USDT   | BEP20   | 0x304714FDA2060c570B1afb1BC231C0973abBEC23 | [USDT-bep20]  |
+| USDT   | ERC20   | 0x304714FDA2060c570B1afb1BC231C0973abBEC23 | [USDT-erc20]  |
+
+[BTC-bitcoin]: https://imgur.com/Hs0DYDk
+[BTC-trc20]: https://imgur.com/kdROHrE
+[ETH-bep20]: https://imgur.com/DIOiJrL
+[ETH-erc20]: https://imgur.com/REXkDmu
+[USDT-trc20]: https://imgur.com/ubUWdpI
+[USDT-bep20]: https://imgur.com/rrrYd9j
+[USDT-erc20]: https://imgur.com/G9DPKvU
 
 <br>
 
