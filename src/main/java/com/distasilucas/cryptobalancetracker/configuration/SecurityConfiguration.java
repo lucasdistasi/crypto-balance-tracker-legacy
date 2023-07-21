@@ -1,6 +1,7 @@
 package com.distasilucas.cryptobalancetracker.configuration;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -12,6 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @RequiredArgsConstructor
+@ConditionalOnProperty(prefix = "security", name = "enabled", havingValue = "true")
 public class SecurityConfiguration {
 
     private final JwtAuthFilter jwtAuthFilter;
