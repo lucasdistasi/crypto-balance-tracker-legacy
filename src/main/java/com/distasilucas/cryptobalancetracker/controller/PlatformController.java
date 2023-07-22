@@ -25,7 +25,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin(origins = "${allowed.origins}")
+@CrossOrigin(origins = {"*"})
 @RequestMapping("/api/v1/platforms")
 @PreAuthorize("@securityService.isSecurityDisabled() OR hasAuthority('ROLE_ADMIN')")
 public class PlatformController implements PlatformControllerApi, ControllerHelper {

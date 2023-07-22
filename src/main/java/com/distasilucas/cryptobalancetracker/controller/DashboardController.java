@@ -23,7 +23,7 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin(origins = "${allowed.origins}")
+@CrossOrigin(origins = {"*"})
 @RequestMapping("/api/v1/dashboards")
 @PreAuthorize("@securityService.isSecurityDisabled() OR hasAuthority('ROLE_ADMIN')")
 public class DashboardController implements DashboardControllerApi, ControllerHelper {

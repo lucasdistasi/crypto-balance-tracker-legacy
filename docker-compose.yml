@@ -46,6 +46,14 @@ services:
     ports:
       - '8080:8080'
 
+  crypto-balance-tracker-ui:
+    image: 'crypto-balance-tracker-ui:latest'
+    container_name: 'crypto-balance-tracker-ui'
+    depends_on:
+      - crypto-balance-tracker
+    ports:
+      - '5173:5173'
+
   prometheus:
     image: prom/prometheus:v2.43.0
     container_name: prometheus
