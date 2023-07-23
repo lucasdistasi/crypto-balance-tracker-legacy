@@ -433,10 +433,6 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
 }
 ```
 
-</details>
-
-<br>
-
 ### `/api/v1/dashboards/crypto/{coinId}`
 
 #### Retrieves information from the crypto with the given coinId
@@ -1115,3 +1111,7 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
   ]
 }
 ```
+
+</details>
+
+<br>
