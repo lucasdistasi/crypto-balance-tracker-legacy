@@ -29,7 +29,7 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"*"})
+@CrossOrigin(origins = "${allowed.origins}")
 @RequestMapping("/api/v1/cryptos")
 @PreAuthorize("@securityService.isSecurityDisabled() OR hasAuthority('ROLE_ADMIN')")
 public class CryptoController implements CryptoControllerApi, ControllerHelper {

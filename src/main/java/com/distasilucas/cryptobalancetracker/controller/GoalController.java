@@ -25,7 +25,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/goals")
-@CrossOrigin(origins = {"*"})
+@CrossOrigin(origins = "${allowed.origins}")
 @PreAuthorize("@securityService.isSecurityDisabled() OR hasAuthority('ROLE_ADMIN')")
 public class GoalController implements GoalControllerApi {
 
