@@ -1,4 +1,8 @@
 # Crypto Balance Tracker :rocket:
+
+![Pipeline Status](https://github.com/lucasdistasi/crypto-balance-tracker/actions/workflows/main.yml/badge.svg)
+[![HitCount](https://hits.dwyl.com/lucasdistasi/crypto-balance-tracker.svg)](https://hits.dwyl.com/lucasdistasi/crypto-balance-tracker)
+
 Crypto Balance Tracker is a Java-Spring application that acts as a portfolio tracker for monitoring your crypto assets. 
 It allows you to retrieve data such as the percentage of each coin owned, the total value of your assets, 
 the current price of each coin, and the balance per platform. The application makes use of the 
