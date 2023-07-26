@@ -70,7 +70,7 @@ public class GoalServiceImpl implements GoalService {
         updateGoalRequestValidation.validate(updateGoalRequest);
         Goal goal = updateGoalRequestMapper.mapFrom(updateGoalRequest);
 
-        log.info("Updating goal quantity of {}. New goal quantity: {}", goal.getCryptoName(), updateGoalRequest.quantityGoal());
+        log.info("Updating goal quantity of goal id {}. New goal quantity: {}", goal.getGoalId(), updateGoalRequest.quantityGoal());
         Goal newGoal = goalRepository.save(goal);
 
         return goalResponseMapper.mapFrom(newGoal);

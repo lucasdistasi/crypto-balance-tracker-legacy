@@ -12,7 +12,7 @@ public class CryptoNameValidator implements EntityValidation<AddCryptoRequest> {
 
     @Override
     public void validate(AddCryptoRequest cryptoRequest) {
-        String coinName = cryptoRequest.getCoinName();
+        String coinName = cryptoRequest.getCryptoName();
 
         if (!coinName.matches(CRYPTO_NAME_REGEX_VALIDATION)) {
             throw new ApiValidationException("Invalid crypto name");

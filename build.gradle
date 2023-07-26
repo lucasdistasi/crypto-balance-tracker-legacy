@@ -79,16 +79,16 @@ jacocoTestReport {
             fileTree(dir: it, exclude: [
                     "com/distasilucas/cryptobalancetracker/configuration/**",
                     "com/distasilucas/cryptobalancetracker/model/**",
-                    "com/distasilucas/cryptobalancetracker/CryptoBalanceTrackerApplication.java",
                     "com/distasilucas/cryptobalancetracker/entity/**",
-                    "com/distasilucas/cryptobalancetracker/validation/Validation.java",
-                    "com/distasilucas/cryptobalancetracker/validation/JsonSchemaValidator.java",
-                    "com/distasilucas/cryptobalancetracker/validation/crypto/CryptoJsonSchemaConfig.java",
-                    "com/distasilucas/cryptobalancetracker/validation/crypto/CryptoSchemaValidator.java",
-                    "com/distasilucas/cryptobalancetracker/validation/platform/PlatformJsonSchemaConfig.java",
-                    "com/distasilucas/cryptobalancetracker/validation/platform/PlatformSchemaValidator.java",
-                    "com/distasilucas/cryptobalancetracker/validation/goal/GoalJsonSchemaConfig.java",
-                    "com/distasilucas/cryptobalancetracker/validation/goal/GoalSchemaValidator.java"
+                    "com/distasilucas/cryptobalancetracker/CryptoBalanceTrackerApplication.*",
+                    "com/distasilucas/cryptobalancetracker/validation/Validation.*",
+                    "com/distasilucas/cryptobalancetracker/validation/JsonSchemaValidator.*",
+                    "com/distasilucas/cryptobalancetracker/validation/crypto/CryptoJsonSchemaConfig.*",
+                    "com/distasilucas/cryptobalancetracker/validation/crypto/CryptoSchemaValidator.*",
+                    "com/distasilucas/cryptobalancetracker/validation/platform/PlatformJsonSchemaConfig.*",
+                    "com/distasilucas/cryptobalancetracker/validation/platform/PlatformSchemaValidator.*",
+                    "com/distasilucas/cryptobalancetracker/validation/goal/GoalJsonSchemaConfig.*",
+                    "com/distasilucas/cryptobalancetracker/validation/goal/GoalSchemaValidator.*"
             ])
         }))
     }

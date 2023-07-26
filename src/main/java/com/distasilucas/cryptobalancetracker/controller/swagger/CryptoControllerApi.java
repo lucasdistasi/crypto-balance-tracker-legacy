@@ -56,7 +56,7 @@ public interface CryptoControllerApi {
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-    ResponseEntity<CryptoResponse> getCoin(String coinId);
+    ResponseEntity<CryptoResponse> getCrypto(String coinId);
 
     @Operation(summary = "Retrieve Cryptos by page")
     @ApiResponses(value = {

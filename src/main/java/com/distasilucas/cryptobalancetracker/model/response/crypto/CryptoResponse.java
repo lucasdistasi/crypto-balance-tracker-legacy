@@ -15,8 +15,8 @@ import java.math.BigDecimal;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CryptoResponse {
 
-    private String coinId;
-    private String coinName;
+    private String id;
+    private String cryptoName;
     private String platform;
     private BigDecimal quantity;
 }

@@ -5,7 +5,6 @@ import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpHeaders;
@@ -18,7 +17,6 @@ import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.util.UriBuilder;
 
 import java.net.URI;
-import java.util.HashMap;
 import java.util.List;
 import java.util.function.Function;
 

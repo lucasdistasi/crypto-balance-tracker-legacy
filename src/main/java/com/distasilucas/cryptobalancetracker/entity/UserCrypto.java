@@ -14,18 +14,20 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @Builder
+@Document("UserCrypto")
 @NoArgsConstructor
 @AllArgsConstructor
-@Document("Goals")
-public class Goal {
+public class UserCrypto {
 
     @Id
-    @Field("goal_id")
-    private String goalId;
+    private String id; // random mongo id
 
     @Field("crypto_id")
-    private String cryptoId;
+    private String cryptoId; // coinId from coingecko
+    private BigDecimal quantity;
 
-    @Field("quantity_goal")
-    private BigDecimal quantityGoal;
+    @Field("platform_id")
+    private String platformId;
+
 }
+

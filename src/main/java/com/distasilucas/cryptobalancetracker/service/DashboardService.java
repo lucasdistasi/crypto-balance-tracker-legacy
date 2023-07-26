@@ -11,9 +11,9 @@ import java.util.Optional;
 
 public interface DashboardService {
 
-    Optional<CryptoBalanceResponse> retrieveCoinsBalances();
-    Optional<CryptoBalanceResponse> retrieveCoinBalance(String coinId);
-    Optional<CryptoPlatformBalanceResponse> retrieveCoinsBalanceByPlatform();
+    Optional<CryptoBalanceResponse> retrieveCryptosBalances();
+    Optional<CryptoBalanceResponse> retrieveCryptoBalance(String coinId);
+    Optional<CryptoPlatformBalanceResponse> retrieveCryptosBalanceByPlatform();
     Optional<PlatformBalanceResponse> getPlatformsBalances();
     Optional<CryptoBalanceResponse> getAllCoins(String platformName);
     Optional<List<PlatformsCryptoDistributionResponse>> getPlatformsCryptoDistributionResponse();

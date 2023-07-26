@@ -2,6 +2,7 @@ package com.distasilucas.cryptobalancetracker.mapper.impl;
 
 import com.distasilucas.cryptobalancetracker.MockData;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.mapper.impl.scheduler.UpdateCryptoSchedulerMapperImpl;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
@@ -43,8 +44,8 @@ class UpdateCryptoSchedulerMapperImplTest {
 
     @Test
     void shouldMapSuccessfully() {
-        var coinInfo = MockData.getCoinInfo();
-        var cryptoToMap = MockData.getCrypto("1234");
+        var coinInfo = MockData.getBitcoinCoinInfo();
+        var cryptoToMap = MockData.getCrypto();
         var localDateTime = LocalDateTime.of(2023, 5, 3, 18, 55, 0);
         var zonedDateTime = ZonedDateTime.of(2023, 5, 3, 19, 0, 0, 0, ZoneId.of("UTC"));
 
@@ -55,11 +56,9 @@ class UpdateCryptoSchedulerMapperImplTest {
         var crypto = updateCryptoSchedulerMapperImpl.mapFrom(cryptoToMap);
 
         assertAll(
-                () -> assertEquals("ABC1234", crypto.getId()),
+                () -> assertEquals("bitcoin", crypto.getId()),
                 () -> assertEquals("Bitcoin", crypto.getName()),
                 () -> assertEquals("BTC", crypto.getTicker()),
-                () -> assertEquals(BigDecimal.valueOf(1), crypto.getQuantity()),
-                () -> assertEquals("1234", crypto.getPlatformId()),
                 () -> assertEquals(BigDecimal.valueOf(150_000), crypto.getLastKnownPrice()),
                 () -> assertEquals(BigDecimal.valueOf(170_000), crypto.getLastKnownPriceInEUR()),
                 () -> assertEquals(BigDecimal.valueOf(1), crypto.getLastKnownPriceInBTC()),
@@ -71,7 +70,7 @@ class UpdateCryptoSchedulerMapperImplTest {
 
     @Test
     void shouldReturnSameCryptoIfWebClientResponseExceptionIsThrown() {
-        var cryptoToMap = MockData.getCrypto("1234");
+        var cryptoToMap = MockData.getCrypto();
         var webClientResponseException = new WebClientResponseException(HttpStatus.TOO_MANY_REQUESTS.value(), "TOO_MANY_REQUESTS", null, null, null);
 
         doThrow(webClientResponseException).when(coingeckoServiceMock).retrieveCoinInfo("bitcoin");
@@ -82,8 +81,6 @@ class UpdateCryptoSchedulerMapperImplTest {
                 () -> assertEquals(cryptoToMap.getId(), mappedCrypto.getId()),
                 () -> assertEquals(cryptoToMap.getName(), mappedCrypto.getName()),
                 () -> assertEquals(cryptoToMap.getTicker(), mappedCrypto.getTicker()),
-                () -> assertEquals(cryptoToMap.getQuantity(), mappedCrypto.getQuantity()),
-                () -> assertEquals(cryptoToMap.getPlatformId(), mappedCrypto.getPlatformId()),
                 () -> assertEquals(cryptoToMap.getLastKnownPrice(), mappedCrypto.getLastKnownPrice()),
                 () -> assertEquals(cryptoToMap.getLastKnownPriceInEUR(), mappedCrypto.getLastKnownPriceInEUR()),
                 () -> assertEquals(cryptoToMap.getLastKnownPriceInBTC(), mappedCrypto.getLastKnownPriceInBTC()),
@@ -95,7 +92,7 @@ class UpdateCryptoSchedulerMapperImplTest {
 
     @Test
     void shouldReturnSameCryptoIfNonCaughtExceptionIsThrown() {
-        var cryptoToMap = MockData.getCrypto("1234");
+        var cryptoToMap = MockData.getCrypto();
         var runtimeException = new RuntimeException("RuntimeException");
 
         doThrow(runtimeException).when(coingeckoServiceMock).retrieveCoinInfo("bitcoin");
@@ -106,8 +103,6 @@ class UpdateCryptoSchedulerMapperImplTest {
                 () -> assertEquals(cryptoToMap.getId(), mappedCrypto.getId()),
                 () -> assertEquals(cryptoToMap.getName(), mappedCrypto.getName()),
                 () -> assertEquals(cryptoToMap.getTicker(), mappedCrypto.getTicker()),
-                () -> assertEquals(cryptoToMap.getQuantity(), mappedCrypto.getQuantity()),
-                () -> assertEquals(cryptoToMap.getPlatformId(), mappedCrypto.getPlatformId()),
                 () -> assertEquals(cryptoToMap.getLastKnownPrice(), mappedCrypto.getLastKnownPrice()),
                 () -> assertEquals(cryptoToMap.getLastKnownPriceInEUR(), mappedCrypto.getLastKnownPriceInEUR()),
                 () -> assertEquals(cryptoToMap.getLastKnownPriceInBTC(), mappedCrypto.getLastKnownPriceInBTC()),

@@ -9,10 +9,10 @@ import java.math.BigDecimal;
 @Setter
 public class AddCryptoRequest extends CryptoRequest {
 
-    private String coinName;
+    private String cryptoName;
 
-    public AddCryptoRequest(String coinName, BigDecimal quantity, String platform) {
+    public AddCryptoRequest(String cryptoName, BigDecimal quantity, String platform) {
         super(quantity, platform);
-        this. coinName = coinName;
+        this.cryptoName = cryptoName;
     }
 }

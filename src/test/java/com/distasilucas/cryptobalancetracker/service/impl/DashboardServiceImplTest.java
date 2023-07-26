@@ -1,17 +1,17 @@
 package com.distasilucas.cryptobalancetracker.service.impl;
 
 import com.distasilucas.cryptobalancetracker.MockData;
-import com.distasilucas.cryptobalancetracker.entity.Crypto;
-import com.distasilucas.cryptobalancetracker.entity.Platform;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.mapper.BiFunctionMapper;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinInfoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
-import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
+import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import com.distasilucas.cryptobalancetracker.service.DashboardService;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import com.distasilucas.cryptobalancetracker.validation.UtilValidations;
+import com.sun.source.tree.ModuleTree;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,13 +40,13 @@ import static org.mockito.Mockito.when;
 class DashboardServiceImplTest {
 
     @Mock
-    CryptoRepository cryptoRepositoryMock;
+    UserCryptoRepository userCryptoRepositoryMock;
 
     @Mock
     PlatformService platformServiceMock;
 
     @Mock
-    EntityMapper<CryptoBalanceResponse, List<Crypto>> cryptoBalanceResponseMapperImplMock;
+    EntityMapper<CryptoBalanceResponse, List<UserCrypto>> cryptoBalanceResponseMapperImplMock;
 
     @Mock
     BiFunctionMapper<Map<String, BigDecimal>, CryptoBalanceResponse, List<CoinInfoResponse>> coinInfoResponseMapperImplMock;
@@ -58,21 +58,22 @@ class DashboardServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        dashboardService = new DashboardServiceImpl(utilValidationsMock, cryptoRepositoryMock, platformServiceMock,
+        dashboardService = new DashboardServiceImpl(utilValidationsMock, userCryptoRepositoryMock, platformServiceMock,
                 cryptoBalanceResponseMapperImplMock, coinInfoResponseMapperImplMock);
     }
 
     @Test
     void shouldRetrieveCryptoBalances() {
-        var coinInfo = MockData.getCoinInfo();
-        var cryptos = MockData.getAllCryptos();
+        var coinInfo = MockData.getBitcoinCoinInfo();
         var balanceResponse = MockData.getCryptoBalanceResponse();
         var firstCoin = balanceResponse.coins().get(0);
+        var userCrypto = MockData.getUserCrypto();
+        var userCryptos = Collections.singletonList(userCrypto);
 
-        when(cryptoRepositoryMock.findAll()).thenReturn(cryptos);
-        when(cryptoBalanceResponseMapperImplMock.mapFrom(cryptos)).thenReturn(balanceResponse);
+        when(userCryptoRepositoryMock.findAll()).thenReturn(userCryptos);
+        when(cryptoBalanceResponseMapperImplMock.mapFrom(userCryptos)).thenReturn(balanceResponse);
 
-        var coinsBalances = dashboardService.retrieveCoinsBalances();
+        var coinsBalances = dashboardService.retrieveCryptosBalances();
         var expectedBalance = MockData.getTotalMoney(Collections.singletonList(firstCoin));
 
         assertAll(
@@ -86,9 +87,9 @@ class DashboardServiceImplTest {
 
     @Test
     void shouldReturnEmptyListIfNoCryptosAreSaved() {
-        when(cryptoRepositoryMock.findAll()).thenReturn(Collections.emptyList());
+        when(userCryptoRepositoryMock.findAll()).thenReturn(Collections.emptyList());
 
-        var coinsBalances = dashboardService.retrieveCoinsBalances();
+        var coinsBalances = dashboardService.retrieveCryptosBalances();
 
         assertAll(
                 () -> assertTrue(coinsBalances.isEmpty())
@@ -97,15 +98,16 @@ class DashboardServiceImplTest {
 
     @Test
     void shouldRetrieveBalancesForCrypto() {
-        var coinInfo = MockData.getCoinInfo();
-        var cryptos = MockData.getAllCryptos();
+        var coinInfo = MockData.getBitcoinCoinInfo();
+        var userCrypto = MockData.getUserCrypto();
+        var userCryptos = Collections.singletonList(userCrypto);
         var balanceResponse = MockData.getCryptoBalanceResponse();
         var firstCoin = balanceResponse.coins().get(0);
 
-        when(cryptoRepositoryMock.findAllByCoinId("bitcoin")).thenReturn(Optional.of(cryptos));
-        when(cryptoBalanceResponseMapperImplMock.mapFrom(cryptos)).thenReturn(balanceResponse);
+        when(userCryptoRepositoryMock.findAllByCryptoId("bitcoin")).thenReturn(Optional.of(userCryptos));
+        when(cryptoBalanceResponseMapperImplMock.mapFrom(userCryptos)).thenReturn(balanceResponse);
 
-        var coinBalance = dashboardService.retrieveCoinBalance("bitcoin");
+        var coinBalance = dashboardService.retrieveCryptoBalance("bitcoin");
         var expectedBalance = MockData.getTotalMoney(Collections.singletonList(firstCoin));
 
         assertAll(
@@ -119,27 +121,28 @@ class DashboardServiceImplTest {
 
     @Test
     void shouldReturnEmptyListIfNoCryptosAreSavedForCryptoBalance() {
-        when(cryptoRepositoryMock.findAllByCoinId("dogecoin")).thenReturn(Optional.of(Collections.emptyList()));
+        when(userCryptoRepositoryMock.findAllByCryptoId("dogecoin")).thenReturn(Optional.of(Collections.emptyList()));
 
-        var coinBalance = dashboardService.retrieveCoinBalance("dogecoin");
+        var cryptoBalance = dashboardService.retrieveCryptoBalance("dogecoin");
 
         assertAll(
-                () -> assertTrue(coinBalance.isEmpty())
+                () -> assertTrue(cryptoBalance.isEmpty())
         );
     }
 
     @Test
-    void shouldRetrieveCoinsBalanceByPlatform() {
-        var allCryptos = MockData.getAllCryptos();
+    void shouldRetrieveCryptosBalanceByPlatform() {
+        var userCrypto = MockData.getUserCrypto();
+        var userCryptos = Collections.singletonList(userCrypto);
         var cryptoBalanceResponse = MockData.getCryptoBalanceResponse();
         var coinInfoResponse = MockData.getCoinInfoResponse();
         BiFunction<Map<String, BigDecimal>, CryptoBalanceResponse, List<CoinInfoResponse>> biFunction = (a, b) -> Collections.singletonList(coinInfoResponse);
 
-        when(cryptoRepositoryMock.findAll()).thenReturn(allCryptos);
-        when(cryptoBalanceResponseMapperImplMock.mapFrom(allCryptos)).thenReturn(cryptoBalanceResponse);
+        when(userCryptoRepositoryMock.findAll()).thenReturn(userCryptos);
+        when(cryptoBalanceResponseMapperImplMock.mapFrom(userCryptos)).thenReturn(cryptoBalanceResponse);
         when(coinInfoResponseMapperImplMock.map()).thenReturn(biFunction);
 
-        var coinsBalanceByPlatform = dashboardService.retrieveCoinsBalanceByPlatform();
+        var coinsBalanceByPlatform = dashboardService.retrieveCryptosBalanceByPlatform();
 
         assertAll(
                 () -> assertTrue(coinsBalanceByPlatform.isPresent()),
@@ -151,9 +154,9 @@ class DashboardServiceImplTest {
 
     @Test
     void shouldRetrieveEmptyCoinsBalanceByPlatform() {
-        when(cryptoRepositoryMock.findAll()).thenReturn(Collections.emptyList());
+        when(userCryptoRepositoryMock.findAll()).thenReturn(Collections.emptyList());
 
-        var coinsBalanceByPlatform = dashboardService.retrieveCoinsBalanceByPlatform();
+        var coinsBalanceByPlatform = dashboardService.retrieveCryptosBalanceByPlatform();
 
         assertAll(
                 () -> assertTrue(coinsBalanceByPlatform.isEmpty())
@@ -162,11 +165,12 @@ class DashboardServiceImplTest {
 
     @Test
     void shouldGetPlatformsBalances() {
-        var cryptos = MockData.getAllCryptos();
+        var userCrypto = MockData.getUserCrypto();
+        var userCryptos = Collections.singletonList(userCrypto);
         var balanceResponse = MockData.getCryptoBalanceResponse();
 
-        when(cryptoRepositoryMock.findAll()).thenReturn(cryptos);
-        when(cryptoBalanceResponseMapperImplMock.mapFrom(cryptos)).thenReturn(balanceResponse);
+        when(userCryptoRepositoryMock.findAll()).thenReturn(userCryptos);
+        when(cryptoBalanceResponseMapperImplMock.mapFrom(userCryptos)).thenReturn(balanceResponse);
 
         var platformsBalances = dashboardService.getPlatformsBalances();
 
@@ -179,11 +183,12 @@ class DashboardServiceImplTest {
 
     @Test
     void shouldReturnEmptyGetPlatformsBalances() {
-        var cryptos = MockData.getAllCryptos();
+        var userCrypto = MockData.getUserCrypto();
+        var userCryptos = Collections.singletonList(userCrypto);
         var balanceResponse = new CryptoBalanceResponse(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, Collections.emptyList());
 
-        when(cryptoRepositoryMock.findAll()).thenReturn(cryptos);
-        when(cryptoBalanceResponseMapperImplMock.mapFrom(cryptos)).thenReturn(balanceResponse);
+        when(userCryptoRepositoryMock.findAll()).thenReturn(userCryptos);
+        when(cryptoBalanceResponseMapperImplMock.mapFrom(userCryptos)).thenReturn(balanceResponse);
 
         var platformsBalances = dashboardService.getPlatformsBalances();
 
@@ -194,13 +199,14 @@ class DashboardServiceImplTest {
 
     @Test
     void shouldRetrieveAllCoinsForPlatform() {
+        var userCrypto = MockData.getUserCrypto();
+        var userCryptos = Collections.singletonList(userCrypto);
         var platformEntity = MockData.getPlatform("LEDGER");
-        var allCryptos = MockData.getAllCryptos();
         var balanceResponse = MockData.getCryptoBalanceResponse();
 
         when(platformServiceMock.findPlatformByName("LEDGER")).thenReturn(platformEntity);
-        when(cryptoRepositoryMock.findAllByPlatformId("1234")).thenReturn(Optional.of(allCryptos));
-        when(cryptoBalanceResponseMapperImplMock.mapFrom(allCryptos)).thenReturn(balanceResponse);
+        when(userCryptoRepositoryMock.findAllByPlatformId("1234")).thenReturn(Optional.of(userCryptos));
+        when(cryptoBalanceResponseMapperImplMock.mapFrom(userCryptos)).thenReturn(balanceResponse);
 
         var allCoins = dashboardService.getAllCoins("LEDGER");
 
@@ -218,7 +224,7 @@ class DashboardServiceImplTest {
         var platformEntity = MockData.getPlatform("LEDGER");
 
         when(platformServiceMock.findPlatformByName("LEDGER")).thenReturn(platformEntity);
-        when(cryptoRepositoryMock.findAllByPlatformId("1234")).thenReturn(Optional.empty());
+        when(userCryptoRepositoryMock.findAllByPlatformId("1234")).thenReturn(Optional.empty());
 
         var allCoins = dashboardService.getAllCoins("LEDGER");
 
@@ -231,14 +237,15 @@ class DashboardServiceImplTest {
     @Test
     void shouldReturnListOfPlatformsCryptoDistributionResponse() {
         var platforms = Collections.singletonList(new PlatformResponse("LEDGER"));
-        var allCryptos = MockData.getAllCryptos();
+        var userCrypto = MockData.getUserCrypto();
+        var userCryptos = Collections.singletonList(userCrypto);
         var balanceResponse = MockData.getCryptoBalanceResponse();
         var platform = MockData.getPlatform("LEDGER");
 
         when(platformServiceMock.getAllPlatforms()).thenReturn(platforms);
         when(platformServiceMock.findPlatformByName("LEDGER")).thenReturn(platform);
-        when(cryptoRepositoryMock.findAllByPlatformId("1234")).thenReturn(Optional.of(allCryptos));
-        when(cryptoBalanceResponseMapperImplMock.mapFrom(allCryptos)).thenReturn(balanceResponse);
+        when(userCryptoRepositoryMock.findAllByPlatformId("1234")).thenReturn(Optional.of(userCryptos));
+        when(cryptoBalanceResponseMapperImplMock.mapFrom(userCryptos)).thenReturn(balanceResponse);
 
         var platformsCryptoDistributionResponse = dashboardService.getPlatformsCryptoDistributionResponse();
 
@@ -263,25 +270,27 @@ class DashboardServiceImplTest {
 
     @Test
     void shouldReturnListOfCryptosPlatformDistributionResponse() {
-        var allCryptos = MockData.getAllCryptos();
+        var userCrypto = MockData.getUserCrypto();
+        var userCryptos = Collections.singletonList(userCrypto);
         var balanceResponse = MockData.getCryptoBalanceResponse();
 
-        when(cryptoRepositoryMock.findAll()).thenReturn(allCryptos);
-        when(cryptoRepositoryMock.findAllByCoinId("bitcoin")).thenReturn(Optional.of(allCryptos));
-        when(cryptoBalanceResponseMapperImplMock.mapFrom(allCryptos)).thenReturn(balanceResponse);
+        when(userCryptoRepositoryMock.findAll()).thenReturn(userCryptos);
+        when(userCryptoRepositoryMock.findAllByCryptoId(userCrypto.getCryptoId()))
+                .thenReturn(Optional.of(userCryptos));
+        when(cryptoBalanceResponseMapperImplMock.mapFrom(userCryptos)).thenReturn(balanceResponse);
 
         var cryptosPlatformDistribution = dashboardService.getCryptosPlatformDistribution();
 
         assertTrue(cryptosPlatformDistribution.isPresent());
         assertAll(
                 () -> assertFalse(cryptosPlatformDistribution.get().isEmpty()),
-                () -> assertEquals(allCryptos.size(), cryptosPlatformDistribution.get().size())
+                () -> assertEquals(userCryptos.size(), cryptosPlatformDistribution.get().size())
         );
     }
 
     @Test
     void shouldReturnEmptyListOfCryptosPlatformDistributionResponse() {
-        when(cryptoRepositoryMock.findAll()).thenReturn(Collections.emptyList());
+        when(userCryptoRepositoryMock.findAll()).thenReturn(Collections.emptyList());
 
         var cryptosPlatformDistribution = dashboardService.getCryptosPlatformDistribution();
 

@@ -7,11 +7,11 @@ import com.distasilucas.cryptobalancetracker.model.response.crypto.PageCryptoRes
 
 import java.util.Optional;
 
-public interface CryptoService {
+public interface UserCryptoService {
 
-    CryptoResponse getCoin(String coinId);
-    Optional<PageCryptoResponse> getCoins(int page);
-    CryptoResponse addCoin(AddCryptoRequest cryptoRequest);
-    CryptoResponse updateCoin(UpdateCryptoRequest updateCryptoRequest, String coinId);
-    void deleteCoin(String coinId);
+    CryptoResponse getCrypto(String id);
+    Optional<PageCryptoResponse> getCryptos(int page);
+    CryptoResponse saveUserCrypto(AddCryptoRequest cryptoRequest);
+    CryptoResponse updateCrypto(UpdateCryptoRequest updateCryptoRequest, String id);
+    void deleteCrypto(String id);
 }

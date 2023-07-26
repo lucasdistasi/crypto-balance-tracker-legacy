@@ -1,16 +1,16 @@
 package com.distasilucas.cryptobalancetracker.service.impl;
 
-import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
-import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.CryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.InsufficientBalanceException;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.FromPlatform;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.ToPlatform;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.TransferCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.TransferCryptoResponse;
-import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
+import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import com.distasilucas.cryptobalancetracker.service.TransferCryptoService;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.COIN_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.CRYPTO_NOT_FOUND;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.NOT_ENOUGH_BALANCE;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.SAME_FROM_TO_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.TARGET_PLATFORM_NOT_EXISTS;
@@ -31,7 +31,7 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 @RequiredArgsConstructor
 public class TransferCryptoServiceImpl implements TransferCryptoService {
 
-    private final CryptoRepository cryptoRepository;
+    private final UserCryptoRepository userCryptoRepository;
     private final PlatformRepository platformRepository;
     private final Validation<TransferCryptoRequest> transferCryptoValidation;
 
@@ -41,7 +41,7 @@ public class TransferCryptoServiceImpl implements TransferCryptoService {
 
         String toPlatformName = transferCryptoRequest.getToPlatform().toUpperCase();
         Platform toPlatform = getToPlatform(toPlatformName);
-        Crypto cryptoToTransfer = getCryptoToTransfer(transferCryptoRequest.getCryptoId());
+        UserCrypto cryptoToTransfer = getCryptoToTransfer(transferCryptoRequest.getCryptoId());
 
         if (isToAndFromSame(toPlatform.getId(), cryptoToTransfer.getPlatformId()))
             throw new ApiValidationException(SAME_FROM_TO_PLATFORM);
@@ -55,42 +55,42 @@ public class TransferCryptoServiceImpl implements TransferCryptoService {
         if (hasInsufficientBalance(actualCryptoQuantity, quantityToTransfer))
             throw new InsufficientBalanceException(NOT_ENOUGH_BALANCE);
 
-        Optional<Crypto> toPlatformOptionalCrypto = getToPlatformOptionalCrypto(cryptoToTransfer.getCoinId(), toPlatform);
+        Optional<UserCrypto> toPlatformOptionalCrypto = getToPlatformOptionalCrypto(cryptoToTransfer.getId(), toPlatform);
         BigDecimal remainingCryptoQuantity = getRemainingCryptoQuantity(actualCryptoQuantity, totalToSubtract);
         ToPlatform to = new ToPlatform();
         FromPlatform from = new FromPlatform();
 
         if (doesFromPlatformHasRemaining(remainingCryptoQuantity) && toPlatformOptionalCrypto.isPresent()) {
-            Crypto toPlatformCrypto = toPlatformOptionalCrypto.get();
+            UserCrypto toPlatformCrypto = toPlatformOptionalCrypto.get();
             BigDecimal newQuantity = toPlatformCrypto.getQuantity().add(quantityToSendReceive);
             toPlatformCrypto.setQuantity(newQuantity);
             cryptoToTransfer.setQuantity(remainingCryptoQuantity);
 
-            cryptoRepository.saveAll(Arrays.asList(toPlatformCrypto, cryptoToTransfer));
+            userCryptoRepository.saveAll(Arrays.asList(toPlatformCrypto, cryptoToTransfer));
 
             to = new ToPlatform(newQuantity);
             from = new FromPlatform(networkFee, quantityToTransfer, totalToSubtract, quantityToSendReceive, remainingCryptoQuantity);
         }
 
         if (doesFromPlatformHasRemaining(remainingCryptoQuantity) && toPlatformOptionalCrypto.isEmpty()) {
-            Crypto cryptoToSave = mapCrypto().apply(cryptoToTransfer);
+            UserCrypto cryptoToSave = mapCrypto().apply(cryptoToTransfer);
             cryptoToSave.setQuantity(quantityToSendReceive);
             cryptoToSave.setPlatformId(toPlatform.getId());
             cryptoToTransfer.setQuantity(remainingCryptoQuantity);
 
-            cryptoRepository.saveAll(Arrays.asList(cryptoToTransfer, cryptoToSave));
+            userCryptoRepository.saveAll(Arrays.asList(cryptoToTransfer, cryptoToSave));
 
             to = new ToPlatform(quantityToSendReceive);
             from = new FromPlatform(networkFee, quantityToTransfer, totalToSubtract, quantityToSendReceive, remainingCryptoQuantity);
         }
 
         if (!doesFromPlatformHasRemaining(remainingCryptoQuantity) && toPlatformOptionalCrypto.isPresent()) {
-            Crypto toPlatformCrypto = toPlatformOptionalCrypto.get();
+            UserCrypto toPlatformCrypto = toPlatformOptionalCrypto.get();
             BigDecimal newQuantity = toPlatformCrypto.getQuantity().add(quantityToSendReceive);
             toPlatformCrypto.setQuantity(newQuantity);
 
-            cryptoRepository.delete(cryptoToTransfer);
-            cryptoRepository.save(toPlatformCrypto);
+            userCryptoRepository.delete(cryptoToTransfer);
+            userCryptoRepository.save(toPlatformCrypto);
 
             to = new ToPlatform(newQuantity);
             from = new FromPlatform(networkFee, quantityToTransfer, totalToSubtract, quantityToSendReceive, remainingCryptoQuantity);
@@ -99,7 +99,7 @@ public class TransferCryptoServiceImpl implements TransferCryptoService {
         if (!doesFromPlatformHasRemaining(remainingCryptoQuantity) && toPlatformOptionalCrypto.isEmpty()) {
             cryptoToTransfer.setQuantity(quantityToSendReceive);
             cryptoToTransfer.setPlatformId(toPlatform.getId());
-            cryptoRepository.save(cryptoToTransfer);
+            userCryptoRepository.save(cryptoToTransfer);
 
             to = new ToPlatform(quantityToSendReceive);
             from = new FromPlatform(networkFee, quantityToTransfer, totalToSubtract, quantityToSendReceive, remainingCryptoQuantity);
@@ -113,13 +113,13 @@ public class TransferCryptoServiceImpl implements TransferCryptoService {
                 .orElseThrow(() -> new PlatformNotFoundException(TARGET_PLATFORM_NOT_EXISTS));
     }
 
-    private Crypto getCryptoToTransfer(String cryptoId) {
-        return cryptoRepository.findById(cryptoId)
-                .orElseThrow(() -> new CoinNotFoundException(COIN_NOT_FOUND));
+    private UserCrypto getCryptoToTransfer(String cryptoId) {
+        return userCryptoRepository.findById(cryptoId)
+                .orElseThrow(() -> new CryptoNotFoundException(CRYPTO_NOT_FOUND));
     }
 
-    private Optional<Crypto> getToPlatformOptionalCrypto(String coinId, Platform toPlatform) {
-        return cryptoRepository.findByCoinIdAndPlatformId(coinId, toPlatform.getId());
+    private Optional<UserCrypto> getToPlatformOptionalCrypto(String id, Platform toPlatform) {
+        return userCryptoRepository.findByIdAndPlatformId(id, toPlatform.getId());
     }
 
     private boolean isToAndFromSame(String toPlatformId, String fromPlatformId) {
@@ -146,17 +146,11 @@ public class TransferCryptoServiceImpl implements TransferCryptoService {
         return remainingCryptoQuantity.compareTo(BigDecimal.ZERO) > 0;
     }
 
-    private Function<Crypto, Crypto> mapCrypto() {
-        return crypto -> Crypto.builder()
-                .name(crypto.getName())
-                .ticker(crypto.getTicker())
-                .coinId(crypto.getCoinId())
-                .lastKnownPrice(crypto.getLastKnownPrice())
-                .lastKnownPriceInEUR(crypto.getLastKnownPriceInEUR())
-                .lastKnownPriceInBTC(crypto.getLastKnownPriceInBTC())
-                .circulatingSupply(crypto.getCirculatingSupply())
-                .maxSupply(crypto.getMaxSupply())
-                .lastPriceUpdatedAt(crypto.getLastPriceUpdatedAt())
+    private Function<UserCrypto, UserCrypto> mapCrypto() {
+        return userCrypto -> UserCrypto.builder()
+                .quantity(userCrypto.getQuantity())
+                .cryptoId(userCrypto.getCryptoId())
+                .platformId(userCrypto.getPlatformId())
                 .build();
     }
 }

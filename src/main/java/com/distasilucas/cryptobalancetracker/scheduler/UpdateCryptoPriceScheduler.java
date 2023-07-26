@@ -11,8 +11,6 @@ import org.springframework.stereotype.Component;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -35,29 +33,22 @@ public class UpdateCryptoPriceScheduler {
 
     @Scheduled(cron = "0 */3 * ? * *")
     public void updateCryptosMarketData() {
-        Set<String> cryptosToUpdate = getCryptosToUpdate();
+        List<Crypto> updatedCryptos = getCryptosToUpdate()
+                .stream()
+                .map(updateCryptoSchedulerMapperImpl::mapFrom)
+                .toList();
 
-        cryptosToUpdate.forEach(coinId -> {
-            log.info("Running cron to update last known price for [{}]", coinId);
-            cryptoRepository.findAllByCoinId(coinId)
-                    .ifPresent(cryptos -> {
-                        log.info("Updating [{}] occurrences of [{}]", cryptos.size(), coinId);
-
-                        List<Crypto> updatedCryptos = cryptos.stream()
-                                .map(updateCryptoSchedulerMapperImpl::mapFrom)
-                                .toList();
-
-                        cryptoRepository.saveAll(updatedCryptos);
-                    });
-        });
+        cryptoRepository.saveAll(updatedCryptos);
     }
 
-    private Set<String> getCryptosToUpdate() {
+    private List<Crypto> getCryptosToUpdate() {
         LocalDateTime lastUpdatedPrice = LocalDateTime.now(clock).minusMinutes(5);
 
-        return cryptoRepository.findTopNCryptosOrderByLastPriceUpdatedAtAsc(lastUpdatedPrice, maxLimit)
+        List<String> cryptosIdToUpdate = cryptoRepository.findTopNCryptosOrderByLastPriceUpdatedAtAsc(lastUpdatedPrice, maxLimit)
                 .stream()
-                .map(Crypto::getCoinId)
-                .collect(Collectors.toSet());
+                .map(Crypto::getId)
+                .toList();
+
+        return cryptoRepository.findAllById(cryptosIdToUpdate);
     }
 }

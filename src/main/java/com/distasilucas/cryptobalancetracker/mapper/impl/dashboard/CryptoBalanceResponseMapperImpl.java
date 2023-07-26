@@ -2,6 +2,7 @@ package com.distasilucas.cryptobalancetracker.mapper.impl.dashboard;
 
 import com.distasilucas.cryptobalancetracker.comparator.DescendingPercentageComparator;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.exception.ApiException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
@@ -24,19 +25,19 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.COIN_NAME_NOT_FOUND;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.CRYPTO_NOT_FOUND;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalanceResponse, List<Crypto>> {
+public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalanceResponse, List<UserCrypto>> {
 
-    private final PlatformRepository platformRepository;
     private final CryptoRepository cryptoRepository;
+    private final PlatformRepository platformRepository;
 
     @Override
-    public CryptoBalanceResponse mapFrom(List<Crypto> input) {
+    public CryptoBalanceResponse mapFrom(List<UserCrypto> input) {
         List<CoinResponse> coins = input.stream()
                 .map(this::mapCoinResponse)
                 .collect(Collectors.toList());
@@ -50,18 +51,16 @@ public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalan
         return new CryptoBalanceResponse(totalMoneyInUSD, totalMoneyInEUR, totalMoneyInBTC, coins);
     }
 
-    private CoinResponse mapCoinResponse(Crypto coin) {
-        Optional<Crypto> crypto = cryptoRepository.findById(coin.getId());
+    private CoinResponse mapCoinResponse(UserCrypto userCrypto) {
+        Optional<Crypto> crypto = cryptoRepository.findById(userCrypto.getCryptoId());
 
         if (crypto.isEmpty()) {
-            String message = String.format(COIN_NAME_NOT_FOUND, coin.getName());
-
-            throw new ApiException(message, HttpStatus.NOT_FOUND);
+            throw new ApiException(CRYPTO_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
 
         CoinInfo coinInfo = mapCoinInfo().apply(crypto.get());
 
-        return getCoinResponse(coin, coinInfo);
+        return getCoinResponse(userCrypto, coinInfo);
     }
 
     private void setPercentage(BigDecimal totalMoney, CoinResponse coinResponse) {
@@ -91,7 +90,7 @@ public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalan
                 .reduce(BigDecimal.valueOf(0), BigDecimal::add);
     }
 
-    private CoinResponse getCoinResponse(Crypto coin, CoinInfo coinInfo) {
+    private CoinResponse getCoinResponse(UserCrypto coin, CoinInfo coinInfo) {
         BigDecimal quantity = coin.getQuantity();
         BigDecimal balanceInUSD = coinInfo.getMarketData()
                 .currentPrice()
@@ -120,7 +119,7 @@ public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalan
             MarketData marketData = new MarketData(currentPrice, crypto.getCirculatingSupply(), crypto.getMaxSupply());
 
             CoinInfo coinInfo = new CoinInfo();
-            coinInfo.setId(crypto.getCoinId());
+            coinInfo.setId(crypto.getId());
             coinInfo.setSymbol(crypto.getTicker());
             coinInfo.setName(crypto.getName());
             coinInfo.setMarketData(marketData);

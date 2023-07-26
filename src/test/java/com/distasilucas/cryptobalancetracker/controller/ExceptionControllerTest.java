@@ -2,7 +2,7 @@ package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.exception.ApiException;
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
-import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.CryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformCoinException;
 import com.distasilucas.cryptobalancetracker.exception.GoalDuplicatedException;
 import com.distasilucas.cryptobalancetracker.exception.GoalNotFoundException;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import java.io.IOException;
 import java.util.Collections;
 
-import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.COIN_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.CRYPTO_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -36,7 +36,7 @@ class ExceptionControllerTest {
 
     @Test
     void shouldHandleCoinNotFoundException() {
-        var coinNotFoundException = new CoinNotFoundException(COIN_NOT_FOUND);
+        var coinNotFoundException = new CryptoNotFoundException(CRYPTO_NOT_FOUND);
         var responseEntity = exceptionController.handleCoinNotFoundException(coinNotFoundException);
 
         assertNotNull(responseEntity.getBody());
