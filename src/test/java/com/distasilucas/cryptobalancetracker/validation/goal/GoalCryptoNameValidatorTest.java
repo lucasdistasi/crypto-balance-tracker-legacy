@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.math.BigDecimal;
 
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.INVALID_CRYPTO_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -34,6 +35,6 @@ class GoalCryptoNameValidatorTest {
         var apiValidationException = assertThrows(ApiValidationException.class,
                 () -> entityValidation.validate(addGoalRequest));
 
-        assertEquals("Invalid crypto name", apiValidationException.getMessage());
+        assertEquals(INVALID_CRYPTO_NAME, apiValidationException.getMessage());
     }
 }

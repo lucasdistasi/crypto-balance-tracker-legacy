@@ -1,4 +1,4 @@
-package com.distasilucas.cryptobalancetracker.model.response.crypto;
+package com.distasilucas.cryptobalancetracker.model.response.dashboard;
 
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -9,9 +9,9 @@ import java.math.BigDecimal;
 
 @Data
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class CoinResponse {
+public class CryptoResponse {
 
-    private String coinId;
+    private String cryptoId;
     private CoinInfo coinInfo;
     private BigDecimal quantity;
     private BigDecimal balance;
@@ -20,9 +20,9 @@ public class CoinResponse {
     private BigDecimal percentage;
     private String platform;
 
-    public CoinResponse(String coinId, CoinInfo coinInfo, BigDecimal quantity,
-                        BigDecimal balance, BigDecimal balanceInEUR, BigDecimal balanceInBTC, String platform) {
-        this.coinId = coinId;
+    public CryptoResponse(String cryptoId, CoinInfo coinInfo, BigDecimal quantity,
+                          BigDecimal balance, BigDecimal balanceInEUR, BigDecimal balanceInBTC, String platform) {
+        this.cryptoId = cryptoId;
         this.coinInfo = coinInfo;
         this.quantity = quantity;
         this.balance = balance;

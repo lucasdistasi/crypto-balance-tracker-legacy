@@ -17,7 +17,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.PLATFORM_NOT_FOUND;
 
@@ -86,16 +88,15 @@ public class PlatformServiceImpl implements PlatformService {
     @Override
     public void deletePlatform(String platformName) {
         Platform platform = findPlatformByName(platformName);
-        Optional<List<UserCrypto>> cryptos = userCryptoRepository.findAllByPlatformId(platform.getId());
+        Optional<List<UserCrypto>> cryptosToDelete = userCryptoRepository.findAllByPlatformId(platform.getId());
 
-        if (cryptos.isPresent() && CollectionUtils.isNotEmpty(cryptos.get())) {
-            List<String> cryptoIds = cryptos.get()
+        if (cryptosToDelete.isPresent() && CollectionUtils.isNotEmpty(cryptosToDelete.get())) {
+            Map<String, String> cryptos = cryptosToDelete.get()
                     .stream()
-                    .map(UserCrypto::getCryptoId)
-                    .toList();
+                    .collect(Collectors.toUnmodifiableMap(UserCrypto::getId, UserCrypto::getCryptoId));
 
-            userCryptoRepository.deleteAllById(cryptoIds);
-            log.info("Deleted {} in platform {}", cryptoIds, platformName);
+            userCryptoRepository.deleteAllById(cryptos.keySet());
+            log.info("Deleted {} in platform {}", cryptos.values(), platformName);
         }
 
         platformRepository.delete(platform);

@@ -1,8 +1,8 @@
 package com.distasilucas.cryptobalancetracker.controller.swagger;
 
 import com.distasilucas.cryptobalancetracker.model.error.ErrorResponse;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoBalanceResponse;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoPlatformBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoPlatformBalanceResponse;
 import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptosPlatformDistributionResponse;
 import com.distasilucas.cryptobalancetracker.model.response.dashboard.PlatformsCryptoDistributionResponse;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformBalanceResponse;
@@ -42,7 +42,7 @@ public interface DashboardControllerApi {
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-    ResponseEntity<Optional<CryptoBalanceResponse>> retrieveCoinsBalance();
+    ResponseEntity<Optional<CryptoBalanceResponse>> retrieveCryptossBalance();
 
     @Operation(summary = "Retrieve all Balances from the given Crypto")
     @ApiResponses(value = {
@@ -65,7 +65,7 @@ public interface DashboardControllerApi {
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-    ResponseEntity<Optional<CryptoBalanceResponse>> retrieveCoinBalance(String coinId);
+    ResponseEntity<Optional<CryptoBalanceResponse>> retrieveCryptoBalance(String cryptoId);
 
     @Operation(summary = "Retrieve all Balances for all Cryptos")
     @ApiResponses(value = {
@@ -83,9 +83,9 @@ public interface DashboardControllerApi {
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-    ResponseEntity<Optional<List<CryptosPlatformDistributionResponse>>> retrieveCoinBalance();
+    ResponseEntity<Optional<List<CryptosPlatformDistributionResponse>>> retrieveCryptoBalance();
 
-    @Operation(summary = "Retrieve total crypto balances by platforms")
+    @Operation(summary = "Retrieve total cryptoId balances by platforms")
     @ApiResponses(value = {
             @ApiResponse(responseCode = OK_CODE, description = "Crypto Balances",
                     content = {
@@ -101,16 +101,16 @@ public interface DashboardControllerApi {
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-    ResponseEntity<Optional<CryptoPlatformBalanceResponse>> retrieveCoinsBalanceByPlatform();
+    ResponseEntity<Optional<CryptoPlatformBalanceResponse>> retrieveCryptosBalanceByPlatform();
 
-    @Operation(summary = "Retrieve all coins for the given platform")
+    @Operation(summary = "Retrieve all cryptos for the given platform")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = OK_CODE, description = "Platform coins",
+            @ApiResponse(responseCode = OK_CODE, description = "Platform cryptos",
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
                                     schema = @Schema(implementation = CryptoBalanceResponse.class))
                     }),
-            @ApiResponse(responseCode = NO_CONTENT_CODE, description = "No coins saved for the given platform",
+            @ApiResponse(responseCode = NO_CONTENT_CODE, description = "No cryptos saved for the given platform",
                     content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = BAD_REQUEST_CODE, description = INVALID_DATA,
                     content = {
@@ -123,11 +123,11 @@ public interface DashboardControllerApi {
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-    ResponseEntity<Optional<CryptoBalanceResponse>> getCoins(String platformName);
+    ResponseEntity<Optional<CryptoBalanceResponse>> getCryptos(String platformName);
 
-    @Operation(summary = "Retrieve all coins balances for all platform")
+    @Operation(summary = "Retrieve all cryptos balances for all platform")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = OK_CODE, description = "Platforms coins",
+            @ApiResponse(responseCode = OK_CODE, description = "Platforms cryptos",
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
                                     array = @ArraySchema(schema = @Schema(
@@ -151,7 +151,7 @@ public interface DashboardControllerApi {
                             @Content(mediaType = APPLICATION_JSON,
                                     schema = @Schema(implementation = PlatformBalanceResponse.class))
                     }),
-            @ApiResponse(responseCode = NO_CONTENT_CODE, description = "No coins saved",
+            @ApiResponse(responseCode = NO_CONTENT_CODE, description = "No cryptos saved",
                     content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = INTERNAL_SERVER_ERROR_CODE, description = INTERNAL_SERVER_ERROR,
                     content = {

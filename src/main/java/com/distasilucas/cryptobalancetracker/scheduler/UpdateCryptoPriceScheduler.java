@@ -33,12 +33,14 @@ public class UpdateCryptoPriceScheduler {
 
     @Scheduled(cron = "0 */3 * ? * *")
     public void updateCryptosMarketData() {
-        List<Crypto> updatedCryptos = getCryptosToUpdate()
+        log.info("Running cron to update cryptos data...");
+
+        List<Crypto> cryptosToUpdate = getCryptosToUpdate()
                 .stream()
                 .map(updateCryptoSchedulerMapperImpl::mapFrom)
                 .toList();
 
-        cryptoRepository.saveAll(updatedCryptos);
+        cryptoRepository.saveAll(cryptosToUpdate);
     }
 
     private List<Crypto> getCryptosToUpdate() {

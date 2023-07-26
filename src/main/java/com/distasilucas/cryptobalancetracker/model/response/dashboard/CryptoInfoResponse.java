@@ -1,9 +1,9 @@
-package com.distasilucas.cryptobalancetracker.model.response.crypto;
+package com.distasilucas.cryptobalancetracker.model.response.dashboard;
 
 import java.math.BigDecimal;
 import java.util.Set;
 
-public record CoinInfoResponse(
+public record CryptoInfoResponse(
         String name,
         BigDecimal quantity,
         BigDecimal balance,

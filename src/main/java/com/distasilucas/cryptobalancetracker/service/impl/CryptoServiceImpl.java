@@ -42,4 +42,9 @@ public class CryptoServiceImpl {
             cryptoRepository.save(crypto);
         }
     }
+
+    // TODO
+    public void deleteCryptoIfNotUsed(String cryptoId) {
+
+    }
 }

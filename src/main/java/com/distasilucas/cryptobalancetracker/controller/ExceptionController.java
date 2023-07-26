@@ -3,7 +3,6 @@ package com.distasilucas.cryptobalancetracker.controller;
 import com.distasilucas.cryptobalancetracker.exception.ApiException;
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
 import com.distasilucas.cryptobalancetracker.exception.CryptoNotFoundException;
-import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformCoinException;
 import com.distasilucas.cryptobalancetracker.exception.GoalDuplicatedException;
 import com.distasilucas.cryptobalancetracker.exception.GoalNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.InsufficientBalanceException;
@@ -33,8 +32,8 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 public class ExceptionController {
 
     @ExceptionHandler(value = CryptoNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleCoinNotFoundException(CryptoNotFoundException cryptoNotFoundException) {
-        log.warn("A CoinNotFoundException has occurred: ", cryptoNotFoundException);
+    public ResponseEntity<ErrorResponse> handleCryptoNotFoundException(CryptoNotFoundException cryptoNotFoundException) {
+        log.warn("A CryptoNotFoundException has occurred: ", cryptoNotFoundException);
 
         Error error = new Error(cryptoNotFoundException.getErrorMessage());
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), Collections.singletonList(error));
@@ -131,17 +130,6 @@ public class ExceptionController {
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), Collections.singletonList(error));
 
         return ResponseEntity.badRequest()
-                .body(errorResponse);
-    }
-
-    @ExceptionHandler(value = DuplicatedPlatformCoinException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicatedPlatformCoinException(DuplicatedPlatformCoinException duplicatedPlatformCoinException) {
-        log.warn("A DuplicatedPlatformCoinException has occurred: ", duplicatedPlatformCoinException);
-
-        Error error = new Error(duplicatedPlatformCoinException.getErrorMessage());
-        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), Collections.singletonList(error));
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(errorResponse);
     }
 

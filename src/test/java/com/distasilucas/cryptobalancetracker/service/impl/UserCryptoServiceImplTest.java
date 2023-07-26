@@ -9,7 +9,7 @@ import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.UpdateCryptoRequest;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.UserCryptoResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
@@ -58,7 +58,7 @@ class UserCryptoServiceImplTest {
     EntityMapper<UserCrypto, AddCryptoRequest> cryptoMapperImplMock;
 
     @Mock
-    EntityMapper<CryptoResponse, UserCrypto> cryptoResponseMapperImplMock;
+    EntityMapper<UserCryptoResponse, UserCrypto> cryptoResponseMapperImplMock;
 
     @Mock
     CryptoRepository cryptoRepositoryMock;
@@ -107,7 +107,7 @@ class UserCryptoServiceImplTest {
     }
 
     @Test
-    void shouldReturnCoinWithUnknownPlatform() {
+    void shouldReturnCryptoWithUnknownPlatform() {
         var userCrypto = MockData.getUserCrypto("1234");
         var crypto = Crypto.builder()
                 .name("Bitcoin")
@@ -128,20 +128,20 @@ class UserCryptoServiceImplTest {
     }
 
     @Test
-    void shouldThrowCoinNotFoundExceptionWhenRetrievingNonExistentCoin() {
+    void shouldThrowCryptoNotFoundExceptionWhenRetrievingNonExistentCrypto() {
         when(userCryptoRepositoryMock.findById("1234")).thenReturn(Optional.empty());
 
-        var coinNotFoundException = assertThrows(CryptoNotFoundException.class,
+        var cryptoNotFoundException = assertThrows(CryptoNotFoundException.class,
                 () -> userCryptoService.getCrypto("1234"));
 
         assertAll(
-                () -> assertEquals(String.format(CRYPTO_ID_NOT_FOUND, "1234"), coinNotFoundException.getErrorMessage()),
-                () -> assertEquals(HttpStatus.NOT_FOUND, coinNotFoundException.getHttpStatusCode())
+                () -> assertEquals(String.format(CRYPTO_ID_NOT_FOUND, "1234"), cryptoNotFoundException.getErrorMessage()),
+                () -> assertEquals(HttpStatus.NOT_FOUND, cryptoNotFoundException.getHttpStatusCode())
         );
     }
 
     @Test
-    void shouldRetrieveCoinsPage() {
+    void shouldRetrieveCryptosPage() {
         var crypto = UserCrypto.builder()
                 .quantity(BigDecimal.valueOf(1))
                 .build();
@@ -153,15 +153,15 @@ class UserCryptoServiceImplTest {
         when(userCryptoRepositoryMock.findAll(pageable)).thenReturn(new PageImpl<>(Collections.singletonList(crypto)));
         when(cryptoResponseMapperImplMock.mapFrom(crypto)).thenReturn(cryptoResponse);
 
-        var coins = userCryptoService.getCryptos(page);
+        var cryptos = userCryptoService.getCryptos(page);
 
         assertAll(
-                () -> assertTrue(coins.isPresent()),
-                () -> assertNotNull(coins.get()),
-                () -> assertNotEquals(0, coins.get().getCryptos().size()),
-                () -> assertEquals(platform.getName(), coins.get().getCryptos().get(0).getPlatform()),
-                () -> assertEquals(crypto.getQuantity(), coins.get().getCryptos().get(0).getQuantity()),
-                () -> assertEquals(platform.getName(), coins.get().getCryptos().get(0).getPlatform())
+                () -> assertTrue(cryptos.isPresent()),
+                () -> assertNotNull(cryptos.get()),
+                () -> assertNotEquals(0, cryptos.get().getCryptos().size()),
+                () -> assertEquals(platform.getName(), cryptos.get().getCryptos().get(0).getPlatform()),
+                () -> assertEquals(crypto.getQuantity(), cryptos.get().getCryptos().get(0).getQuantity()),
+                () -> assertEquals(platform.getName(), cryptos.get().getCryptos().get(0).getPlatform())
         );
     }
 
@@ -172,11 +172,11 @@ class UserCryptoServiceImplTest {
 
         when(userCryptoRepositoryMock.findAll(pageable)).thenReturn(Page.empty());
 
-        var coins = userCryptoService.getCryptos(page);
+        var cryptos = userCryptoService.getCryptos(page);
 
         assertAll(
-                () -> assertEquals(Optional.empty(), coins),
-                () -> assertTrue(coins.isEmpty())
+                () -> assertEquals(Optional.empty(), cryptos),
+                () -> assertTrue(cryptos.isEmpty())
         );
     }
 
@@ -185,7 +185,7 @@ class UserCryptoServiceImplTest {
         var cryptoRequest = new AddCryptoRequest("Bitcoin", BigDecimal.valueOf(0.2), "Ledger");
         var cryptoEntity = UserCrypto.builder()
                 .build();
-        var cryptoResponse = CryptoResponse.builder()
+        var cryptoResponse = UserCryptoResponse.builder()
                 .cryptoName(cryptoRequest.getCryptoName())
                 .build();
 
@@ -205,7 +205,7 @@ class UserCryptoServiceImplTest {
     }
 
     @Test
-    void shouldUpdateCoin() {
+    void shouldUpdateCrypto() {
         var newCryptoRequest = new UpdateCryptoRequest("Bitcoin", BigDecimal.valueOf(0.15), "BINANCE");
         var platform = Platform.builder()
                 .id("321")
@@ -213,7 +213,7 @@ class UserCryptoServiceImplTest {
         var existingCrypto = UserCrypto.builder()
                 .id("ABC123")
                 .build();
-        var newCryptoResponse = CryptoResponse.builder()
+        var newCryptoResponse = UserCryptoResponse.builder()
                 .quantity(newCryptoRequest.getQuantity())
                 .platform(newCryptoRequest.getPlatform())
                 .build();
@@ -240,11 +240,11 @@ class UserCryptoServiceImplTest {
         doNothing().when(updateCryptoValidationMock).validate(cryptoRequest);
         when(userCryptoRepositoryMock.findById("ABC123")).thenReturn(Optional.empty());
 
-        var coinNotFoundException = assertThrows(CryptoNotFoundException.class,
+        var cryptoNotFoundException = assertThrows(CryptoNotFoundException.class,
                 () -> userCryptoService.updateCrypto(cryptoRequest, "ABC123"));
 
         assertAll(
-                () -> assertEquals(CRYPTO_NOT_FOUND, coinNotFoundException.getErrorMessage())
+                () -> assertEquals(CRYPTO_NOT_FOUND, cryptoNotFoundException.getErrorMessage())
         );
     }
 
@@ -286,11 +286,11 @@ class UserCryptoServiceImplTest {
     void shouldThrowExceptionWhenDeleteNonExistentCrypto() {
         when(userCryptoRepositoryMock.findById("ABC123")).thenReturn(Optional.empty());
 
-        var coinNotFoundException = assertThrows(CryptoNotFoundException.class,
+        var cryptoNotFoundException = assertThrows(CryptoNotFoundException.class,
                 () -> userCryptoService.deleteCrypto("ABC123"));
 
         assertAll(
-                () -> assertEquals(CRYPTO_NOT_FOUND, coinNotFoundException.getErrorMessage())
+                () -> assertEquals(CRYPTO_NOT_FOUND, cryptoNotFoundException.getErrorMessage())
         );
     }
 }

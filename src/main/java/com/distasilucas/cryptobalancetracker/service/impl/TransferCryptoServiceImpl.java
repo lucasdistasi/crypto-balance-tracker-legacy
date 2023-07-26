@@ -41,7 +41,8 @@ public class TransferCryptoServiceImpl implements TransferCryptoService {
 
         String toPlatformName = transferCryptoRequest.getToPlatform().toUpperCase();
         Platform toPlatform = getToPlatform(toPlatformName);
-        UserCrypto cryptoToTransfer = getCryptoToTransfer(transferCryptoRequest.getCryptoId());
+        String id = transferCryptoRequest.getCryptoId();
+        UserCrypto cryptoToTransfer = getCryptoToTransfer(id);
 
         if (isToAndFromSame(toPlatform.getId(), cryptoToTransfer.getPlatformId()))
             throw new ApiValidationException(SAME_FROM_TO_PLATFORM);
@@ -55,7 +56,7 @@ public class TransferCryptoServiceImpl implements TransferCryptoService {
         if (hasInsufficientBalance(actualCryptoQuantity, quantityToTransfer))
             throw new InsufficientBalanceException(NOT_ENOUGH_BALANCE);
 
-        Optional<UserCrypto> toPlatformOptionalCrypto = getToPlatformOptionalCrypto(cryptoToTransfer.getId(), toPlatform);
+        Optional<UserCrypto> toPlatformOptionalCrypto = getToPlatformOptionalCrypto(cryptoToTransfer.getCryptoId(), toPlatform);
         BigDecimal remainingCryptoQuantity = getRemainingCryptoQuantity(actualCryptoQuantity, totalToSubtract);
         ToPlatform to = new ToPlatform();
         FromPlatform from = new FromPlatform();
@@ -113,13 +114,13 @@ public class TransferCryptoServiceImpl implements TransferCryptoService {
                 .orElseThrow(() -> new PlatformNotFoundException(TARGET_PLATFORM_NOT_EXISTS));
     }
 
-    private UserCrypto getCryptoToTransfer(String cryptoId) {
-        return userCryptoRepository.findById(cryptoId)
+    private UserCrypto getCryptoToTransfer(String id) {
+        return userCryptoRepository.findById(id)
                 .orElseThrow(() -> new CryptoNotFoundException(CRYPTO_NOT_FOUND));
     }
 
-    private Optional<UserCrypto> getToPlatformOptionalCrypto(String id, Platform toPlatform) {
-        return userCryptoRepository.findByIdAndPlatformId(id, toPlatform.getId());
+    private Optional<UserCrypto> getToPlatformOptionalCrypto(String cryptoId, Platform toPlatform) {
+        return userCryptoRepository.findByCryptoIdAndPlatformId(cryptoId, toPlatform.getId());
     }
 
     private boolean isToAndFromSame(String toPlatformId, String fromPlatformId) {

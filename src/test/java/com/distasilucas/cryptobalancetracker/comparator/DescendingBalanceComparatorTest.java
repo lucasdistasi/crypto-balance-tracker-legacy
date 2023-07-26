@@ -1,6 +1,6 @@
 package com.distasilucas.cryptobalancetracker.comparator;
 
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinInfoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoInfoResponse;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -12,17 +12,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DescendingBalanceComparatorTest {
 
-    Comparator<CoinInfoResponse> comparator = new DescendingBalanceComparator();
+    Comparator<CryptoInfoResponse> comparator = new DescendingBalanceComparator();
 
     @Test
     void shouldCompareSuccessfully() {
-        var higherCoinInfoResponse = new CoinInfoResponse("bitcoin", BigDecimal.valueOf(0.5), BigDecimal.valueOf(100),
+        var higherCryptoInfoResponse = new CryptoInfoResponse("bitcoin", BigDecimal.valueOf(0.5), BigDecimal.valueOf(100),
                 BigDecimal.ZERO, Collections.emptySet());
-        var lowerCoinInfoResponse = new CoinInfoResponse("bitcoin", BigDecimal.valueOf(0.5), BigDecimal.valueOf(50),
+        var lowerCryptoInfoResponse = new CryptoInfoResponse("bitcoin", BigDecimal.valueOf(0.5), BigDecimal.valueOf(50),
                 BigDecimal.ZERO, Collections.emptySet());
 
-        var firstCompare = comparator.compare(higherCoinInfoResponse, lowerCoinInfoResponse);
-        var secondCompare = comparator.compare(lowerCoinInfoResponse, higherCoinInfoResponse);
+        var firstCompare = comparator.compare(higherCryptoInfoResponse, lowerCryptoInfoResponse);
+        var secondCompare = comparator.compare(lowerCryptoInfoResponse, higherCryptoInfoResponse);
 
         assertAll(
                 () -> assertEquals(-1, firstCompare),

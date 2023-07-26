@@ -10,11 +10,11 @@ import com.distasilucas.cryptobalancetracker.model.coingecko.CurrentPrice;
 import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.platform.PlatformRequest;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinInfoResponse;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinResponse;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoBalanceResponse;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoPlatformBalanceResponse;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoInfoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoPlatformBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.UserCryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.PageCryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
@@ -37,7 +37,7 @@ public class MockData {
 
     public static CryptoBalanceResponse getCryptoBalanceResponse() {
         var coinInfo = getBitcoinCoinInfo();
-        var coinResponse = getCoinResponse(coinInfo);
+        var coinResponse = getCryptoResponse(coinInfo);
         var cryptoBalanceResponse = new CryptoBalanceResponse(TOTAL_BALANCE_USD, TOTAL_BALANCE_EUR,
                 TOTAL_BALANCE_BTC, Collections.singletonList(coinResponse));
         setPercentage(coinResponse);
@@ -46,18 +46,18 @@ public class MockData {
     }
 
     public static CryptoPlatformBalanceResponse getCryptoPlatformBalanceResponse() {
-        var coinInfo = getCoinInfoResponse();
+        var cryptoInfo = getCryptoInfoResponse();
 
-        return new CryptoPlatformBalanceResponse(TOTAL_BALANCE_USD, Collections.singletonList(coinInfo));
+        return new CryptoPlatformBalanceResponse(TOTAL_BALANCE_USD, Collections.singletonList(cryptoInfo));
     }
 
-    public static CoinInfoResponse getCoinInfoResponse() {
-        return new CoinInfoResponse("bitcoin", BigDecimal.valueOf(0.15), BigDecimal.valueOf(1000),
+    public static CryptoInfoResponse getCryptoInfoResponse() {
+        return new CryptoInfoResponse("bitcoin", BigDecimal.valueOf(0.15), BigDecimal.valueOf(1000),
                 BigDecimal.valueOf(10), Set.of("Trezor", "Ledger"));
     }
 
-    public static CoinResponse getCoinResponse(CoinInfo coinInfo) {
-        return new CoinResponse("ABC123", coinInfo, BigDecimal.valueOf(5),
+    public static CryptoResponse getCryptoResponse(CoinInfo coinInfo) {
+        return new CryptoResponse("ABC123", coinInfo, BigDecimal.valueOf(5),
                 TOTAL_BALANCE_USD, TOTAL_BALANCE_EUR, TOTAL_BALANCE_BTC, "LEDGER");
     }
 
@@ -81,9 +81,9 @@ public class MockData {
         );
     }
 
-    public static BigDecimal getTotalMoney(List<CoinResponse> coinsResponse) {
-        return coinsResponse.stream()
-                .map(CoinResponse::getBalance)
+    public static BigDecimal getTotalMoney(List<CryptoResponse> cryptosResponse) {
+        return cryptosResponse.stream()
+                .map(CryptoResponse::getBalance)
                 .reduce(BigDecimal.valueOf(0), BigDecimal::add);
     }
 
@@ -124,8 +124,8 @@ public class MockData {
         return new AddCryptoRequest("Ethereum", BigDecimal.valueOf(1), "Ledger");
     }
 
-    public static CryptoResponse getCryptoResponse() {
-        return CryptoResponse.builder()
+    public static UserCryptoResponse getCryptoResponse() {
+        return UserCryptoResponse.builder()
                 .id("ABC123")
                 .cryptoName("Ethereum")
                 .quantity(BigDecimal.valueOf(1))
@@ -193,12 +193,12 @@ public class MockData {
         );
     }
 
-    private static void setPercentage(CoinResponse coinResponse) {
-        BigDecimal percentage = coinResponse.getBalance()
+    private static void setPercentage(CryptoResponse cryptoResponse) {
+        BigDecimal percentage = cryptoResponse.getBalance()
                 .setScale(2, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(100))
                 .divide(TOTAL_BALANCE_USD, RoundingMode.HALF_UP);
 
-        coinResponse.setPercentage(percentage);
+        cryptoResponse.setPercentage(percentage);
     }
 }

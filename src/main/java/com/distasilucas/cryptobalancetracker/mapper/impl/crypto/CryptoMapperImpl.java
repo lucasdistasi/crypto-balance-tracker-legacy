@@ -35,7 +35,7 @@ public class CryptoMapperImpl implements EntityMapper<UserCrypto, AddCryptoReque
             log.info("Attempting to retrieve [{}] information from Coingecko or cache", cryptoRequest.getCryptoName());
             List<Coin> coins = coingeckoService.retrieveAllCoins();
 
-            return getCrypto(cryptoRequest, coins);
+            return getUserCrypto(cryptoRequest, coins);
         } catch (WebClientResponseException ex) {
             if (HttpStatus.TOO_MANY_REQUESTS.equals(ex.getStatusCode())) {
                 log.warn("To many requests. Rate limit reached.");
@@ -47,25 +47,25 @@ public class CryptoMapperImpl implements EntityMapper<UserCrypto, AddCryptoReque
         }
     }
 
-    private UserCrypto getCrypto(AddCryptoRequest cryptoRequest, List<Coin> coins) {
-        UserCrypto crypto = new UserCrypto();
+    private UserCrypto getUserCrypto(AddCryptoRequest cryptoRequest, List<Coin> coins) {
+        UserCrypto userCrypto = new UserCrypto();
         Platform platform = platformService.findPlatformByName(cryptoRequest.getPlatform());
-        String coinName = cryptoRequest.getCryptoName();
+        String cryptoName = cryptoRequest.getCryptoName();
 
         coins.stream()
-                .filter(coin -> coin.getName().equalsIgnoreCase(coinName))
+                .filter(coin -> coin.getName().equalsIgnoreCase(cryptoName))
                 .findFirst()
                 .ifPresentOrElse(coin -> {
-                            crypto.setCryptoId(coin.getId());
-                            crypto.setQuantity(cryptoRequest.getQuantity());
-                            crypto.setPlatformId(platform.getId());
+                            userCrypto.setCryptoId(coin.getId());
+                            userCrypto.setQuantity(cryptoRequest.getQuantity());
+                            userCrypto.setPlatformId(platform.getId());
                         }, () -> {
-                            String message = String.format(CRYPTO_NAME_NOT_FOUND, coinName);
+                            String message = String.format(CRYPTO_NAME_NOT_FOUND, cryptoName);
 
                             throw new CryptoNotFoundException(message);
                         }
                 );
 
-        return crypto;
+        return userCrypto;
     }
 }

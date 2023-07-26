@@ -1,14 +1,12 @@
 package com.distasilucas.cryptobalancetracker.mapper.impl;
 
 import com.distasilucas.cryptobalancetracker.MockData;
-import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.ApiException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.mapper.impl.dashboard.CryptoBalanceResponseMapperImpl;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
-import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,13 +15,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
-import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.CRYPTO_NAME_NOT_FOUND;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.CRYPTO_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -62,8 +58,8 @@ class CryptoBalanceResponseMapperImplTest {
         var expectedBalance = totalBalance.setScale(2, RoundingMode.HALF_UP);
 
         assertAll(
-                () -> assertEquals(cryptos.size(), cryptoBalanceResponse.coins().size()),
-                () -> assertEquals(platform.getName(), cryptoBalanceResponse.coins().get(0).getPlatform()),
+                () -> assertEquals(cryptos.size(), cryptoBalanceResponse.cryptos().size()),
+                () -> assertEquals(platform.getName(), cryptoBalanceResponse.cryptos().get(0).getPlatform()),
                 () -> assertEquals(expectedBalance, totalBalance)
         );
     }
@@ -81,8 +77,8 @@ class CryptoBalanceResponseMapperImplTest {
         var expectedBalance = totalBalance.setScale(2, RoundingMode.HALF_UP);
 
         assertAll(
-                () -> assertEquals(userCryptos.size(), cryptoBalanceResponse.coins().size()),
-                () -> assertEquals(UNKNOWN, cryptoBalanceResponse.coins().get(0).getPlatform()),
+                () -> assertEquals(userCryptos.size(), cryptoBalanceResponse.cryptos().size()),
+                () -> assertEquals(UNKNOWN, cryptoBalanceResponse.cryptos().get(0).getPlatform()),
                 () -> assertEquals(expectedBalance, totalBalance)
         );
     }

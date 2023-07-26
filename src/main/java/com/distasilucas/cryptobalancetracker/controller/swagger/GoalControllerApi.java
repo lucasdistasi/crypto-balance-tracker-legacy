@@ -127,7 +127,7 @@ public interface GoalControllerApi {
                     }
             )
     })
-    ResponseEntity<GoalResponse> updateGoalQuantity(UpdateGoalRequest updateGoalRequest, String coinId);
+    ResponseEntity<GoalResponse> updateGoalQuantity(UpdateGoalRequest updateGoalRequest, String goalId);
 
     @Operation(summary = "Delete a Goal")
     @ApiResponses(value = {

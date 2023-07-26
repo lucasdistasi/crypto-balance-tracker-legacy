@@ -1,7 +1,6 @@
 package com.distasilucas.cryptobalancetracker.mapper.impl.scheduler;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
-import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
@@ -25,6 +24,7 @@ public class UpdateCryptoSchedulerMapperImpl implements EntityMapper<Crypto, Cry
     
     @Override
     public Crypto mapFrom(Crypto input) {
+        log.info("Updating information for {}", input.getName());
         String id = input.getId();
 
         try {
@@ -46,6 +46,8 @@ public class UpdateCryptoSchedulerMapperImpl implements EntityMapper<Crypto, Cry
             cryptoToUpdate.setCirculatingSupply(circulatingSupply);
             cryptoToUpdate.setMaxSupply(maxSupply);
             cryptoToUpdate.setLastPriceUpdatedAt(LocalDateTime.now(clock));
+
+            log.info("Updated information for {}", input.getName());
 
             return cryptoToUpdate;
         } catch (WebClientResponseException ex) {

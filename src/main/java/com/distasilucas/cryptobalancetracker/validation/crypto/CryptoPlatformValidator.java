@@ -21,7 +21,7 @@ import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.CRYPTO_ID_NOT_FOUND;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.CRYPTO_NAME_NOT_FOUND;
-import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.DUPLICATED_PLATFORM_COIN;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.DUPLICATED_PLATFORM_CRYPTO;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.PLATFORM_NOT_FOUND;
 
 @Slf4j
@@ -61,7 +61,7 @@ public class CryptoPlatformValidator<T extends CryptoRequest> implements EntityV
             Optional<UserCrypto> optionalCrypto = userCryptoRepository.findByCryptoIdAndPlatformId(coin.getId(), platform.getId());
 
             optionalCrypto.ifPresent(crypto -> {
-                String message = String.format(DUPLICATED_PLATFORM_COIN, coin.getName(), platform.getName());
+                String message = String.format(DUPLICATED_PLATFORM_CRYPTO, platform.getName());
 
                 throw new ApiValidationException(message);
             });
@@ -81,7 +81,7 @@ public class CryptoPlatformValidator<T extends CryptoRequest> implements EntityV
                 Optional<UserCrypto> optionalUserCrypto = userCryptoRepository.findByCryptoIdAndPlatformId(currentCrypto.get().getCryptoId(), platform.getId());
 
                 if (optionalUserCrypto.isPresent()) {
-                    String message = String.format(DUPLICATED_PLATFORM_COIN, platform.getName());
+                    String message = String.format(DUPLICATED_PLATFORM_CRYPTO, platform.getName());
 
                     throw new ApiValidationException(message);
                 }
@@ -90,6 +90,7 @@ public class CryptoPlatformValidator<T extends CryptoRequest> implements EntityV
     }
 
     private boolean isSamePlatform(UserCrypto crypto, UpdateCryptoRequest updateCryptoRequest, Platform platform) {
-        return crypto.getCryptoId().equals(updateCryptoRequest.getCryptoId()) && crypto.getPlatformId().equals(platform.getId());
+        return crypto.getCryptoId().equals(updateCryptoRequest.getCryptoId()) &&
+                crypto.getPlatformId().equals(platform.getId());
     }
 }

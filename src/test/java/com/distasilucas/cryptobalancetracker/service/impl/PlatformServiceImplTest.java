@@ -1,15 +1,14 @@
 package com.distasilucas.cryptobalancetracker.service.impl;
 
 import com.distasilucas.cryptobalancetracker.MockData;
-import com.distasilucas.cryptobalancetracker.entity.Crypto;
-import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.request.platform.PlatformRequest;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
-import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
+import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import com.distasilucas.cryptobalancetracker.validation.UtilValidations;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
@@ -146,8 +145,8 @@ class PlatformServiceImplTest {
         var platformEntity = MockData.getPlatform("Ledger");
         var userCryptos = Collections.singletonList(MockData.getUserCrypto());
         var cryptoIds = userCryptos.stream()
-                .map(UserCrypto::getCryptoId)
-                .toList();
+                .map(UserCrypto::getId)
+                .collect(Collectors.toUnmodifiableSet());
 
         when(platformRepositoryMock.findByName("LEDGER")).thenReturn(Optional.of(platformEntity));
         when(userCryptoRepositoryMock.findAllByPlatformId("1234")).thenReturn(Optional.of(userCryptos));

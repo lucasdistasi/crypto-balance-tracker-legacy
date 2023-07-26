@@ -64,7 +64,7 @@ public class GoalMapper<T extends GoalRequest> implements EntityMapper<Goal, T> 
             if (optionalCrypto.isEmpty())
                 throw new CryptoNotFoundException(CRYPTO_NOT_FOUND);
 
-            goal.setGoalId(existingGoal.getGoalId());
+            goal.setId(existingGoal.getId());
             goal.setCryptoId(existingGoal.getCryptoId());
             goal.setQuantityGoal(updateGoalRequest.quantityGoal());
         }

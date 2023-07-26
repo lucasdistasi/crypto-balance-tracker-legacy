@@ -41,7 +41,7 @@ public class GoalResponseMapper implements EntityMapper<GoalResponse, Goal> {
         BigDecimal progress = getProgress(actualQuantity, quantityGoal);
         BigDecimal remainingQuantity = getRemainingQuantity(actualQuantity, quantityGoal);
 
-        return new GoalResponse(input.getGoalId(), crypto.getName(), actualQuantity, progress,
+        return new GoalResponse(input.getId(), crypto.getName(), actualQuantity, progress,
                 remainingQuantity, quantityGoal, moneyNeeded);
     }
 

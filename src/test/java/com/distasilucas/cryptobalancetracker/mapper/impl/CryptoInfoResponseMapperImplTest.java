@@ -2,9 +2,9 @@ package com.distasilucas.cryptobalancetracker.mapper.impl;
 
 import com.distasilucas.cryptobalancetracker.MockData;
 import com.distasilucas.cryptobalancetracker.mapper.BiFunctionMapper;
-import com.distasilucas.cryptobalancetracker.mapper.impl.dashboard.CoinInfoResponseMapperImpl;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinInfoResponse;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoBalanceResponse;
+import com.distasilucas.cryptobalancetracker.mapper.impl.dashboard.CryptoInfoResponseMapperImpl;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoInfoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoBalanceResponse;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -16,9 +16,9 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-class CoinInfoResponseMapperImplTest {
+class CryptoInfoResponseMapperImplTest {
 
-    BiFunctionMapper<Map<String, BigDecimal>, CryptoBalanceResponse, List<CoinInfoResponse>> coinInfoResponseMapper = new CoinInfoResponseMapperImpl();
+    BiFunctionMapper<Map<String, BigDecimal>, CryptoBalanceResponse, List<CryptoInfoResponse>> cryptoInfoResponseMapper = new CryptoInfoResponseMapperImpl();
 
     @Test
     void shouldMapSuccessfully() {
@@ -27,13 +27,13 @@ class CoinInfoResponseMapperImplTest {
         }};
         var cryptoBalanceResponse = MockData.getCryptoBalanceResponse();
 
-        var coinInfoResponses = coinInfoResponseMapper.map()
+        var cryptoInfoResponse = cryptoInfoResponseMapper.map()
                 .apply(map, cryptoBalanceResponse);
 
         assertAll(
-                () -> assertFalse(coinInfoResponses.isEmpty()),
-                () -> assertEquals(map.size(), coinInfoResponses.size()),
-                () -> assertEquals("ethereum", coinInfoResponses.get(0).name())
+                () -> assertFalse(cryptoInfoResponse.isEmpty()),
+                () -> assertEquals(map.size(), cryptoInfoResponse.size()),
+                () -> assertEquals("ethereum", cryptoInfoResponse.get(0).name())
         );
     }
 }

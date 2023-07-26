@@ -24,7 +24,7 @@ import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.CRYPTO_ID_NOT_FOUND;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.CRYPTO_NAME_NOT_FOUND;
-import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.DUPLICATED_PLATFORM_COIN;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.DUPLICATED_PLATFORM_CRYPTO;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.PLATFORM_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -65,17 +65,17 @@ class CryptoPlatformValidatorTest {
     }
 
     @Test
-    void shouldThrowCoinNotFoundExceptionWhenValidatingForAdd() {
+    void shouldThrowCryptoNotFoundExceptionWhenValidatingForAdd() {
         var addCryptoRequest = MockData.getAddCryptoRequest();
         var platform = MockData.getPlatform("Ledger");
         var expectedMessage = String.format(CRYPTO_NAME_NOT_FOUND, "Ethereum");
 
         when(platformRepositoryMock.findByName("LEDGER")).thenReturn(Optional.of(platform));
 
-        var coinNotFoundException = assertThrows(CryptoNotFoundException.class,
+        var cryptoNotFoundException = assertThrows(CryptoNotFoundException.class,
                 () -> addCryptoRequestEntityValidation.validate(addCryptoRequest));
 
-        assertEquals(expectedMessage, coinNotFoundException.getErrorMessage());
+        assertEquals(expectedMessage, cryptoNotFoundException.getErrorMessage());
     }
 
     @Test
@@ -111,7 +111,7 @@ class CryptoPlatformValidatorTest {
                 () -> addCryptoRequestEntityValidation.validate(addCryptoRequest)
         );
 
-        var message = String.format(DUPLICATED_PLATFORM_COIN, coin.getName(), platform.getName());
+        var message = String.format(DUPLICATED_PLATFORM_CRYPTO, platform.getName());
 
         assertEquals(message, apiValidationException.getErrorMessage());
     }
@@ -141,7 +141,7 @@ class CryptoPlatformValidatorTest {
     }
 
     @Test
-    void shouldThrowCoinNotFoundExceptionWhenUpdateWithDifferentPlatform() {
+    void shouldThrowCryptoNotFoundExceptionWhenUpdateWithDifferentPlatform() {
         var updateCryptoRequest = new UpdateCryptoRequest("ABC1234", BigDecimal.valueOf(0.35), "Safepal");
         var platform = MockData.getPlatform("Safepal");
         var expectedMessage = String.format(CRYPTO_ID_NOT_FOUND, "ABC1234");
@@ -149,10 +149,10 @@ class CryptoPlatformValidatorTest {
         when(platformRepositoryMock.findByName("SAFEPAL")).thenReturn(Optional.of(platform));
         when(userCryptoRepositoryMock.findById("ABC1234")).thenReturn(Optional.empty());
 
-        var coinNotFoundException = assertThrows(CryptoNotFoundException.class,
+        var cryptoNotFoundException = assertThrows(CryptoNotFoundException.class,
                 () -> updateCryptoRequestEntityValidation.validate(updateCryptoRequest));
 
-        assertEquals(expectedMessage, coinNotFoundException.getErrorMessage());
+        assertEquals(expectedMessage, cryptoNotFoundException.getErrorMessage());
     }
 
     @Test
@@ -163,7 +163,7 @@ class CryptoPlatformValidatorTest {
                 .cryptoId("bitcoin")
                 .platformId(platform.getId())
                 .build();
-        var expectedMessage = String.format(DUPLICATED_PLATFORM_COIN, platform.getName());
+        var expectedMessage = String.format(DUPLICATED_PLATFORM_CRYPTO, platform.getName());
 
         when(platformRepositoryMock.findByName("TREZOR"))
                 .thenReturn(Optional.of(platform));

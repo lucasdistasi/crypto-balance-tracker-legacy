@@ -57,7 +57,7 @@ class TransferCryptoServiceImplTest {
     //  no remaining    |   hasn't the crypto   ---> Maybe it's easier to update FROM with the new platform and quantity
 
     @Test
-    // from has remaining   |   to has the crypto   ---> Update FROM and TO
+    // from has remaining   |   to has the cryptoId   ---> Update FROM and TO
     void shouldTransferToPlatformWithExistingCryptoAndHaveRemaining() {
         var transferCryptoRequest = new TransferCryptoRequest(
                 "ABC123",
@@ -91,7 +91,7 @@ class TransferCryptoServiceImplTest {
                 .thenReturn(Optional.of(toPlatform));
         when(userCryptoRepositoryMock.findById(transferCryptoRequest.getCryptoId()))
                 .thenReturn(Optional.of(cryptoToTransfer));
-        when(userCryptoRepositoryMock.findByIdAndPlatformId(cryptoToTransfer.getId(), toPlatform.getId()))
+        when(userCryptoRepositoryMock.findByCryptoIdAndPlatformId(cryptoToTransfer.getCryptoId(), toPlatform.getId()))
                 .thenReturn(Optional.of(toPlatformCrypto));
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
@@ -112,7 +112,7 @@ class TransferCryptoServiceImplTest {
     }
 
     @Test
-    // from has remaining   |   to hasn't the crypto   ---> Update FROM. Add TO
+    // from has remaining   |   to hasn't the cryptoId   ---> Update FROM. Add TO
     void shouldTransferToPlatformWithoutExistingCryptoAndHaveRemaining() {
         var transferCryptoRequest = new TransferCryptoRequest(
                 "ABC123",
@@ -138,7 +138,7 @@ class TransferCryptoServiceImplTest {
                 .thenReturn(Optional.of(toPlatform));
         when(userCryptoRepositoryMock.findById(transferCryptoRequest.getCryptoId()))
                 .thenReturn(Optional.of(cryptoToTransfer));
-        when(userCryptoRepositoryMock.findByIdAndPlatformId(cryptoToTransfer.getId(), toPlatform.getId()))
+        when(userCryptoRepositoryMock.findByCryptoIdAndPlatformId(cryptoToTransfer.getCryptoId(), toPlatform.getId()))
                 .thenReturn(Optional.empty());
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
@@ -156,7 +156,7 @@ class TransferCryptoServiceImplTest {
     }
 
     @Test
-    // from no remaining    |   has the crypto   ---> Remove it from FROM. Update TO
+    // from no remaining    |   has the cryptoId   ---> Remove it from FROM. Update TO
     void shouldTransferToPlatformWithExistingCryptoAndNoRemaining() {
         var transferCryptoRequest = new TransferCryptoRequest(
                 "ABC123",
@@ -185,7 +185,7 @@ class TransferCryptoServiceImplTest {
                 .thenReturn(Optional.of(toPlatform));
         when(userCryptoRepositoryMock.findById(transferCryptoRequest.getCryptoId()))
                 .thenReturn(Optional.of(cryptoToTransfer));
-        when(userCryptoRepositoryMock.findByIdAndPlatformId(cryptoToTransfer.getId(), toPlatform.getId()))
+        when(userCryptoRepositoryMock.findByCryptoIdAndPlatformId(cryptoToTransfer.getCryptoId(), toPlatform.getId()))
                 .thenReturn(Optional.of(toPlatformCrypto));
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
@@ -206,7 +206,7 @@ class TransferCryptoServiceImplTest {
     }
 
     @Test
-    // from no remaining    |   hasn't the crypto    ---> Maybe it's easier to update FROM with the new platform and quantity
+    // from no remaining    |   hasn't the cryptoId    ---> Maybe it's easier to update FROM with the new platform and quantity
     void shouldTransferToPlatformWithoutExistingCryptoAndNoRemaining() {
         var transferCryptoRequest = new TransferCryptoRequest(
                 "ABC123",
@@ -236,7 +236,7 @@ class TransferCryptoServiceImplTest {
                 .thenReturn(Optional.of(toPlatform));
         when(userCryptoRepositoryMock.findById(transferCryptoRequest.getCryptoId()))
                 .thenReturn(Optional.of(cryptoToTransfer));
-        when(userCryptoRepositoryMock.findByIdAndPlatformId(cryptoToTransfer.getId(), toPlatform.getId()))
+        when(userCryptoRepositoryMock.findByCryptoIdAndPlatformId(cryptoToTransfer.getCryptoId(), toPlatform.getId()))
                 .thenReturn(Optional.empty());
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);

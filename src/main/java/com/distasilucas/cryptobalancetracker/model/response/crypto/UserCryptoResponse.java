@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CryptoResponse {
+public class UserCryptoResponse {
 
     private String id;
     private String cryptoName;

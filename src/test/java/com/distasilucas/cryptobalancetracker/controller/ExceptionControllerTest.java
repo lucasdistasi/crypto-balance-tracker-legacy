@@ -3,7 +3,6 @@ package com.distasilucas.cryptobalancetracker.controller;
 import com.distasilucas.cryptobalancetracker.exception.ApiException;
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
 import com.distasilucas.cryptobalancetracker.exception.CryptoNotFoundException;
-import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformCoinException;
 import com.distasilucas.cryptobalancetracker.exception.GoalDuplicatedException;
 import com.distasilucas.cryptobalancetracker.exception.GoalNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.InsufficientBalanceException;
@@ -35,15 +34,15 @@ class ExceptionControllerTest {
     ExceptionController exceptionController = new ExceptionController();
 
     @Test
-    void shouldHandleCoinNotFoundException() {
-        var coinNotFoundException = new CryptoNotFoundException(CRYPTO_NOT_FOUND);
-        var responseEntity = exceptionController.handleCoinNotFoundException(coinNotFoundException);
+    void shouldHandleCryptoNotFoundException() {
+        var cryptoNotFoundException = new CryptoNotFoundException(CRYPTO_NOT_FOUND);
+        var responseEntity = exceptionController.handleCryptoNotFoundException(cryptoNotFoundException);
 
         assertNotNull(responseEntity.getBody());
         assertAll(
                 () -> assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode()),
                 () -> assertEquals(1, responseEntity.getBody().errors().size()),
-                () -> assertEquals(coinNotFoundException.getErrorMessage(), responseEntity.getBody().errors().get(0).errorMessage())
+                () -> assertEquals(cryptoNotFoundException.getErrorMessage(), responseEntity.getBody().errors().get(0).errorMessage())
         );
     }
 
@@ -193,19 +192,6 @@ class ExceptionControllerTest {
                     () -> assertEquals(invalidFormatException.getOriginalMessage(), responseEntityBody.errors().get(0).errorMessage())
             );
         }
-    }
-
-    @Test
-    void shouldHandleDuplicatedPlatformCoinException() {
-        var duplicatedPlatformCoinException = new DuplicatedPlatformCoinException("Duplicated platform");
-        var responseEntity = exceptionController.handleDuplicatedPlatformCoinException(duplicatedPlatformCoinException);
-
-        assertNotNull(responseEntity.getBody());
-        assertAll(
-                () -> assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode()),
-                () -> assertEquals(1, responseEntity.getBody().errors().size()),
-                () -> assertEquals(duplicatedPlatformCoinException.getErrorMessage(), responseEntity.getBody().errors().get(0).errorMessage())
-        );
     }
 
     @Test

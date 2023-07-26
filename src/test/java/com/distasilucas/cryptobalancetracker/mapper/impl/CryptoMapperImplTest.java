@@ -70,7 +70,7 @@ class CryptoMapperImplTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenMappingNonExistentCoin() {
+    void shouldThrowExceptionWhenMappingNonExistentCrypto() {
         var addCryptoRequest = MockData.getAddCryptoRequest();
         var platformName = addCryptoRequest.getPlatform();
         var platform = MockData.getPlatform(platformName);
@@ -78,12 +78,12 @@ class CryptoMapperImplTest {
         when(platformServiceMock.findPlatformByName(platformName)).thenReturn(platform);
         when(coingeckoServiceMock.retrieveAllCoins()).thenReturn(Collections.emptyList());
 
-        var coinNotFoundException = assertThrows(CryptoNotFoundException.class,
+        var cryptoNotFoundException = assertThrows(CryptoNotFoundException.class,
                 () -> entityMapper.mapFrom(addCryptoRequest));
 
         var expectedMessage = String.format(CRYPTO_NAME_NOT_FOUND, addCryptoRequest.getCryptoName());
 
-        assertEquals(expectedMessage, coinNotFoundException.getErrorMessage());
+        assertEquals(expectedMessage, cryptoNotFoundException.getErrorMessage());
     }
 
     @Test

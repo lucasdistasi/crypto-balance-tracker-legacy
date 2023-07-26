@@ -1,11 +1,10 @@
 package com.distasilucas.cryptobalancetracker.mapper.impl;
 
 import com.distasilucas.cryptobalancetracker.MockData;
-import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.mapper.impl.crypto.CryptoResponseMapperImpl;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
+import com.distasilucas.cryptobalancetracker.mapper.impl.crypto.UserCryptoResponseMapperImpl;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.UserCryptoResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.net.http.WebSocketHandshakeException;
 import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN;
@@ -24,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class CryptoResponseMapperImplTest {
+class UserUserCryptoResponseMapperImplTest {
 
     @Mock
     private PlatformRepository platformRepositoryMock;
@@ -32,11 +30,11 @@ class CryptoResponseMapperImplTest {
     @Mock
     private CryptoRepository cryptoRepositoryMock;
 
-    EntityMapper<CryptoResponse, UserCrypto> cryptoResponseMapperImpl;
+    EntityMapper<UserCryptoResponse, UserCrypto> cryptoResponseMapperImpl;
 
     @BeforeEach
     void setUp() {
-        cryptoResponseMapperImpl = new CryptoResponseMapperImpl(cryptoRepositoryMock, platformRepositoryMock);
+        cryptoResponseMapperImpl = new UserCryptoResponseMapperImpl(cryptoRepositoryMock, platformRepositoryMock);
     }
 
     @Test

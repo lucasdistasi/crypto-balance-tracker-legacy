@@ -15,5 +15,4 @@ public interface UserCryptoRepository extends MongoRepository<UserCrypto, String
     Optional<List<UserCrypto>> findAllByPlatformId(String platformId);
     Optional<List<UserCrypto>> findAllByCryptoId(String cryptoId);
     Optional<UserCrypto> findFirstByCryptoId(String cryptoId);
-    Optional<UserCrypto> findByIdAndPlatformId(String id, String platformId);
 }

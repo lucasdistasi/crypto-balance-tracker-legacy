@@ -73,7 +73,7 @@ class GoalMapperTest {
     }
 
     @Test
-    void shouldThrowCoinNotFoundExceptionWhenMappingAddGoalRequest() {
+    void shouldThrowCryptoNotFoundExceptionWhenMappingAddGoalRequest() {
         var allCoins = MockData.getAllCoins();
         var addGoalRequest = new AddGoalRequest("pepe", BigDecimal.TEN);
         var expectedMessage = String.format(CRYPTO_NAME_NOT_FOUND, addGoalRequest.cryptoName());
@@ -86,7 +86,7 @@ class GoalMapperTest {
     }
 
     @Test
-    void shouldThrowCoinNotFoundExceptionWhenAddingGoalForNotOwnedCrypto() {
+    void shouldThrowCryptoNotFoundExceptionWhenAddingGoalForNotOwnedCrypto() {
         var allCoins = MockData.getAllCoins();
         var addGoalRequest = new AddGoalRequest("ethereum", BigDecimal.TEN);
         var coin = allCoins.get(0);
@@ -109,7 +109,7 @@ class GoalMapperTest {
                 .cryptoId("ethereum")
                 .build();
         var goal = Goal.builder()
-                .goalId("ABC123")
+                .id("ABC123")
                 .build();
         var expectedMessage = String.format(DUPLICATED_GOAL, addGoalRequest.cryptoName());
 
@@ -127,7 +127,7 @@ class GoalMapperTest {
         var updateGoalRequest = new UpdateGoalRequest(BigDecimal.valueOf(1.15));
         updateGoalRequest.setGoalId("ABC123");
         var existingGoal = Goal.builder()
-                .goalId("ABC123")
+                .id("ABC123")
                 .cryptoId("ethereum")
                 .build();
         var crypto = UserCrypto.builder()
@@ -140,7 +140,7 @@ class GoalMapperTest {
         var goal = updateGoalRequestMapper.mapFrom(updateGoalRequest);
 
         assertAll(
-                () -> assertEquals(existingGoal.getGoalId(), goal.getGoalId()),
+                () -> assertEquals(existingGoal.getId(), goal.getId()),
                 () -> assertEquals(existingGoal.getCryptoId(), goal.getCryptoId()),
                 () -> assertEquals(updateGoalRequest.getQuantityGoal(), goal.getQuantityGoal())
         );
@@ -164,7 +164,7 @@ class GoalMapperTest {
         var updateGoalRequest = new UpdateGoalRequest(BigDecimal.valueOf(1.15));
         updateGoalRequest.setGoalId("ABC123");
         var goal = Goal.builder()
-                .goalId("ABC123")
+                .id("ABC123")
                 .cryptoId("Ethereum")
                 .build();
 

@@ -13,10 +13,11 @@ public class ExceptionConstants {
     public static final String TOKEN_EXPIRED = "Token is expired";
     public static final String MAX_RATE_LIMIT_REACHED = "You've exceeded the Rate Limit. Please visit https://www.coingecko.com/en/api/pricing to subscribe to Coingecko API plans for higher rate limits or try again later";
     public static final String DUPLICATED_PLATFORM = "Platform %s already exists";
-    public static final String DUPLICATED_PLATFORM_COIN = "You already have the specified crypto in %s";
+    public static final String DUPLICATED_PLATFORM_CRYPTO = "You already have the specified cryptoId in %s";
     public static final String CRYPTO_NAME_NOT_FOUND = "Crypto with name %s not found";
     public static final String CRYPTO_ID_NOT_FOUND = "Crypto with ID %s not found";
     public static final String CRYPTO_NOT_FOUND = "Crypto not found";
+    public static final String INVALID_CRYPTO_NAME = "Invalid crypto name";
     public static final String INVALID_PLATFORM_FORMAT = "Platform name must be 1-24 characters long, no numbers, special characters or whitespace allowed.";
     public static final String ERROR_VALIDATING_JSON_SCHEMA = "Error validating Json Schema %s";
     public static final String INVALID_CRYPTO_QUANTITY = String.format("Quantity must be greater than 0 and less than %s", MAX_CRYPTO_QUANTITY);

@@ -20,8 +20,7 @@ import java.math.BigDecimal;
 public class Goal {
 
     @Id
-    @Field("goal_id")
-    private String goalId;
+    private String id;
 
     @Field("crypto_id")
     private String cryptoId;

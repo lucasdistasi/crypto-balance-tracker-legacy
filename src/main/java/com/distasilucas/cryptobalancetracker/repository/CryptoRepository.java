@@ -11,7 +11,7 @@ public interface CryptoRepository extends MongoRepository<Crypto, String> {
 
     @Aggregation(pipeline = {
             "{ $match: { lastPriceUpdatedAt: { $lte: :#{#dateFilter} } } }",
-            "{ $group: { _id: '$coinId', doc: { $first: '$$ROOT' } } }",
+            "{ $group: { _id: '$id', doc: { $first: '$$ROOT' } } }",
             "{ $replaceWith: '$doc' }",
             "{ $sort: { lastPriceUpdatedAt: 1 } }",
             "{ $limit: :#{#limit} }"

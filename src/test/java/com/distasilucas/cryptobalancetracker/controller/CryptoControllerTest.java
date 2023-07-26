@@ -6,9 +6,9 @@ import com.distasilucas.cryptobalancetracker.model.request.crypto.ToPlatform;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.TransferCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.TransferCryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.UpdateCryptoRequest;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
-import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.UserCryptoResponse;
 import com.distasilucas.cryptobalancetracker.service.TransferCryptoService;
+import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
@@ -45,8 +44,8 @@ class CryptoControllerTest {
     }
 
     @Test
-    void shouldGetCoinWith200StatusCode() {
-        var cryptoResponse = CryptoResponse.builder()
+    void shouldGetCryptoWith200StatusCode() {
+        var cryptoResponse = UserCryptoResponse.builder()
                 .id("bitcoin")
                 .build();
 
@@ -62,13 +61,13 @@ class CryptoControllerTest {
     }
 
     @Test
-    void shouldRetrieveAllCoins() {
+    void shouldRetrieveAllCryptos() {
         var cryptos = MockData.getPageCryptoResponse();
         var page = 0;
 
         when(userCryptoServiceMocK.getCryptos(page)).thenReturn(Optional.of(cryptos));
 
-        var responseEntity = cryptoController.getCoins(page);
+        var responseEntity = cryptoController.getCryptos(page);
 
         assertAll(
                 () -> assertNotNull(responseEntity.getBody()),
@@ -78,12 +77,12 @@ class CryptoControllerTest {
     }
 
     @Test
-    void shouldReturnNoContentIfNoCoinsAreFound() {
+    void shouldReturnNoContentIfNoCryptosAreFound() {
         var page = 0;
 
         when(userCryptoServiceMocK.getCryptos(page)).thenReturn(Optional.empty());
 
-        var responseEntity = cryptoController.getCoins(page);
+        var responseEntity = cryptoController.getCryptos(page);
 
         assertAll(
                 () -> assertNotNull(responseEntity.getBody()),
@@ -99,7 +98,7 @@ class CryptoControllerTest {
 
         when(userCryptoServiceMocK.saveUserCrypto(addCryptoRequest)).thenReturn(cryptoResponse);
 
-        var cryptoResponseEntity = cryptoController.addCoin(addCryptoRequest);
+        var cryptoResponseEntity = cryptoController.addCrypto(addCryptoRequest);
 
         assertNotNull(cryptoResponseEntity.getBody());
         assertAll(
@@ -109,9 +108,9 @@ class CryptoControllerTest {
     }
 
     @Test
-    void shouldUpdateCoin() {
+    void shouldUpdateCrypto() {
         var newCrypto = new UpdateCryptoRequest("ABC123", BigDecimal.valueOf(0.15), "Binance");
-        var newCryptoResponse = CryptoResponse.builder()
+        var newCryptoResponse = UserCryptoResponse.builder()
                 .cryptoName("Bitcoin")
                 .quantity(BigDecimal.valueOf(0.10))
                 .platform("Binance")
@@ -119,7 +118,7 @@ class CryptoControllerTest {
 
         when(userCryptoServiceMocK.updateCrypto(newCrypto, "ABC123")).thenReturn(newCryptoResponse);
 
-        var responseEntity = cryptoController.updateCoin(newCrypto, "ABC123");
+        var responseEntity = cryptoController.updateCrypto(newCrypto, "ABC123");
 
         assertNotNull(responseEntity.getBody());
         assertAll(
@@ -128,10 +127,10 @@ class CryptoControllerTest {
     }
 
     @Test
-    void shouldDeleteCoin() {
+    void shouldDeleteCrypto() {
         doNothing().when(userCryptoServiceMocK).deleteCrypto("ABC123");
 
-        var responseEntity = cryptoController.deleteCoin("ABC123");
+        var responseEntity = cryptoController.deleteCrypto("ABC123");
 
         assertNull(responseEntity.getBody());
         assertAll(

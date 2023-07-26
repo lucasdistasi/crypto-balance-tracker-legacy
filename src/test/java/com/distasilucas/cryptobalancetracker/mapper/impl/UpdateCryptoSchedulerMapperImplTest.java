@@ -2,7 +2,6 @@ package com.distasilucas.cryptobalancetracker.mapper.impl;
 
 import com.distasilucas.cryptobalancetracker.MockData;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
-import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.mapper.impl.scheduler.UpdateCryptoSchedulerMapperImpl;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
