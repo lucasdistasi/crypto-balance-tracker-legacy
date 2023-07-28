@@ -1,12 +1,12 @@
 package com.distasilucas.cryptobalancetracker.service.impl;
 
-import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
 import com.distasilucas.cryptobalancetracker.exception.InsufficientBalanceException;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.TransferCryptoRequest;
-import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
+import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import com.distasilucas.cryptobalancetracker.service.TransferCryptoService;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
 class TransferCryptoServiceImplTest {
 
     @Mock
-    CryptoRepository cryptoRepositoryMock;
+    UserCryptoRepository userCryptoRepositoryMock;
 
     @Mock
     PlatformRepository platformRepositoryMock;
@@ -47,7 +47,7 @@ class TransferCryptoServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        transferCryptoService = new TransferCryptoServiceImpl(cryptoRepositoryMock, platformRepositoryMock, transferCryptoValidationMock);
+        transferCryptoService = new TransferCryptoServiceImpl(userCryptoRepositoryMock, platformRepositoryMock, transferCryptoValidationMock);
     }
 
     //      FROM        |       TO
@@ -57,7 +57,7 @@ class TransferCryptoServiceImplTest {
     //  no remaining    |   hasn't the crypto   ---> Maybe it's easier to update FROM with the new platform and quantity
 
     @Test
-    // from has remaining   |   to has the crypto   ---> Update FROM and TO
+    // from has remaining   |   to has the cryptoId   ---> Update FROM and TO
     void shouldTransferToPlatformWithExistingCryptoAndHaveRemaining() {
         var transferCryptoRequest = new TransferCryptoRequest(
                 "ABC123",
@@ -70,13 +70,13 @@ class TransferCryptoServiceImplTest {
                 .id("PLTFRM456")
                 .name(transferCryptoRequest.getToPlatform())
                 .build();
-        var cryptoToTransfer = Crypto.builder()
-                .name("Bitcoin")
-                .coinId("bitcoin")
+        var cryptoToTransfer = UserCrypto.builder()
+                .id("ABC456")
+                .cryptoId("bitcoin")
                 .quantity(BigDecimal.valueOf(1.25))
                 .build();
-        var toPlatformCrypto = Crypto.builder()
-                .name("Bitcoin")
+        var toPlatformCrypto = UserCrypto.builder()
+                .cryptoId("bitcoin")
                 .quantity(BigDecimal.valueOf(0.15))
                 .build();
 
@@ -89,9 +89,9 @@ class TransferCryptoServiceImplTest {
 
         when(platformRepositoryMock.findByName(transferCryptoRequest.getToPlatform()))
                 .thenReturn(Optional.of(toPlatform));
-        when(cryptoRepositoryMock.findById(transferCryptoRequest.getCryptoId()))
+        when(userCryptoRepositoryMock.findById(transferCryptoRequest.getCryptoId()))
                 .thenReturn(Optional.of(cryptoToTransfer));
-        when(cryptoRepositoryMock.findByCoinIdAndPlatformId(cryptoToTransfer.getCoinId(), toPlatform.getId()))
+        when(userCryptoRepositoryMock.findByCryptoIdAndPlatformId(cryptoToTransfer.getCryptoId(), toPlatform.getId()))
                 .thenReturn(Optional.of(toPlatformCrypto));
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
@@ -99,7 +99,7 @@ class TransferCryptoServiceImplTest {
         toPlatformCrypto.setQuantity(quantityToSendReceive);
         cryptoToTransfer.setQuantity(remainingCryptoQuantity);
 
-        verify(cryptoRepositoryMock, times(1))
+        verify(userCryptoRepositoryMock, times(1))
                 .saveAll(Arrays.asList(toPlatformCrypto, cryptoToTransfer));
         assertAll(
                 () -> assertEquals(transferCryptoRequest.getNetworkFee(), transferCryptoResponse.getFromPlatform().getNetworkFee()),
@@ -112,7 +112,7 @@ class TransferCryptoServiceImplTest {
     }
 
     @Test
-    // from has remaining   |   to hasn't the crypto   ---> Update FROM. Add TO
+    // from has remaining   |   to hasn't the cryptoId   ---> Update FROM. Add TO
     void shouldTransferToPlatformWithoutExistingCryptoAndHaveRemaining() {
         var transferCryptoRequest = new TransferCryptoRequest(
                 "ABC123",
@@ -125,9 +125,8 @@ class TransferCryptoServiceImplTest {
                 .id("PLTFRM456")
                 .name(transferCryptoRequest.getToPlatform())
                 .build();
-        var cryptoToTransfer = Crypto.builder()
-                .name("Bitcoin")
-                .coinId("bitcoin")
+        var cryptoToTransfer = UserCrypto.builder()
+                .cryptoId("bitcoin")
                 .quantity(BigDecimal.valueOf(1.25))
                 .build();
 
@@ -137,14 +136,14 @@ class TransferCryptoServiceImplTest {
 
         when(platformRepositoryMock.findByName(transferCryptoRequest.getToPlatform()))
                 .thenReturn(Optional.of(toPlatform));
-        when(cryptoRepositoryMock.findById(transferCryptoRequest.getCryptoId()))
+        when(userCryptoRepositoryMock.findById(transferCryptoRequest.getCryptoId()))
                 .thenReturn(Optional.of(cryptoToTransfer));
-        when(cryptoRepositoryMock.findByCoinIdAndPlatformId(cryptoToTransfer.getCoinId(), toPlatform.getId()))
+        when(userCryptoRepositoryMock.findByCryptoIdAndPlatformId(cryptoToTransfer.getCryptoId(), toPlatform.getId()))
                 .thenReturn(Optional.empty());
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
 
-        verify(cryptoRepositoryMock, times(1)).saveAll(any());
+        verify(userCryptoRepositoryMock, times(1)).saveAll(any());
 
         assertAll(
                 () -> assertEquals(transferCryptoRequest.getNetworkFee(), transferCryptoResponse.getFromPlatform().getNetworkFee()),
@@ -157,7 +156,7 @@ class TransferCryptoServiceImplTest {
     }
 
     @Test
-    // from no remaining    |   has the crypto   ---> Remove it from FROM. Update TO
+    // from no remaining    |   has the cryptoId   ---> Remove it from FROM. Update TO
     void shouldTransferToPlatformWithExistingCryptoAndNoRemaining() {
         var transferCryptoRequest = new TransferCryptoRequest(
                 "ABC123",
@@ -170,13 +169,12 @@ class TransferCryptoServiceImplTest {
                 .id("PLTFRM456")
                 .name(transferCryptoRequest.getToPlatform())
                 .build();
-        var cryptoToTransfer = Crypto.builder()
-                .name("Bitcoin")
-                .coinId("bitcoin")
+        var cryptoToTransfer = UserCrypto.builder()
+                .cryptoId("bitcoin")
                 .quantity(BigDecimal.valueOf(1.25))
                 .build();
-        var toPlatformCrypto = Crypto.builder()
-                .name("Bitcoin")
+        var toPlatformCrypto = UserCrypto.builder()
+                .cryptoId("bitcoin")
                 .quantity(BigDecimal.valueOf(0.15))
                 .build();
 
@@ -185,9 +183,9 @@ class TransferCryptoServiceImplTest {
 
         when(platformRepositoryMock.findByName(transferCryptoRequest.getToPlatform()))
                 .thenReturn(Optional.of(toPlatform));
-        when(cryptoRepositoryMock.findById(transferCryptoRequest.getCryptoId()))
+        when(userCryptoRepositoryMock.findById(transferCryptoRequest.getCryptoId()))
                 .thenReturn(Optional.of(cryptoToTransfer));
-        when(cryptoRepositoryMock.findByCoinIdAndPlatformId(cryptoToTransfer.getCoinId(), toPlatform.getId()))
+        when(userCryptoRepositoryMock.findByCryptoIdAndPlatformId(cryptoToTransfer.getCryptoId(), toPlatform.getId()))
                 .thenReturn(Optional.of(toPlatformCrypto));
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
@@ -195,8 +193,8 @@ class TransferCryptoServiceImplTest {
         toPlatformCrypto.setQuantity(BigDecimal.valueOf(1.399));
         cryptoToTransfer.setQuantity(BigDecimal.ZERO);
 
-        verify(cryptoRepositoryMock, times(1)).delete(cryptoToTransfer);
-        verify(cryptoRepositoryMock, times(1)).save(toPlatformCrypto);
+        verify(userCryptoRepositoryMock, times(1)).delete(cryptoToTransfer);
+        verify(userCryptoRepositoryMock, times(1)).save(toPlatformCrypto);
         assertAll(
                 () -> assertEquals(transferCryptoRequest.getNetworkFee(), transferCryptoResponse.getFromPlatform().getNetworkFee()),
                 () -> assertEquals(transferCryptoRequest.getQuantityToTransfer(), transferCryptoResponse.getFromPlatform().getQuantityToTransfer()),
@@ -208,7 +206,7 @@ class TransferCryptoServiceImplTest {
     }
 
     @Test
-    // from no remaining    |   hasn't the crypto    ---> Maybe it's easier to update FROM with the new platform and quantity
+    // from no remaining    |   hasn't the cryptoId    ---> Maybe it's easier to update FROM with the new platform and quantity
     void shouldTransferToPlatformWithoutExistingCryptoAndNoRemaining() {
         var transferCryptoRequest = new TransferCryptoRequest(
                 "ABC123",
@@ -221,9 +219,8 @@ class TransferCryptoServiceImplTest {
                 .id("PLTFRM456")
                 .name(transferCryptoRequest.getToPlatform())
                 .build();
-        var cryptoToTransfer = Crypto.builder()
-                .name("Bitcoin")
-                .coinId("bitcoin")
+        var cryptoToTransfer = UserCrypto.builder()
+                .cryptoId("bitcoin")
                 .quantity(BigDecimal.valueOf(1.25))
                 .build();
 
@@ -237,9 +234,9 @@ class TransferCryptoServiceImplTest {
 
         when(platformRepositoryMock.findByName(transferCryptoRequest.getToPlatform()))
                 .thenReturn(Optional.of(toPlatform));
-        when(cryptoRepositoryMock.findById(transferCryptoRequest.getCryptoId()))
+        when(userCryptoRepositoryMock.findById(transferCryptoRequest.getCryptoId()))
                 .thenReturn(Optional.of(cryptoToTransfer));
-        when(cryptoRepositoryMock.findByCoinIdAndPlatformId(cryptoToTransfer.getCoinId(), toPlatform.getId()))
+        when(userCryptoRepositoryMock.findByCryptoIdAndPlatformId(cryptoToTransfer.getCryptoId(), toPlatform.getId()))
                 .thenReturn(Optional.empty());
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
@@ -247,7 +244,7 @@ class TransferCryptoServiceImplTest {
         cryptoToTransfer.setQuantity(remainingCryptoQuantity);
         cryptoToTransfer.setPlatformId("");
 
-        verify(cryptoRepositoryMock, times(1))
+        verify(userCryptoRepositoryMock, times(1))
                 .save(cryptoToTransfer);
 
         assertAll(
@@ -291,16 +288,15 @@ class TransferCryptoServiceImplTest {
                 .id("PLTFRM456")
                 .name(transferCryptoRequest.getToPlatform())
                 .build();
-        var cryptoToTransfer = Crypto.builder()
-                .name("Bitcoin")
-                .coinId("bitcoin")
+        var cryptoToTransfer = UserCrypto.builder()
+                .cryptoId("bitcoin")
                 .quantity(BigDecimal.valueOf(1.25))
                 .platformId(toPlatform.getId())
                 .build();
 
         when(platformRepositoryMock.findByName(transferCryptoRequest.getToPlatform()))
                 .thenReturn(Optional.of(toPlatform));
-        when(cryptoRepositoryMock.findById(transferCryptoRequest.getCryptoId()))
+        when(userCryptoRepositoryMock.findById(transferCryptoRequest.getCryptoId()))
                 .thenReturn(Optional.of(cryptoToTransfer));
 
         var exception = assertThrows(ApiValidationException.class,
@@ -322,15 +318,14 @@ class TransferCryptoServiceImplTest {
                 .id("PLTFRM456")
                 .name(transferCryptoRequest.getToPlatform())
                 .build();
-        var cryptoToTransfer = Crypto.builder()
-                .name("Bitcoin")
-                .coinId("bitcoin")
+        var cryptoToTransfer = UserCrypto.builder()
+                .cryptoId("bitcoin")
                 .quantity(BigDecimal.valueOf(1.25))
                 .build();
 
         when(platformRepositoryMock.findByName(transferCryptoRequest.getToPlatform()))
                 .thenReturn(Optional.of(toPlatform));
-        when(cryptoRepositoryMock.findById(transferCryptoRequest.getCryptoId()))
+        when(userCryptoRepositoryMock.findById(transferCryptoRequest.getCryptoId()))
                 .thenReturn(Optional.of(cryptoToTransfer));
 
         var exception = assertThrows(InsufficientBalanceException.class,

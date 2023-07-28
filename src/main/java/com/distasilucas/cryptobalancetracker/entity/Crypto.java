@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -20,18 +21,25 @@ import java.time.LocalDateTime;
 public class Crypto {
 
     @Id
-    private String id;
+    private String id; // coinId from coingecko
     private String name;
     private String ticker;
-    private String coinId;
-    private BigDecimal quantity;
-    private String platformId;
+
+    @Field("last_known_price")
     private BigDecimal lastKnownPrice;
+
+    @Field("last_known_price_in_EUR")
     private BigDecimal lastKnownPriceInEUR;
+
+    @Field("last_known_price_in_BTC")
     private BigDecimal lastKnownPriceInBTC;
+
+    @Field("circulating_supply")
     private BigDecimal circulatingSupply;
+
+    @Field("max_supply")
     private BigDecimal maxSupply;
+
+    @Field("last_price_updated_at")
     private LocalDateTime lastPriceUpdatedAt;
-
 }
-

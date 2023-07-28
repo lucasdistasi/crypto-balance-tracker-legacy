@@ -1,13 +1,13 @@
 package com.distasilucas.cryptobalancetracker.comparator;
 
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoResponse;
 
 import java.util.Comparator;
 
-public class DescendingPercentageComparator implements Comparator<CoinResponse> {
+public class DescendingPercentageComparator implements Comparator<CryptoResponse> {
 
     @Override
-    public int compare(CoinResponse coinResponse1, CoinResponse coinResponse2) {
-        return coinResponse2.getPercentage().compareTo(coinResponse1.getPercentage());
+    public int compare(CryptoResponse cryptoResponse1, CryptoResponse cryptoResponse2) {
+        return cryptoResponse2.getPercentage().compareTo(cryptoResponse1.getPercentage());
     }
 }

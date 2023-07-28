@@ -2,8 +2,7 @@ package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.exception.ApiException;
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
-import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
-import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformCoinException;
+import com.distasilucas.cryptobalancetracker.exception.CryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.GoalDuplicatedException;
 import com.distasilucas.cryptobalancetracker.exception.GoalNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.InsufficientBalanceException;
@@ -23,7 +22,6 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,11 +31,11 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 @RestControllerAdvice
 public class ExceptionController {
 
-    @ExceptionHandler(value = CoinNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleCoinNotFoundException(CoinNotFoundException coinNotFoundException) {
-        log.warn("A CoinNotFoundException has occurred: ", coinNotFoundException);
+    @ExceptionHandler(value = CryptoNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCryptoNotFoundException(CryptoNotFoundException cryptoNotFoundException) {
+        log.warn("A CryptoNotFoundException has occurred: ", cryptoNotFoundException);
 
-        Error error = new Error(coinNotFoundException.getErrorMessage());
+        Error error = new Error(cryptoNotFoundException.getErrorMessage());
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), Collections.singletonList(error));
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -132,17 +130,6 @@ public class ExceptionController {
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), Collections.singletonList(error));
 
         return ResponseEntity.badRequest()
-                .body(errorResponse);
-    }
-
-    @ExceptionHandler(value = DuplicatedPlatformCoinException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicatedPlatformCoinException(DuplicatedPlatformCoinException duplicatedPlatformCoinException) {
-        log.warn("A DuplicatedPlatformCoinException has occurred: ", duplicatedPlatformCoinException);
-
-        Error error = new Error(duplicatedPlatformCoinException.getErrorMessage());
-        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), Collections.singletonList(error));
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(errorResponse);
     }
 

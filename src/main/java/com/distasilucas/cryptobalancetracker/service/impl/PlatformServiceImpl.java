@@ -1,12 +1,12 @@
 package com.distasilucas.cryptobalancetracker.service.impl;
 
-import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.request.platform.PlatformRequest;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
-import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
+import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import com.distasilucas.cryptobalancetracker.validation.UtilValidations;
@@ -30,7 +30,7 @@ public class PlatformServiceImpl implements PlatformService {
 
     private final UtilValidations utilValidations;
     private final PlatformRepository platformRepository;
-    private final CryptoRepository cryptoRepository;
+    private final UserCryptoRepository userCryptoRepository;
     private final Validation<PlatformRequest> addPlatformValidation;
     private final EntityMapper<Platform, PlatformRequest> platformMapperImpl;
     private final EntityMapper<PlatformResponse, Platform> platformResponseMapperImpl;
@@ -88,15 +88,15 @@ public class PlatformServiceImpl implements PlatformService {
     @Override
     public void deletePlatform(String platformName) {
         Platform platform = findPlatformByName(platformName);
-        Optional<List<Crypto>> cryptos = cryptoRepository.findAllByPlatformId(platform.getId());
+        Optional<List<UserCrypto>> cryptosToDelete = userCryptoRepository.findAllByPlatformId(platform.getId());
 
-        if (cryptos.isPresent() && CollectionUtils.isNotEmpty(cryptos.get())) {
-            Map<String, String> cryptoIds = cryptos.get()
+        if (cryptosToDelete.isPresent() && CollectionUtils.isNotEmpty(cryptosToDelete.get())) {
+            Map<String, String> cryptos = cryptosToDelete.get()
                     .stream()
-                    .collect(Collectors.toMap(Crypto::getId, Crypto::getName));
+                    .collect(Collectors.toUnmodifiableMap(UserCrypto::getId, UserCrypto::getCryptoId));
 
-            cryptoRepository.deleteAllById(cryptoIds.keySet());
-            log.info("Deleted {} in platform {}", cryptoIds.values(), platformName);
+            userCryptoRepository.deleteAllById(cryptos.keySet());
+            log.info("Deleted {} in platform {}", cryptos.values(), platformName);
         }
 
         platformRepository.delete(platform);

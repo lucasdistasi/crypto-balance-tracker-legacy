@@ -24,10 +24,11 @@ public class UpdateCryptoSchedulerMapperImpl implements EntityMapper<Crypto, Cry
     
     @Override
     public Crypto mapFrom(Crypto input) {
-        String coinId = input.getCoinId();
+        log.info("Updating information for {}", input.getName());
+        String id = input.getId();
 
         try {
-            CoinInfo coinInfo = coingeckoService.retrieveCoinInfo(coinId);
+            CoinInfo coinInfo = coingeckoService.retrieveCoinInfo(id);
             MarketData marketData = coinInfo.getMarketData();
             BigDecimal currentUSDPrice = marketData.currentPrice().usd();
             BigDecimal currentEURPrice = marketData.currentPrice().eur();
@@ -39,9 +40,6 @@ public class UpdateCryptoSchedulerMapperImpl implements EntityMapper<Crypto, Cry
             cryptoToUpdate.setId(input.getId());
             cryptoToUpdate.setName(input.getName());
             cryptoToUpdate.setTicker(input.getTicker());
-            cryptoToUpdate.setCoinId(coinId);
-            cryptoToUpdate.setQuantity(input.getQuantity());
-            cryptoToUpdate.setPlatformId(input.getPlatformId());
             cryptoToUpdate.setLastKnownPrice(currentUSDPrice);
             cryptoToUpdate.setLastKnownPriceInEUR(currentEURPrice);
             cryptoToUpdate.setLastKnownPriceInBTC(currentBTCPrice);
@@ -49,12 +47,14 @@ public class UpdateCryptoSchedulerMapperImpl implements EntityMapper<Crypto, Cry
             cryptoToUpdate.setMaxSupply(maxSupply);
             cryptoToUpdate.setLastPriceUpdatedAt(LocalDateTime.now(clock));
 
+            log.info("Updated information for {}", input.getName());
+
             return cryptoToUpdate;
         } catch (WebClientResponseException ex) {
-            log.warn("A WebClientResponseException occurred and [{}] price could not be updated {}", coinId, ex);
+            log.warn("A WebClientResponseException occurred and [{}] price could not be updated {}", id, ex);
             return input;
         } catch (Exception ex) {
-            log.warn("An uncaught exception occurred and [{}] price could not be updated {}", coinId, ex);
+            log.warn("An uncaught exception occurred and [{}] price could not be updated {}", id, ex);
             return input;
         }
     }

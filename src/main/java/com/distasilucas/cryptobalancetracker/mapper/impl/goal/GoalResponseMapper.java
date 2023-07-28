@@ -1,11 +1,13 @@
 package com.distasilucas.cryptobalancetracker.mapper.impl.goal;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.entity.Goal;
-import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.CryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
+import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,7 +17,7 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 
-import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.COIN_NAME_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.CRYPTO_NOT_FOUND;
 
 @Slf4j
 @Service
@@ -23,42 +25,34 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 public class GoalResponseMapper implements EntityMapper<GoalResponse, Goal> {
 
     private final CryptoRepository cryptoRepository;
+    private final UserCryptoRepository userCryptoRepository;
 
     @Override
     public GoalResponse mapFrom(Goal input) {
-        log.info("Mapping {}", input.getCryptoId());
+        String cryptoId = input.getCryptoId();
+        log.info("Mapping {}", cryptoId);
+        Crypto crypto = cryptoRepository.findById(cryptoId)
+                .orElseThrow(() -> new CryptoNotFoundException(CRYPTO_NOT_FOUND));
 
-        BigDecimal priceInUsd = getPrinceInUsd(input.getCryptoName());
-        BigDecimal actualQuantity = getActualQuantity(input.getCryptoId());
+        BigDecimal priceInUsd = crypto.getLastKnownPrice();
+        BigDecimal actualQuantity = getActualQuantity(crypto.getId());
         BigDecimal quantityGoal = input.getQuantityGoal();
         BigDecimal moneyNeeded = getMoneyNeeded(priceInUsd, actualQuantity, quantityGoal);
         BigDecimal progress = getProgress(actualQuantity, quantityGoal);
         BigDecimal remainingQuantity = getRemainingQuantity(actualQuantity, quantityGoal);
 
-        return new GoalResponse(input.getGoalId(), input.getCryptoName(), actualQuantity, progress,
+        return new GoalResponse(input.getId(), crypto.getName(), actualQuantity, progress,
                 remainingQuantity, quantityGoal, moneyNeeded);
     }
 
-    private BigDecimal getPrinceInUsd(String cryptoName) {
-        Optional<Crypto> optionalCryptos = cryptoRepository.findFirstByName(cryptoName);
-
-        if (optionalCryptos.isEmpty()) {
-            String message = String.format(COIN_NAME_NOT_FOUND, cryptoName);
-
-            throw new CoinNotFoundException(message);
-        }
-
-        return optionalCryptos.get().getLastKnownPrice();
-    }
-
     private BigDecimal getActualQuantity(String cryptoId) {
-        Optional<List<Crypto>> optionalCryptos = cryptoRepository.findAllByCoinId(cryptoId);
+        Optional<List<UserCrypto>> optionalCryptos = userCryptoRepository.findAllByCryptoId(cryptoId);
         BigDecimal totalQuantity = BigDecimal.ZERO;
 
         if (optionalCryptos.isPresent()) {
             List<BigDecimal> cryptosQuantity = optionalCryptos.get()
                     .stream()
-                    .map(Crypto::getQuantity)
+                    .map(UserCrypto::getQuantity)
                     .toList();
 
             for (BigDecimal quantity : cryptosQuantity) {

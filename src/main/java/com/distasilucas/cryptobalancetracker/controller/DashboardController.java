@@ -2,8 +2,8 @@ package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.controller.helper.ControllerHelper;
 import com.distasilucas.cryptobalancetracker.controller.swagger.DashboardControllerApi;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoBalanceResponse;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoPlatformBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoPlatformBalanceResponse;
 import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptosPlatformDistributionResponse;
 import com.distasilucas.cryptobalancetracker.model.response.dashboard.PlatformsCryptoDistributionResponse;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformBalanceResponse;
@@ -32,8 +32,8 @@ public class DashboardController implements DashboardControllerApi, ControllerHe
 
     @Override
     @GetMapping("/crypto/balances")
-    public ResponseEntity<Optional<CryptoBalanceResponse>> retrieveCoinsBalance() {
-        Optional<CryptoBalanceResponse> response = dashboardService.retrieveCoinsBalances();
+    public ResponseEntity<Optional<CryptoBalanceResponse>> retrieveCryptossBalance() {
+        Optional<CryptoBalanceResponse> response = dashboardService.retrieveCryptosBalances();
         HttpStatus httpStatus = getOkOrNoContentHttpStatusCode(response);
 
         return ResponseEntity.status(httpStatus)
@@ -41,9 +41,9 @@ public class DashboardController implements DashboardControllerApi, ControllerHe
     }
 
     @Override
-    @GetMapping("/crypto/{coinId}")
-    public ResponseEntity<Optional<CryptoBalanceResponse>> retrieveCoinBalance(@PathVariable String coinId) {
-        Optional<CryptoBalanceResponse> response = dashboardService.retrieveCoinBalance(coinId);
+    @GetMapping("/crypto/{cryptoId}")
+    public ResponseEntity<Optional<CryptoBalanceResponse>> retrieveCryptoBalance(@PathVariable String cryptoId) {
+        Optional<CryptoBalanceResponse> response = dashboardService.retrieveCryptoBalance(cryptoId);
         HttpStatus httpStatus = getOkOrNoContentHttpStatusCode(response);
 
         return ResponseEntity.status(httpStatus)
@@ -52,7 +52,7 @@ public class DashboardController implements DashboardControllerApi, ControllerHe
 
     @Override
     @GetMapping("/cryptos")
-    public ResponseEntity<Optional<List<CryptosPlatformDistributionResponse>>> retrieveCoinBalance() {
+    public ResponseEntity<Optional<List<CryptosPlatformDistributionResponse>>> retrieveCryptoBalance() {
         Optional<List<CryptosPlatformDistributionResponse>> response = dashboardService.getCryptosPlatformDistribution();
         HttpStatus httpStatus = getOkOrNoContentHttpStatusCode(response);
 
@@ -62,8 +62,8 @@ public class DashboardController implements DashboardControllerApi, ControllerHe
 
     @Override
     @GetMapping("/crypto/balances/platforms")
-    public ResponseEntity<Optional<CryptoPlatformBalanceResponse>> retrieveCoinsBalanceByPlatform() {
-        Optional<CryptoPlatformBalanceResponse> response = dashboardService.retrieveCoinsBalanceByPlatform();
+    public ResponseEntity<Optional<CryptoPlatformBalanceResponse>> retrieveCryptosBalanceByPlatform() {
+        Optional<CryptoPlatformBalanceResponse> response = dashboardService.retrieveCryptosBalanceByPlatform();
         HttpStatus httpStatus = getOkOrNoContentHttpStatusCode(response);
 
         return ResponseEntity.status(httpStatus)
@@ -71,9 +71,9 @@ public class DashboardController implements DashboardControllerApi, ControllerHe
     }
 
     @Override
-    @GetMapping("/platform/{platformName}/coins")
-    public ResponseEntity<Optional<CryptoBalanceResponse>> getCoins(@PathVariable String platformName) {
-        Optional<CryptoBalanceResponse> response = dashboardService.getAllCoins(platformName);
+    @GetMapping("/platform/{platformName}/cryptos")
+    public ResponseEntity<Optional<CryptoBalanceResponse>> getCryptos(@PathVariable String platformName) {
+        Optional<CryptoBalanceResponse> response = dashboardService.getAllCryptos(platformName);
         HttpStatus httpStatus = getOkOrNoContentHttpStatusCode(response);
 
         return ResponseEntity.status(httpStatus)
@@ -81,7 +81,7 @@ public class DashboardController implements DashboardControllerApi, ControllerHe
     }
 
     @Override
-    @GetMapping("/platforms/coins")
+    @GetMapping("/platforms/cryptos")
     public ResponseEntity<Optional<List<PlatformsCryptoDistributionResponse>>> getPlatformsCryptoDistributionResponse() {
         Optional<List<PlatformsCryptoDistributionResponse>> response = dashboardService.getPlatformsCryptoDistributionResponse();
         HttpStatus httpStatus = getOkOrNoContentHttpStatusCode(response);

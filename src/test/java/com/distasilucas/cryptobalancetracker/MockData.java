@@ -1,6 +1,7 @@
 package com.distasilucas.cryptobalancetracker;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.entity.Goal;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
@@ -9,11 +10,11 @@ import com.distasilucas.cryptobalancetracker.model.coingecko.CurrentPrice;
 import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.platform.PlatformRequest;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinInfoResponse;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinResponse;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoBalanceResponse;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoPlatformBalanceResponse;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoInfoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoPlatformBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.UserCryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.PageCryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
@@ -35,8 +36,8 @@ public class MockData {
     }
 
     public static CryptoBalanceResponse getCryptoBalanceResponse() {
-        var coinInfo = getCoinInfo();
-        var coinResponse = getCoinResponse(coinInfo);
+        var coinInfo = getBitcoinCoinInfo();
+        var coinResponse = getCryptoResponse(coinInfo);
         var cryptoBalanceResponse = new CryptoBalanceResponse(TOTAL_BALANCE_USD, TOTAL_BALANCE_EUR,
                 TOTAL_BALANCE_BTC, Collections.singletonList(coinResponse));
         setPercentage(coinResponse);
@@ -45,22 +46,22 @@ public class MockData {
     }
 
     public static CryptoPlatformBalanceResponse getCryptoPlatformBalanceResponse() {
-        var coinInfo = getCoinInfoResponse();
+        var cryptoInfo = getCryptoInfoResponse();
 
-        return new CryptoPlatformBalanceResponse(TOTAL_BALANCE_USD, Collections.singletonList(coinInfo));
+        return new CryptoPlatformBalanceResponse(TOTAL_BALANCE_USD, Collections.singletonList(cryptoInfo));
     }
 
-    public static CoinInfoResponse getCoinInfoResponse() {
-        return new CoinInfoResponse("bitcoin", BigDecimal.valueOf(0.15), BigDecimal.valueOf(1000),
+    public static CryptoInfoResponse getCryptoInfoResponse() {
+        return new CryptoInfoResponse("bitcoin", BigDecimal.valueOf(0.15), BigDecimal.valueOf(1000),
                 BigDecimal.valueOf(10), Set.of("Trezor", "Ledger"));
     }
 
-    public static CoinResponse getCoinResponse(CoinInfo coinInfo) {
-        return new CoinResponse("ABC123", coinInfo, BigDecimal.valueOf(5),
+    public static CryptoResponse getCryptoResponse(CoinInfo coinInfo) {
+        return new CryptoResponse("ABC123", coinInfo, BigDecimal.valueOf(5),
                 TOTAL_BALANCE_USD, TOTAL_BALANCE_EUR, TOTAL_BALANCE_BTC, "LEDGER");
     }
 
-    public static CoinInfo getCoinInfo() {
+    public static CoinInfo getBitcoinCoinInfo() {
         var currentPrice = new CurrentPrice(BigDecimal.valueOf(150_000), BigDecimal.valueOf(170_000), BigDecimal.valueOf(1));
         var marketData = new MarketData(currentPrice, BigDecimal.valueOf(1000), BigDecimal.valueOf(1000));
         var coinInfo = new CoinInfo();
@@ -75,19 +76,14 @@ public class MockData {
     public static List<Crypto> getAllCryptos() {
         return Collections.singletonList(
                 Crypto.builder()
-                        .ticker("btc")
-                        .name("Bitcoin")
-                        .coinId("bitcoin")
-                        .quantity(BigDecimal.valueOf(1.15))
-                        .platformId("1234")
-                        .lastKnownPrice(BigDecimal.valueOf(30_000))
+                        .id("bitcoin")
                         .build()
         );
     }
 
-    public static BigDecimal getTotalMoney(List<CoinResponse> coinsResponse) {
-        return coinsResponse.stream()
-                .map(CoinResponse::getBalance)
+    public static BigDecimal getTotalMoney(List<CryptoResponse> cryptosResponse) {
+        return cryptosResponse.stream()
+                .map(CryptoResponse::getBalance)
                 .reduce(BigDecimal.valueOf(0), BigDecimal::add);
     }
 
@@ -115,14 +111,23 @@ public class MockData {
         return Collections.singletonList(coin);
     }
 
+    public static List<Coin> getAllCoins(String cryptoName, String cryptoId) {
+        var coin = new Coin();
+        coin.setId(cryptoId);
+        coin.setSymbol("BTC");
+        coin.setName(cryptoName);
+
+        return Collections.singletonList(coin);
+    }
+
     public static AddCryptoRequest getAddCryptoRequest() {
         return new AddCryptoRequest("Ethereum", BigDecimal.valueOf(1), "Ledger");
     }
 
-    public static CryptoResponse getCryptoResponse() {
-        return CryptoResponse.builder()
-                .coinId("ABC123")
-                .coinName("Ethereum")
+    public static UserCryptoResponse getCryptoResponse() {
+        return UserCryptoResponse.builder()
+                .id("ABC123")
+                .cryptoName("Ethereum")
                 .quantity(BigDecimal.valueOf(1))
                 .platform("Ledger")
                 .build();
@@ -132,17 +137,39 @@ public class MockData {
         return new PageCryptoResponse(1, 1, Collections.singletonList(getCryptoResponse()));
     }
 
-    public static Crypto getCrypto(String platformId) {
-        return Crypto.builder()
+    public static UserCrypto getUserCrypto(String platformId) {
+        return UserCrypto.builder()
                 .id("ABC1234")
-                .name("Bitcoin")
-                .ticker("BTC")
-                .platformId(platformId)
+                .cryptoId("bitcoin")
                 .quantity(BigDecimal.valueOf(1))
-                .coinId("bitcoin")
-                .lastKnownPrice(BigDecimal.valueOf(22000))
-                .lastKnownPriceInEUR(BigDecimal.valueOf(24000))
-                .lastKnownPriceInBTC(BigDecimal.ONE)
+                .platformId(platformId)
+                .build();
+    }
+
+    public static UserCrypto getUserCrypto() {
+        return UserCrypto.builder()
+                .id("ABC1234")
+                .cryptoId("bitcoin")
+                .quantity(BigDecimal.valueOf(1))
+                .platformId("1234")
+                .build();
+    }
+
+    public static Platform getPlatform() {
+        return Platform.builder()
+                .id("1234")
+                .name("BINANCE")
+                .build();
+    }
+
+    public static Crypto getCrypto() {
+        return Crypto.builder()
+                .id("bitcoin")
+                .ticker("BTC")
+                .name("Bitcoin")
+                .lastKnownPrice(BigDecimal.valueOf(30000))
+                .lastKnownPriceInEUR(BigDecimal.valueOf(28000))
+                .lastKnownPriceInBTC(BigDecimal.valueOf(1))
                 .build();
     }
 
@@ -162,17 +189,16 @@ public class MockData {
         return new Goal(
                 "ABC123",
                 "bitcoin",
-                "bitcoin",
                 BigDecimal.ONE
         );
     }
 
-    private static void setPercentage(CoinResponse coinResponse) {
-        BigDecimal percentage = coinResponse.getBalance()
+    private static void setPercentage(CryptoResponse cryptoResponse) {
+        BigDecimal percentage = cryptoResponse.getBalance()
                 .setScale(2, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(100))
                 .divide(TOTAL_BALANCE_USD, RoundingMode.HALF_UP);
 
-        coinResponse.setPercentage(percentage);
+        cryptoResponse.setPercentage(percentage);
     }
 }

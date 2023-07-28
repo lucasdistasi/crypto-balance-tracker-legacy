@@ -40,28 +40,28 @@ class DashboardControllerTest {
 
     @Test
     void shouldReturnCryptosBalances() {
-        var coinInfo = MockData.getCoinInfo();
-        var coinsResponse = MockData.getCoinResponse(coinInfo);
+        var coinInfo = MockData.getBitcoinCoinInfo();
+        var cryptoResponse = MockData.getCryptoResponse(coinInfo);
         var cryptoBalanceResponse = MockData.getCryptoBalanceResponse();
 
-        when(dashboardServiceMock.retrieveCoinsBalances()).thenReturn(Optional.of(cryptoBalanceResponse));
+        when(dashboardServiceMock.retrieveCryptosBalances()).thenReturn(Optional.of(cryptoBalanceResponse));
 
-        var responseEntity = dashboardController.retrieveCoinsBalance();
+        var responseEntity = dashboardController.retrieveCryptossBalance();
 
         assertNotNull(responseEntity.getBody());
         assertAll(
                 () -> assertTrue(responseEntity.getBody().isPresent()),
                 () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
-                () -> assertEquals(coinsResponse.getBalance(), responseEntity.getBody().get().coins().get(0).getBalance()),
-                () -> assertEquals("btc", responseEntity.getBody().get().coins().get(0).getCoinInfo().getSymbol())
+                () -> assertEquals(cryptoResponse.getBalance(), responseEntity.getBody().get().cryptos().get(0).getBalance()),
+                () -> assertEquals("btc", responseEntity.getBody().get().cryptos().get(0).getCoinInfo().getSymbol())
         );
     }
 
     @Test
     void shouldReturnNoContentForCryptosBalances() {
-        when(dashboardServiceMock.retrieveCoinsBalances()).thenReturn(Optional.empty());
+        when(dashboardServiceMock.retrieveCryptosBalances()).thenReturn(Optional.empty());
 
-        var responseEntity = dashboardController.retrieveCoinsBalance();
+        var responseEntity = dashboardController.retrieveCryptossBalance();
 
         assertNotNull(responseEntity.getBody());
         assertAll(
@@ -71,12 +71,12 @@ class DashboardControllerTest {
     }
 
     @Test
-    void shouldRetrieveCoinsBalanceByPlatform() {
+    void shouldRetrieveCryptosBalanceByPlatform() {
         var cryptoBalanceResponse = MockData.getCryptoPlatformBalanceResponse();
 
-        when(dashboardServiceMock.retrieveCoinsBalanceByPlatform()).thenReturn(Optional.of(cryptoBalanceResponse));
+        when(dashboardServiceMock.retrieveCryptosBalanceByPlatform()).thenReturn(Optional.of(cryptoBalanceResponse));
 
-        var responseEntity = dashboardController.retrieveCoinsBalanceByPlatform();
+        var responseEntity = dashboardController.retrieveCryptosBalanceByPlatform();
 
         assertNotNull(responseEntity.getBody());
         assertAll(
@@ -86,10 +86,10 @@ class DashboardControllerTest {
     }
 
     @Test
-    void shouldReturnNoContentForCoinsBalanceByPlatform() {
-        when(dashboardServiceMock.retrieveCoinsBalanceByPlatform()).thenReturn(Optional.empty());
+    void shouldReturnNoContentForCryptosBalanceByPlatform() {
+        when(dashboardServiceMock.retrieveCryptosBalanceByPlatform()).thenReturn(Optional.empty());
 
-        var responseEntity = dashboardController.retrieveCoinsBalanceByPlatform();
+        var responseEntity = dashboardController.retrieveCryptosBalanceByPlatform();
 
         assertNotNull(responseEntity.getBody());
         assertAll(
@@ -102,15 +102,15 @@ class DashboardControllerTest {
     void shouldRetrieveCryptosBalances() {
         var cryptoBalanceResponse = MockData.getCryptoBalanceResponse();
 
-        when(dashboardServiceMock.retrieveCoinBalance("bitcoin")).thenReturn(Optional.of(cryptoBalanceResponse));
+        when(dashboardServiceMock.retrieveCryptoBalance("bitcoin")).thenReturn(Optional.of(cryptoBalanceResponse));
 
-        var responseEntity = dashboardController.retrieveCoinBalance("bitcoin");
+        var responseEntity = dashboardController.retrieveCryptoBalance("bitcoin");
 
         assertNotNull(responseEntity.getBody());
         assertAll(
                 () -> assertTrue(responseEntity.getBody().isPresent()),
                 () -> assertEquals(cryptoBalanceResponse.totalBalance(), responseEntity.getBody().get().totalBalance()),
-                () -> assertEquals(cryptoBalanceResponse.coins().size(), responseEntity.getBody().get().coins().size()),
+                () -> assertEquals(cryptoBalanceResponse.cryptos().size(), responseEntity.getBody().get().cryptos().size()),
                 () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode())
         );
     }
@@ -122,7 +122,7 @@ class DashboardControllerTest {
 
         when(dashboardServiceMock.getCryptosPlatformDistribution()).thenReturn(Optional.of(cryptosPlatforms));
 
-        var responseEntity = dashboardController.retrieveCoinBalance();
+        var responseEntity = dashboardController.retrieveCryptoBalance();
 
         assertNotNull(responseEntity.getBody());
         assertAll(
@@ -134,7 +134,7 @@ class DashboardControllerTest {
     void shouldRetrieveNoContentForListCryptosPlatformDistribution() {
         when(dashboardServiceMock.getCryptosPlatformDistribution()).thenReturn(Optional.empty());
 
-        var responseEntity = dashboardController.retrieveCoinBalance();
+        var responseEntity = dashboardController.retrieveCryptoBalance();
 
         assertNotNull(responseEntity.getBody());
         assertAll(
@@ -145,9 +145,9 @@ class DashboardControllerTest {
 
     @Test
     void shouldReturnEmptyCryptosBalances() {
-        when(dashboardServiceMock.retrieveCoinBalance("bitcoin")).thenReturn(Optional.empty());
+        when(dashboardServiceMock.retrieveCryptoBalance("bitcoin")).thenReturn(Optional.empty());
 
-        var responseEntity = dashboardController.retrieveCoinBalance("bitcoin");
+        var responseEntity = dashboardController.retrieveCryptoBalance("bitcoin");
 
         assertNotNull(responseEntity.getBody());
         assertAll(
@@ -157,13 +157,13 @@ class DashboardControllerTest {
     }
 
     @Test
-    void shouldRetrieveAllCoinsForPlatform() {
+    void shouldRetrieveAllCryptosForPlatform() {
         var platformName = PLATFORM_NAME;
         var cryptoBalanceResponse = MockData.getCryptoBalanceResponse();
 
-        when(dashboardServiceMock.getAllCoins(platformName)).thenReturn(Optional.of(cryptoBalanceResponse));
+        when(dashboardServiceMock.getAllCryptos(platformName)).thenReturn(Optional.of(cryptoBalanceResponse));
 
-        var responseEntity = dashboardController.getCoins(platformName);
+        var responseEntity = dashboardController.getCryptos(platformName);
 
         assertAll(
                 () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
@@ -226,12 +226,12 @@ class DashboardControllerTest {
     }
 
     @Test
-    void shouldReturnNoContentWhenRetrievingAllCoinsForPlatform() {
+    void shouldReturnNoContentWhenRetrievingAllCryptosForPlatform() {
         var platformName = PLATFORM_NAME;
 
-        when(dashboardServiceMock.getAllCoins(platformName)).thenReturn(Optional.empty());
+        when(dashboardServiceMock.getAllCryptos(platformName)).thenReturn(Optional.empty());
 
-        var responseEntity = dashboardController.getCoins(platformName);
+        var responseEntity = dashboardController.getCryptos(platformName);
 
         assertAll(
                 () -> assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode()),

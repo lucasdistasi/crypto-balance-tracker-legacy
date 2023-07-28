@@ -1,19 +1,19 @@
 package com.distasilucas.cryptobalancetracker.service.impl;
 
-import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.mapper.BiFunctionMapper;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinInfoResponse;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CoinResponse;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoBalanceResponse;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoPlatformBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoInfoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoPlatformBalanceResponse;
 import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptosPlatformDistributionResponse;
 import com.distasilucas.cryptobalancetracker.model.response.dashboard.PlatformsCryptoDistributionResponse;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformBalanceResponse;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformInfo;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
-import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
+import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import com.distasilucas.cryptobalancetracker.service.DashboardService;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import com.distasilucas.cryptobalancetracker.validation.UtilValidations;
@@ -38,53 +38,53 @@ import java.util.stream.Collectors;
 public class DashboardServiceImpl implements DashboardService {
 
     private final UtilValidations utilValidations;
-    private final CryptoRepository cryptoRepository;
+    private final UserCryptoRepository userCryptoRepository;
     private final PlatformService platformService;
-    private final EntityMapper<CryptoBalanceResponse, List<Crypto>> cryptoBalanceResponseMapperImpl;
-    private final BiFunctionMapper<Map<String, BigDecimal>, CryptoBalanceResponse, List<CoinInfoResponse>> coinInfoResponseMapperImpl;
+    private final EntityMapper<CryptoBalanceResponse, List<UserCrypto>> cryptoBalanceResponseMapperImpl;
+    private final BiFunctionMapper<Map<String, BigDecimal>, CryptoBalanceResponse, List<CryptoInfoResponse>> cryptoInfoResponseMapperImpl;
 
     @Override
-    public Optional<CryptoBalanceResponse> retrieveCoinsBalances() {
-        log.info("Retrieving coins balances");
-        List<Crypto> allCoins = cryptoRepository.findAll();
+    public Optional<CryptoBalanceResponse> retrieveCryptosBalances() {
+        log.info("Retrieving cryptos balances");
+        List<UserCrypto> userCryptos = userCryptoRepository.findAll();
 
-        return CollectionUtils.isEmpty(allCoins) ?
+        return CollectionUtils.isEmpty(userCryptos) ?
                 Optional.empty() :
-                Optional.of(cryptoBalanceResponseMapperImpl.mapFrom(allCoins));
+                Optional.of(cryptoBalanceResponseMapperImpl.mapFrom(userCryptos));
     }
 
     @Override
-    public Optional<CryptoBalanceResponse> retrieveCoinBalance(String coinId) {
-        log.info("Retrieving balances for coin [{}]", coinId);
-        Optional<List<Crypto>> allCoins = cryptoRepository.findAllByCoinId(coinId);
+    public Optional<CryptoBalanceResponse> retrieveCryptoBalance(String cryptoId) {
+        log.info("Retrieving balances for crypto [{}]", cryptoId);
+        Optional<List<UserCrypto>> userCryptos = userCryptoRepository.findAllByCryptoId(cryptoId);
 
-        return allCoins.isEmpty() || CollectionUtils.isEmpty(allCoins.get()) ?
+        return userCryptos.isEmpty() || CollectionUtils.isEmpty(userCryptos.get()) ?
                 Optional.empty() :
-                Optional.of(cryptoBalanceResponseMapperImpl.mapFrom(allCoins.get()));
+                Optional.of(cryptoBalanceResponseMapperImpl.mapFrom(userCryptos.get()));
     }
 
     @Override
-    public Optional<CryptoPlatformBalanceResponse> retrieveCoinsBalanceByPlatform() {
-        log.info("Retrieving coins by platform");
-        List<Crypto> allCoins = cryptoRepository.findAll();
+    public Optional<CryptoPlatformBalanceResponse> retrieveCryptosBalanceByPlatform() {
+        log.info("Retrieving cryptos by platform");
+        List<UserCrypto> userCryptos = userCryptoRepository.findAll();
 
-        if (CollectionUtils.isNotEmpty(allCoins)) {
-            CryptoBalanceResponse cryptoBalanceResponse = cryptoBalanceResponseMapperImpl.mapFrom(allCoins);
-            Map<String, BigDecimal> coinByPlatform = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(userCryptos)) {
+            CryptoBalanceResponse cryptoBalanceResponse = cryptoBalanceResponseMapperImpl.mapFrom(userCryptos);
+            Map<String, BigDecimal> cryptosByPlatform = new HashMap<>();
 
-            cryptoBalanceResponse.coins()
-                    .forEach(coin -> {
-                        String coinName = coin.getCoinInfo().getName();
-                        BigDecimal balance = coin.getBalance();
+            cryptoBalanceResponse.cryptos()
+                    .forEach(crypto -> {
+                        String cryptoName = crypto.getCoinInfo().getName();
+                        BigDecimal balance = crypto.getBalance();
 
-                        coinByPlatform.compute(coinName, (k, v) -> (v == null) ? balance : v.add(balance));
+                        cryptosByPlatform.compute(cryptoName, (k, v) -> (v == null) ? balance : v.add(balance));
                     });
 
-            List<CoinInfoResponse> coinInfoResponses = coinInfoResponseMapperImpl.map()
-                    .apply(coinByPlatform, cryptoBalanceResponse);
+            List<CryptoInfoResponse> cryptosInfoResponse = cryptoInfoResponseMapperImpl.map()
+                    .apply(cryptosByPlatform, cryptoBalanceResponse);
 
             CryptoPlatformBalanceResponse cryptoPlatformBalanceResponse = new CryptoPlatformBalanceResponse(
-                    cryptoBalanceResponse.totalBalance(), coinInfoResponses
+                    cryptoBalanceResponse.totalBalance(), cryptosInfoResponse
             );
 
             return Optional.of(cryptoPlatformBalanceResponse);
@@ -95,16 +95,16 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public Optional<PlatformBalanceResponse> getPlatformsBalances() {
-        List<Crypto> cryptos = cryptoRepository.findAll();
-        CryptoBalanceResponse cryptoBalanceResponse = cryptoBalanceResponseMapperImpl.mapFrom(cryptos);
-        List<CoinResponse> coins = cryptoBalanceResponse.coins();
+        List<UserCrypto> userCryptos = userCryptoRepository.findAll();
+        CryptoBalanceResponse cryptoBalanceResponse = cryptoBalanceResponseMapperImpl.mapFrom(userCryptos);
+        List<CryptoResponse> cryptos = cryptoBalanceResponse.cryptos();
 
-        if (CollectionUtils.isNotEmpty(coins)) {
+        if (CollectionUtils.isNotEmpty(cryptos)) {
             Map<String, BigDecimal> balancePerPlatform = new HashMap<>();
 
-            coins.forEach(coin -> {
-                String platform = coin.getPlatform();
-                BigDecimal balance = coin.getBalance();
+            cryptos.forEach(crypto -> {
+                String platform = crypto.getPlatform();
+                BigDecimal balance = crypto.getBalance();
 
                 balancePerPlatform.compute(platform, (k, v) -> (v == null) ? balance : v.add(balance));
             });
@@ -119,11 +119,11 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public Optional<CryptoBalanceResponse> getAllCoins(String platformName) {
+    public Optional<CryptoBalanceResponse> getAllCryptos(String platformName) {
         utilValidations.validatePlatformNameFormat(platformName);
-        log.info("Retrieving coins in platform {}", platformName);
+        log.info("Retrieving cryptos in platform {}", platformName);
         Platform platform = platformService.findPlatformByName(platformName);
-        Optional<List<Crypto>> cryptos = cryptoRepository.findAllByPlatformId(platform.getId());
+        Optional<List<UserCrypto>> cryptos = userCryptoRepository.findAllByPlatformId(platform.getId());
 
         Optional<CryptoBalanceResponse> cryptoBalanceResponse = Optional.empty();
 
@@ -144,8 +144,8 @@ public class DashboardServiceImpl implements DashboardService {
 
         if (CollectionUtils.isNotEmpty(platformNames)) {
             platformNames.forEach(platform -> {
-                Optional<CryptoBalanceResponse> cryptoBalanceResponse = getAllCoins(platform);
-                cryptoBalanceResponse.ifPresent(response -> platformsCryptoDistributionResponse.add(new PlatformsCryptoDistributionResponse(platform, response.coins())));
+                Optional<CryptoBalanceResponse> cryptoBalanceResponse = getAllCryptos(platform);
+                cryptoBalanceResponse.ifPresent(response -> platformsCryptoDistributionResponse.add(new PlatformsCryptoDistributionResponse(platform, response.cryptos())));
             });
         }
 
@@ -156,17 +156,17 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public Optional<List<CryptosPlatformDistributionResponse>> getCryptosPlatformDistribution() {
-        Set<String> cryptosIds = cryptoRepository.findAll()
+        Set<String> cryptosIds = userCryptoRepository.findAll()
                 .stream()
-                .map(Crypto::getCoinId)
+                .map(UserCrypto::getCryptoId)
                 .collect(Collectors.toSet());
         List<CryptosPlatformDistributionResponse> cryptosPlatformDistribution = new ArrayList<>();
 
         if (CollectionUtils.isNotEmpty(cryptosIds)) {
-            cryptosIds.forEach(coinId -> {
-                Optional<CryptoBalanceResponse> cryptoBalanceResponse = retrieveCoinBalance(coinId);
+            cryptosIds.forEach(cryptoId -> {
+                Optional<CryptoBalanceResponse> cryptoBalanceResponse = retrieveCryptoBalance(cryptoId);
 
-                cryptoBalanceResponse.ifPresent(cryptos -> cryptosPlatformDistribution.add(new CryptosPlatformDistributionResponse(coinId, cryptos.coins())));
+                cryptoBalanceResponse.ifPresent(cryptos -> cryptosPlatformDistribution.add(new CryptosPlatformDistributionResponse(cryptoId, cryptos.cryptos())));
             });
         }
 

@@ -1,11 +1,11 @@
 package com.distasilucas.cryptobalancetracker.mapper.impl;
 
 import com.distasilucas.cryptobalancetracker.MockData;
-import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.ApiException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.mapper.impl.dashboard.CryptoBalanceResponseMapperImpl;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoBalanceResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,8 +20,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.COIN_NAME_NOT_FOUND;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.CRYPTO_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -31,25 +31,26 @@ import static org.mockito.Mockito.when;
 class CryptoBalanceResponseMapperImplTest {
 
     @Mock
-    PlatformRepository platformRepositoryMock;
-
-    @Mock
     CryptoRepository cryptoRepositoryMock;
 
-    EntityMapper<CryptoBalanceResponse, List<Crypto>> cryptoBalanceResponseMapperImpl;
+    @Mock
+    PlatformRepository platformRepositoryMock;
+
+    EntityMapper<CryptoBalanceResponse, List<UserCrypto>> cryptoBalanceResponseMapperImpl;
 
     @BeforeEach
     void setUp() {
-        cryptoBalanceResponseMapperImpl = new CryptoBalanceResponseMapperImpl(platformRepositoryMock, cryptoRepositoryMock);
+        cryptoBalanceResponseMapperImpl = new CryptoBalanceResponseMapperImpl(cryptoRepositoryMock, platformRepositoryMock);
     }
 
     @Test
     void shouldMapSuccessfully() {
-        var crypto = MockData.getCrypto("1234");
-        var cryptos = Collections.singletonList(crypto);
+        var userCrypto = MockData.getUserCrypto();
+        var crypto = MockData.getCrypto();
+        var cryptos = Collections.singletonList(userCrypto);
         var platform = MockData.getPlatform("Ledger");
 
-        when(cryptoRepositoryMock.findById(crypto.getId())).thenReturn(Optional.of(crypto));
+        when(cryptoRepositoryMock.findById(userCrypto.getCryptoId())).thenReturn(Optional.of(crypto));
         when(platformRepositoryMock.findById("1234")).thenReturn(Optional.of(platform));
 
         var cryptoBalanceResponse = cryptoBalanceResponseMapperImpl.mapFrom(cryptos);
@@ -57,45 +58,44 @@ class CryptoBalanceResponseMapperImplTest {
         var expectedBalance = totalBalance.setScale(2, RoundingMode.HALF_UP);
 
         assertAll(
-                () -> assertEquals(cryptos.size(), cryptoBalanceResponse.coins().size()),
-                () -> assertEquals(platform.getName(), cryptoBalanceResponse.coins().get(0).getPlatform()),
+                () -> assertEquals(cryptos.size(), cryptoBalanceResponse.cryptos().size()),
+                () -> assertEquals(platform.getName(), cryptoBalanceResponse.cryptos().get(0).getPlatform()),
                 () -> assertEquals(expectedBalance, totalBalance)
         );
     }
 
     @Test
     void shouldMapSuccessfullyWithUnknownPlatform() {
-        var crypto = MockData.getCrypto("1234");
-        var cryptos = Collections.singletonList(crypto);
+        var userCrypto = MockData.getUserCrypto("1234");
+        var crypto = MockData.getCrypto();
+        var userCryptos = Collections.singletonList(userCrypto);
 
-        when(cryptoRepositoryMock.findById(crypto.getId())).thenReturn(Optional.of(crypto));
+        when(cryptoRepositoryMock.findById(userCrypto.getCryptoId())).thenReturn(Optional.of(crypto));
 
-        var cryptoBalanceResponse = cryptoBalanceResponseMapperImpl.mapFrom(cryptos);
+        var cryptoBalanceResponse = cryptoBalanceResponseMapperImpl.mapFrom(userCryptos);
         var totalBalance = cryptoBalanceResponse.totalBalance();
         var expectedBalance = totalBalance.setScale(2, RoundingMode.HALF_UP);
 
         assertAll(
-                () -> assertEquals(cryptos.size(), cryptoBalanceResponse.coins().size()),
-                () -> assertEquals(UNKNOWN, cryptoBalanceResponse.coins().get(0).getPlatform()),
+                () -> assertEquals(userCryptos.size(), cryptoBalanceResponse.cryptos().size()),
+                () -> assertEquals(UNKNOWN, cryptoBalanceResponse.cryptos().get(0).getPlatform()),
                 () -> assertEquals(expectedBalance, totalBalance)
         );
     }
 
     @Test
     void shouldThrowApiException() {
-        var crypto = MockData.getCrypto("Ledger");
+        var crypto = MockData.getUserCrypto("Ledger");
         var allCryptos = Collections.singletonList(crypto);
 
-        when(cryptoRepositoryMock.findById(crypto.getId())).thenReturn(Optional.empty());
+        when(cryptoRepositoryMock.findById(crypto.getCryptoId())).thenReturn(Optional.empty());
 
         var apiException = assertThrows(ApiException.class,
                 () -> cryptoBalanceResponseMapperImpl.mapFrom(allCryptos));
 
-        var message = String.format(COIN_NAME_NOT_FOUND, crypto.getName());
-
         assertAll(
                 () -> assertEquals(HttpStatus.NOT_FOUND, apiException.getHttpStatusCode()),
-                () -> assertEquals(message, apiException.getMessage())
+                () -> assertEquals(CRYPTO_NOT_FOUND, apiException.getMessage())
         );
     }
 }

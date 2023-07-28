@@ -2,42 +2,26 @@ package com.distasilucas.cryptobalancetracker.service.impl;
 
 import com.distasilucas.cryptobalancetracker.MockData;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
-import com.distasilucas.cryptobalancetracker.entity.Platform;
-import com.distasilucas.cryptobalancetracker.exception.CoinNotFoundException;
-import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
-import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoRequest;
-import com.distasilucas.cryptobalancetracker.model.request.crypto.UpdateCryptoRequest;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
-import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
-import com.distasilucas.cryptobalancetracker.service.CryptoService;
-import com.distasilucas.cryptobalancetracker.validation.UtilValidations;
-import com.distasilucas.cryptobalancetracker.validation.Validation;
+import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
-import java.util.Collections;
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
-import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN;
-import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.COIN_ID_NOT_FOUND;
-import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.PLATFORM_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -46,236 +30,72 @@ import static org.mockito.Mockito.when;
 class CryptoServiceImplTest {
 
     @Mock
-    EntityMapper<Crypto, AddCryptoRequest> cryptoMapperImplMock;
-
-    @Mock
-    EntityMapper<CryptoResponse, Crypto> cryptoResponseMapperImplMock;
+    Clock clockMock;
 
     @Mock
     CryptoRepository cryptoRepositoryMock;
 
     @Mock
-    PlatformRepository platformRepository;
+    CoingeckoService coingeckoServiceMock;
 
-    @Mock
-    Validation<AddCryptoRequest> addCryptoValidationMock;
-
-    @Mock
-    Validation<UpdateCryptoRequest> updateCryptoValidationMock;
-
-    @Mock
-    UtilValidations utilValidationsMock;
-
-    CryptoService cryptoService;
+    CryptoServiceImpl cryptoService;
 
     @BeforeEach
     void setUp() {
-        cryptoService = new CryptoServiceImpl(utilValidationsMock, cryptoMapperImplMock, cryptoResponseMapperImplMock,
-                cryptoRepositoryMock, platformRepository, addCryptoValidationMock, updateCryptoValidationMock);
+        cryptoService = new CryptoServiceImpl(clockMock, cryptoRepositoryMock, coingeckoServiceMock);
     }
 
     @Test
-    void shouldReturnCoin() {
-        var crypto = MockData.getCrypto("1234");
-        var platform = MockData.getPlatform(crypto.getName());
+    void shouldSaveCrypto() {
+        var cryptoCaptor = ArgumentCaptor.forClass(Crypto.class);
+        var localDateTime = LocalDateTime.of(2023, 5, 3, 18, 55, 0);
+        var zonedDateTime = ZonedDateTime.of(2023, 5, 3, 19, 0, 0, 0, ZoneId.of("UTC"));
+        var coinInfo = MockData.getBitcoinCoinInfo();
 
-        when(cryptoRepositoryMock.findById("1234")).thenReturn(Optional.of(crypto));
-        when(platformRepository.findById("1234")).thenReturn(Optional.of(platform));
+        when(cryptoRepositoryMock.findById("bitcoin")).thenReturn(Optional.empty());
+        when(coingeckoServiceMock.retrieveCoinInfo("bitcoin")).thenReturn(coinInfo);
+        when(clockMock.instant()).thenReturn(localDateTime.toInstant(ZoneOffset.UTC));
+        when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
 
-        var cryptoResponse = cryptoService.getCoin("1234");
+        cryptoService.saveCryptoIfNotExists("bitcoin");
+
+        verify(cryptoRepositoryMock, times(1)).save(cryptoCaptor.capture());
+
+        var capturedCrypto = cryptoCaptor.getValue();
 
         assertAll(
-                () -> assertEquals("Bitcoin", cryptoResponse.getCoinName()),
-                () -> assertEquals(crypto.getQuantity(), cryptoResponse.getQuantity()),
-                () -> assertEquals(platform.getName(), cryptoResponse.getPlatform()),
-                () -> assertEquals(crypto.getId(), cryptoResponse.getCoinId())
+                () -> assertEquals("bitcoin", capturedCrypto.getId()),
+                () -> assertEquals("Bitcoin", capturedCrypto.getName()),
+                () -> assertEquals("btc", capturedCrypto.getTicker()),
+                () -> assertEquals(BigDecimal.valueOf(150000), capturedCrypto.getLastKnownPrice()),
+                () -> assertEquals(BigDecimal.valueOf(170000), capturedCrypto.getLastKnownPriceInEUR()),
+                () -> assertEquals(BigDecimal.ONE, capturedCrypto.getLastKnownPriceInBTC()),
+                () -> assertEquals(BigDecimal.valueOf(1000), capturedCrypto.getCirculatingSupply()),
+                () -> assertEquals(BigDecimal.valueOf(1000), capturedCrypto.getMaxSupply()),
+                () -> assertEquals(localDateTime, capturedCrypto.getLastPriceUpdatedAt())
         );
     }
 
     @Test
-    void shouldReturnCoinWithUnknownPlatform() {
-        var crypto = MockData.getCrypto("1234");
-
-        when(cryptoRepositoryMock.findById("1234")).thenReturn(Optional.of(crypto));
-        when(platformRepository.findById("1234")).thenReturn(Optional.empty());
-
-        var cryptoResponse = cryptoService.getCoin("1234");
-
-        assertAll(
-                () -> assertEquals("Bitcoin", cryptoResponse.getCoinName()),
-                () -> assertEquals(crypto.getQuantity(), cryptoResponse.getQuantity()),
-                () -> assertEquals(UNKNOWN, cryptoResponse.getPlatform()),
-                () -> assertEquals(crypto.getId(), cryptoResponse.getCoinId())
-        );
-    }
-
-    @Test
-    void shouldThrowCoinNotFoundExceptionWhenRetrievingNonExistentCoin() {
-        when(cryptoRepositoryMock.findById("1234")).thenReturn(Optional.empty());
-
-        var coinNotFoundException = assertThrows(CoinNotFoundException.class,
-                () -> cryptoService.getCoin("1234"));
-
-        assertAll(
-                () -> assertEquals(String.format(COIN_ID_NOT_FOUND, "1234"), coinNotFoundException.getErrorMessage()),
-                () -> assertEquals(HttpStatus.NOT_FOUND, coinNotFoundException.getHttpStatusCode())
-        );
-    }
-
-    @Test
-    void shouldRetrieveCoinsPage() {
+    void shouldNotSaveCrypto() {
+        var cryptoCaptor = ArgumentCaptor.forClass(Crypto.class);
         var crypto = Crypto.builder()
-                .name("Ethereum")
-                .quantity(BigDecimal.valueOf(1))
-                .build();
-        var platform = MockData.getPlatform("Ledger");
-        var cryptoResponse = MockData.getCryptoResponse();
-        var page = 0;
-        var pageable = PageRequest.of(page, 10);
-
-        when(cryptoRepositoryMock.findAll(pageable)).thenReturn(new PageImpl<>(Collections.singletonList(crypto)));
-        when(cryptoResponseMapperImplMock.mapFrom(crypto)).thenReturn(cryptoResponse);
-
-        var coins = cryptoService.getCoins(page);
-
-        assertAll(
-                () -> assertTrue(coins.isPresent()),
-                () -> assertNotNull(coins.get()),
-                () -> assertNotEquals(0, coins.get().getCryptos().size()),
-                () -> assertEquals(platform.getName(), coins.get().getCryptos().get(0).getPlatform()),
-                () -> assertEquals(crypto.getQuantity(), coins.get().getCryptos().get(0).getQuantity()),
-                () -> assertEquals(crypto.getName(), coins.get().getCryptos().get(0).getCoinName()),
-                () -> assertEquals(platform.getName(), coins.get().getCryptos().get(0).getPlatform())
-        );
-    }
-
-    @Test
-    void shouldReturnEmptyIfCryptosIsEmpty() {
-        var page = 0;
-        var pageable = PageRequest.of(page, 10);
-
-        when(cryptoRepositoryMock.findAll(pageable)).thenReturn(Page.empty());
-
-        var coins = cryptoService.getCoins(page);
-
-        assertAll(
-                () -> assertEquals(Optional.empty(), coins),
-                () -> assertTrue(coins.isEmpty())
-        );
-    }
-
-    @Test
-    void shouldAddCrypto() {
-        var cryptoRequest = new AddCryptoRequest("Bitcoin", BigDecimal.valueOf(0.2), "Ledger");
-        var cryptoEntity = Crypto.builder()
+                .id("bitcoin")
                 .name("Bitcoin")
+                .ticker("BTC")
+                .lastKnownPrice(BigDecimal.valueOf(150000))
+                .lastKnownPriceInEUR(BigDecimal.valueOf(170000))
+                .lastKnownPriceInBTC(BigDecimal.ONE)
+                .circulatingSupply(BigDecimal.valueOf(1000))
+                .maxSupply(BigDecimal.valueOf(1000))
                 .build();
-        var cryptoResponse = CryptoResponse.builder()
-                .coinName(cryptoRequest.getCoinName())
-                .build();
 
-        doNothing().when(addCryptoValidationMock).validate(cryptoRequest);
-        when(cryptoMapperImplMock.mapFrom(cryptoRequest)).thenReturn(cryptoEntity);
-        when(cryptoResponseMapperImplMock.mapFrom(cryptoEntity)).thenReturn(cryptoResponse);
+        when(cryptoRepositoryMock.findById("bitcoin")).thenReturn(Optional.of(crypto));
 
-        var actualCrypto = cryptoService.addCoin(cryptoRequest);
+        cryptoService.saveCryptoIfNotExists("bitcoin");
 
-        assertAll(
-                () -> assertEquals(cryptoRequest.getCoinName(), actualCrypto.getCoinName()),
-                () -> verify(addCryptoValidationMock, times(1)).validate(cryptoRequest),
-                () -> verify(cryptoRepositoryMock, times(1)).save(cryptoEntity),
-                () -> verify(cryptoMapperImplMock, times(1)).mapFrom(cryptoRequest),
-                () -> verify(cryptoResponseMapperImplMock, times(1)).mapFrom(cryptoEntity)
-        );
+        verify(cryptoRepositoryMock, never()).save(cryptoCaptor.capture());
+        verify(coingeckoServiceMock, never()).retrieveCoinInfo("bitcoin");
     }
 
-    @Test
-    void shouldUpdateCoin() {
-        var newCryptoRequest = new UpdateCryptoRequest("Bitcoin", BigDecimal.valueOf(0.15), "BINANCE");
-        var platform = Platform.builder()
-                .id("321")
-                .build();
-        var existingCrypto = Crypto.builder()
-                .id("ABC123")
-                .build();
-        var newCryptoResponse = CryptoResponse.builder()
-                .quantity(newCryptoRequest.getQuantity())
-                .platform(newCryptoRequest.getPlatform())
-                .build();
-
-        doNothing().when(updateCryptoValidationMock).validate(newCryptoRequest);
-        when(cryptoRepositoryMock.findById("ABC123")).thenReturn(Optional.of(existingCrypto));
-        when(platformRepository.findByName(newCryptoRequest.getPlatform())).thenReturn(Optional.of(platform));
-        when(cryptoResponseMapperImplMock.mapFrom(existingCrypto)).thenReturn(newCryptoResponse);
-
-        var cryptoResponse = cryptoService.updateCoin(newCryptoRequest, "ABC123");
-
-        assertAll(
-                () -> verify(updateCryptoValidationMock, times(1)).validate(newCryptoRequest),
-                () -> verify(cryptoRepositoryMock, times(1)).findById("ABC123"),
-                () -> verify(cryptoRepositoryMock, times(1)).save(existingCrypto),
-                () -> assertEquals(newCryptoRequest.getQuantity(), cryptoResponse.getQuantity())
-        );
-    }
-
-    @Test
-    void shouldThrowExceptionWhenUpdateNonExistentCrypto() {
-        var cryptoRequest = new UpdateCryptoRequest("Bitcoin", BigDecimal.valueOf(0.15), "Ledger");
-
-        doNothing().when(updateCryptoValidationMock).validate(cryptoRequest);
-        when(cryptoRepositoryMock.findById("ABC123")).thenReturn(Optional.empty());
-
-        var coinNotFoundException = assertThrows(CoinNotFoundException.class,
-                () -> cryptoService.updateCoin(cryptoRequest, "ABC123"));
-
-        assertAll(
-                () -> assertEquals("Coin not found", coinNotFoundException.getErrorMessage())
-        );
-    }
-
-    @Test
-    void shouldThrowExceptionWhenUpdateCryptoWithNonExistentPlatform() {
-        var newCryptoRequest = new UpdateCryptoRequest("Bitcoin", BigDecimal.valueOf(0.15), "BINANCE");
-        var existingCrypto = Crypto.builder()
-                .id("ABC123")
-                .build();
-
-        doNothing().when(updateCryptoValidationMock).validate(newCryptoRequest);
-        when(cryptoRepositoryMock.findById("ABC123")).thenReturn(Optional.of(existingCrypto));
-        when(platformRepository.findByName(newCryptoRequest.getPlatform())).thenReturn(Optional.empty());
-
-        var platformNotFoundException = assertThrows(PlatformNotFoundException.class,
-                () -> cryptoService.updateCoin(newCryptoRequest, "ABC123"));
-
-        var message = String.format(PLATFORM_NOT_FOUND, newCryptoRequest.getPlatform());
-
-        assertAll(
-                () -> assertEquals(message, platformNotFoundException.getErrorMessage())
-        );
-    }
-
-    @Test
-    void shouldDeleteIcon() {
-        var existingCrypto = Crypto.builder()
-                .id("ABC123")
-                .build();
-
-        when(cryptoRepositoryMock.findById("ABC123")).thenReturn(Optional.of(existingCrypto));
-
-        cryptoService.deleteCoin("ABC123");
-
-        verify(cryptoRepositoryMock, times(1)).delete(existingCrypto);
-    }
-
-    @Test
-    void shouldThrowExceptionWhenDeleteNonExistentCrypto() {
-        when(cryptoRepositoryMock.findById("ABC123")).thenReturn(Optional.empty());
-
-        var coinNotFoundException = assertThrows(CoinNotFoundException.class,
-                () -> cryptoService.deleteCoin("ABC123"));
-
-        assertAll(
-                () -> assertEquals("Coin not found", coinNotFoundException.getErrorMessage())
-        );
-    }
 }

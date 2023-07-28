@@ -10,9 +10,9 @@ public class PageCryptoResponse {
     private final int page;
     private final int totalPages;
     private final boolean hasNextPage;
-    private final List<CryptoResponse> cryptos;
+    private final List<UserCryptoResponse> cryptos;
 
-    public PageCryptoResponse(int page, int totalPages, List<CryptoResponse> cryptos) {
+    public PageCryptoResponse(int page, int totalPages, List<UserCryptoResponse> cryptos) {
         this.page = page + 1;
         this.totalPages = totalPages;
         this.hasNextPage = page < totalPages - 1;

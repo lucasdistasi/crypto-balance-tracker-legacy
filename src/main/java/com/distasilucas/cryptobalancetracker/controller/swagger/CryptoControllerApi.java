@@ -5,7 +5,7 @@ import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoReque
 import com.distasilucas.cryptobalancetracker.model.request.crypto.TransferCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.TransferCryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.UpdateCryptoRequest;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.CryptoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.UserCryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.PageCryptoResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -36,7 +36,7 @@ public interface CryptoControllerApi {
             @ApiResponse(responseCode = OK_CODE, description = "Crypto Response",
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
-                                    schema = @Schema(implementation = CryptoResponse.class))
+                                    schema = @Schema(implementation = UserCryptoResponse.class))
                     }),
             @ApiResponse(responseCode = FORBIDDEN_CODE, description = "Access is forbidden",
                     content = @Content(schema = @Schema())),
@@ -56,7 +56,7 @@ public interface CryptoControllerApi {
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-    ResponseEntity<CryptoResponse> getCoin(String coinId);
+    ResponseEntity<UserCryptoResponse> getCrypto(String id);
 
     @Operation(summary = "Retrieve Cryptos by page")
     @ApiResponses(value = {
@@ -75,14 +75,14 @@ public interface CryptoControllerApi {
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-    ResponseEntity<Optional<PageCryptoResponse>> getCoins(int page);
+    ResponseEntity<Optional<PageCryptoResponse>> getCryptos(int page);
 
     @Operation(summary = "Add Crypto")
     @ApiResponses(value = {
             @ApiResponse(responseCode = RESOURCE_CREATED_CODE, description = "Crypto Added",
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
-                                    schema = @Schema(implementation = CryptoResponse.class))
+                                    schema = @Schema(implementation = UserCryptoResponse.class))
                     }),
             @ApiResponse(responseCode = BAD_REQUEST_CODE, description = INVALID_DATA,
                     content = {
@@ -97,14 +97,14 @@ public interface CryptoControllerApi {
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-    ResponseEntity<CryptoResponse> addCoin(AddCryptoRequest cryptoRequest);
+    ResponseEntity<UserCryptoResponse> addCrypto(AddCryptoRequest cryptoRequest);
 
     @Operation(summary = "Update Crypto")
     @ApiResponses(value = {
             @ApiResponse(responseCode = OK_CODE, description = "Crypto Updated",
                     content = {
                             @Content(mediaType = APPLICATION_JSON,
-                                    schema = @Schema(implementation = CryptoResponse.class))
+                                    schema = @Schema(implementation = UserCryptoResponse.class))
                     }),
             @ApiResponse(responseCode = BAD_REQUEST_CODE, description = INVALID_DATA,
                     content = {
@@ -124,7 +124,7 @@ public interface CryptoControllerApi {
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-    ResponseEntity<CryptoResponse> updateCoin(UpdateCryptoRequest cryptoRequest, String coinId);
+    ResponseEntity<UserCryptoResponse> updateCrypto(UpdateCryptoRequest cryptoRequest, String cryptoId);
 
     @Operation(summary = "Delete Crypto")
     @ApiResponses(value = {
@@ -143,7 +143,7 @@ public interface CryptoControllerApi {
                                     schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-    ResponseEntity<Void> deleteCoin(String coinId);
+    ResponseEntity<Void> deleteCrypto(String cryptoId);
 
     @Operation(summary = "Transfer Crypto")
     @ApiResponses(value = {

@@ -6,7 +6,7 @@
     "quantity": {
       "type": "number"
     },
-    "coinName": {
+    "cryptoName": {
       "type": "string",
       "minLength": 1,
       "maxLength": 64
@@ -19,7 +19,7 @@
   },
   "required": [
     "quantity",
-    "coinName",
+    "cryptoName",
     "platform"
   ]
 }
