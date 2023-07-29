@@ -27,6 +27,7 @@ public class GoalServiceImpl implements GoalService {
 
     private final GoalRepository goalRepository;
     private final UtilValidations utilValidations;
+    private final CryptoServiceImpl cryptoService;
     private final EntityMapper<Goal, AddGoalRequest> addGoalRequestMapper;
     private final EntityMapper<Goal, UpdateGoalRequest> updateGoalRequestMapper;
     private final EntityMapper<GoalResponse, Goal> goalResponseMapper;
@@ -58,10 +59,11 @@ public class GoalServiceImpl implements GoalService {
         addGoalRequestValidation.validate(addGoalRequest);
 
         Goal goal = addGoalRequestMapper.mapFrom(addGoalRequest);
-        Goal savedGoal = goalRepository.save(goal);
-        log.info("Saved goal {}", savedGoal);
+        goalRepository.save(goal);
+        cryptoService.saveCryptoIfNotExists(goal.getCryptoId());
+        log.info("Saved goal {}", goal);
 
-        return goalResponseMapper.mapFrom(savedGoal);
+        return goalResponseMapper.mapFrom(goal);
     }
 
     @Override

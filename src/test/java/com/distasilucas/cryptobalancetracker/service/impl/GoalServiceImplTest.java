@@ -45,6 +45,9 @@ class GoalServiceImplTest {
     UtilValidations utilValidationsMock;
 
     @Mock
+    CryptoServiceImpl cryptoServiceMock;
+
+    @Mock
     EntityMapper<Goal, AddGoalRequest> addGoalRequestMapperMock;
 
     @Mock
@@ -65,7 +68,7 @@ class GoalServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        goalService = new GoalServiceImpl(goalRepositoryMock, utilValidationsMock, addGoalRequestMapperMock,
+        goalService = new GoalServiceImpl(goalRepositoryMock, utilValidationsMock, cryptoServiceMock, addGoalRequestMapperMock,
                 updateGoalRequestMapperMock, goalResponseMapperMock, addGoalRequestValidationMock, updateGoalRequestValidationMock);
     }
 
@@ -163,7 +166,8 @@ class GoalServiceImplTest {
 
         assertAll(
                 () -> assertEquals(addGoalRequest.cryptoName(), goalResponse.cryptoName()),
-                () -> assertEquals(addGoalRequest.quantityGoal(), goalResponse.goalQuantity())
+                () -> assertEquals(addGoalRequest.quantityGoal(), goalResponse.goalQuantity()),
+                () -> verify(cryptoServiceMock, times(1)).saveCryptoIfNotExists(goal.getCryptoId())
         );
     }
 

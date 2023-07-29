@@ -25,7 +25,6 @@ public class ExceptionConstants {
     public static final String INVALID_ID_MONGO_FORMAT = "Invalid ID format";
     public static final String GOAL_ID_NOT_FOUND = "Goal with ID %s not found";
     public static final String DUPLICATED_GOAL = "Goal for %s already exists";
-    public static final String GOAL_CRYPTO_NOT_FOUND = "You must own %s to set a Goal";
     public static final String NETWORK_FEE_HIGHER = "Network fee can't be higher than quantity to send";
     public static final String NOT_ENOUGH_BALANCE = "You don't have enough balance to perform this action";
     public static final String TARGET_PLATFORM_NOT_EXISTS = "Target platform does not exists";
