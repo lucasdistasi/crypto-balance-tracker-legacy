@@ -10,6 +10,7 @@ import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoReque
 import com.distasilucas.cryptobalancetracker.model.request.crypto.UpdateCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.PageCryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.UserCryptoResponse;
+import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
@@ -30,149 +31,149 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.CRYPTO_NOT_FOUND;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.PLATFORM_NOT_FOUND;
 
-<span class="fc" id="L33">@Slf4j</span>
+<span class="fc" id="L34">@Slf4j</span>
 @Service
-<span class="fc" id="L35">@RequiredArgsConstructor</span>
+<span class="fc" id="L36">@RequiredArgsConstructor</span>
 public class UserCryptoServiceImpl implements UserCryptoService {
 
     private final UtilValidations utilValidations;
     private final CryptoService cryptoService;
     private final EntityMapper&lt;UserCrypto, AddCryptoRequest&gt; cryptoMapperImpl;
     private final EntityMapper&lt;UserCryptoResponse, UserCrypto&gt; userCryptoResponseMapperImpl;
-    private final com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository userCryptoRepository;
+    private final UserCryptoRepository userCryptoRepository;
     private final PlatformService platformService;
     private final Validation&lt;AddCryptoRequest&gt; addCryptoValidation;
     private final Validation&lt;UpdateCryptoRequest&gt; updateCryptoValidation;
 
     @Override
     public Optional&lt;List&lt;UserCrypto&gt;&gt; findAllByCryptoId(String cryptoId) {
-<span class="fc" id="L49">        return userCryptoRepository.findAllByCryptoId(cryptoId);</span>
+<span class="fc" id="L50">        return userCryptoRepository.findAllByCryptoId(cryptoId);</span>
     }
 
     @Override
     public Optional&lt;UserCrypto&gt; findById(String id) {
-<span class="fc" id="L54">        return userCryptoRepository.findById(id);</span>
+<span class="fc" id="L55">        return userCryptoRepository.findById(id);</span>
     }
 
     @Override
     public Optional&lt;UserCrypto&gt; findByCryptoIdAndPlatformId(String cryptoId, String platformId) {
-<span class="fc" id="L59">        return userCryptoRepository.findByCryptoIdAndPlatformId(cryptoId, platformId);</span>
+<span class="fc" id="L60">        return userCryptoRepository.findByCryptoIdAndPlatformId(cryptoId, platformId);</span>
     }
 
     @Override
     public List&lt;UserCrypto&gt; findAll() {
-<span class="fc" id="L64">        return userCryptoRepository.findAll();</span>
+<span class="fc" id="L65">        return userCryptoRepository.findAll();</span>
     }
 
     @Override
     public Optional&lt;List&lt;UserCrypto&gt;&gt; findAllByPlatformId(String platformId) {
-<span class="fc" id="L69">        return userCryptoRepository.findAllByPlatformId(platformId);</span>
+<span class="fc" id="L70">        return userCryptoRepository.findAllByPlatformId(platformId);</span>
     }
 
     @Override
     public void saveUserCrypto(UserCrypto userCrypto) {
-<span class="fc" id="L74">        userCryptoRepository.save(userCrypto);</span>
-<span class="fc" id="L75">    }</span>
+<span class="fc" id="L75">        userCryptoRepository.save(userCrypto);</span>
+<span class="fc" id="L76">    }</span>
 
     @Override
     public void saveAll(List&lt;UserCrypto&gt; userCryptos) {
-<span class="fc" id="L79">        userCryptoRepository.saveAll(userCryptos);</span>
-<span class="fc" id="L80">    }</span>
+<span class="fc" id="L80">        userCryptoRepository.saveAll(userCryptos);</span>
+<span class="fc" id="L81">    }</span>
 
     @Override
     public UserCryptoResponse getUserCryptoResponse(String id) {
-<span class="fc" id="L84">        utilValidations.validateIdMongoEntityFormat(id);</span>
-<span class="fc" id="L85">        Optional&lt;UserCrypto&gt; optionalUserCrypto = userCryptoRepository.findById(id);</span>
+<span class="fc" id="L85">        utilValidations.validateIdMongoEntityFormat(id);</span>
+<span class="fc" id="L86">        Optional&lt;UserCrypto&gt; optionalUserCrypto = userCryptoRepository.findById(id);</span>
 
-<span class="fc bfc" id="L87" title="All 2 branches covered.">        if (optionalUserCrypto.isEmpty())</span>
-<span class="fc" id="L88">            throw new CryptoNotFoundException(String.format(CRYPTO_ID_NOT_FOUND, id));</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        if (optionalUserCrypto.isEmpty())</span>
+<span class="fc" id="L89">            throw new CryptoNotFoundException(String.format(CRYPTO_ID_NOT_FOUND, id));</span>
 
-<span class="fc" id="L90">        UserCrypto userCrypto = optionalUserCrypto.get();</span>
-<span class="fc" id="L91">        Optional&lt;Platform&gt; platform = platformService.findById(userCrypto.getPlatformId());</span>
-<span class="fc bfc" id="L92" title="All 2 branches covered.">        String platformName = platform.isPresent() ? platform.get().getName() : UNKNOWN;</span>
-<span class="fc" id="L93">        Crypto crypto = cryptoService.findById(userCrypto.getCryptoId())</span>
-<span class="pc" id="L94">                .orElseThrow(() -&gt; new CryptoNotFoundException(CRYPTO_NOT_FOUND));</span>
+<span class="fc" id="L91">        UserCrypto userCrypto = optionalUserCrypto.get();</span>
+<span class="fc" id="L92">        Optional&lt;Platform&gt; platform = platformService.findById(userCrypto.getPlatformId());</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        String platformName = platform.isPresent() ? platform.get().getName() : UNKNOWN;</span>
+<span class="fc" id="L94">        Crypto crypto = cryptoService.findById(userCrypto.getCryptoId())</span>
+<span class="pc" id="L95">                .orElseThrow(() -&gt; new CryptoNotFoundException(CRYPTO_NOT_FOUND));</span>
 
-<span class="fc" id="L96">        return UserCryptoResponse.builder()</span>
-<span class="fc" id="L97">                .id(userCrypto.getId())</span>
-<span class="fc" id="L98">                .cryptoName(crypto.getName())</span>
-<span class="fc" id="L99">                .platform(platformName)</span>
-<span class="fc" id="L100">                .quantity(userCrypto.getQuantity())</span>
-<span class="fc" id="L101">                .build();</span>
+<span class="fc" id="L97">        return UserCryptoResponse.builder()</span>
+<span class="fc" id="L98">                .id(userCrypto.getId())</span>
+<span class="fc" id="L99">                .cryptoName(crypto.getName())</span>
+<span class="fc" id="L100">                .platform(platformName)</span>
+<span class="fc" id="L101">                .quantity(userCrypto.getQuantity())</span>
+<span class="fc" id="L102">                .build();</span>
     }
 
     @Override
     public Optional&lt;PageCryptoResponse&gt; getCryptos(int page) {
-<span class="fc" id="L106">        Pageable pageable = PageRequest.of(page, 10);</span>
-<span class="fc" id="L107">        Page&lt;UserCrypto&gt; cryptos = userCryptoRepository.findAll(pageable);</span>
+<span class="fc" id="L107">        Pageable pageable = PageRequest.of(page, 10);</span>
+<span class="fc" id="L108">        Page&lt;UserCrypto&gt; cryptos = userCryptoRepository.findAll(pageable);</span>
 
-<span class="fc bfc" id="L109" title="All 2 branches covered.">        if (cryptos.isEmpty()) return Optional.empty();</span>
+<span class="fc bfc" id="L110" title="All 2 branches covered.">        if (cryptos.isEmpty()) return Optional.empty();</span>
 
-<span class="fc" id="L111">        List&lt;UserCryptoResponse&gt; cryptosResponse = cryptos.stream()</span>
-<span class="fc" id="L112">                .map(userCryptoResponseMapperImpl::mapFrom)</span>
-<span class="fc" id="L113">                .toList();</span>
+<span class="fc" id="L112">        List&lt;UserCryptoResponse&gt; cryptosResponse = cryptos.stream()</span>
+<span class="fc" id="L113">                .map(userCryptoResponseMapperImpl::mapFrom)</span>
+<span class="fc" id="L114">                .toList();</span>
 
-<span class="fc" id="L115">        PageCryptoResponse pageCryptoResponse = new PageCryptoResponse(page, cryptos.getTotalPages(), cryptosResponse);</span>
+<span class="fc" id="L116">        PageCryptoResponse pageCryptoResponse = new PageCryptoResponse(page, cryptos.getTotalPages(), cryptosResponse);</span>
 
-<span class="fc" id="L117">        return Optional.of(pageCryptoResponse);</span>
+<span class="fc" id="L118">        return Optional.of(pageCryptoResponse);</span>
     }
 
     @Override
     public UserCryptoResponse saveUserCrypto(AddCryptoRequest addCryptoRequest) {
-<span class="fc" id="L122">        addCryptoValidation.validate(addCryptoRequest);</span>
-<span class="fc" id="L123">        UserCrypto userCrypto = cryptoMapperImpl.mapFrom(addCryptoRequest);</span>
-<span class="fc" id="L124">        userCryptoRepository.save(userCrypto);</span>
-<span class="fc" id="L125">        cryptoService.saveCryptoIfNotExists(userCrypto.getCryptoId());</span>
+<span class="fc" id="L123">        addCryptoValidation.validate(addCryptoRequest);</span>
+<span class="fc" id="L124">        UserCrypto userCrypto = cryptoMapperImpl.mapFrom(addCryptoRequest);</span>
+<span class="fc" id="L125">        userCryptoRepository.save(userCrypto);</span>
+<span class="fc" id="L126">        cryptoService.saveCryptoIfNotExists(userCrypto.getCryptoId());</span>
 
-<span class="fc" id="L127">        UserCryptoResponse userCryptoResponse = userCryptoResponseMapperImpl.mapFrom(userCrypto);</span>
-<span class="fc" id="L128">        log.info(&quot;Saved Crypto {}&quot;, userCryptoResponse);</span>
+<span class="fc" id="L128">        UserCryptoResponse userCryptoResponse = userCryptoResponseMapperImpl.mapFrom(userCrypto);</span>
+<span class="fc" id="L129">        log.info(&quot;Saved Crypto {}&quot;, userCryptoResponse);</span>
 
-<span class="fc" id="L130">        return userCryptoResponse;</span>
+<span class="fc" id="L131">        return userCryptoResponse;</span>
     }
 
     @Override
     public UserCryptoResponse updateUserCrypto(UpdateCryptoRequest updateCryptoRequest, String id) {
-<span class="fc" id="L135">        updateCryptoRequest.setCryptoId(id);</span>
-<span class="fc" id="L136">        updateCryptoValidation.validate(updateCryptoRequest);</span>
+<span class="fc" id="L136">        updateCryptoRequest.setCryptoId(id);</span>
+<span class="fc" id="L137">        updateCryptoValidation.validate(updateCryptoRequest);</span>
 
-<span class="fc" id="L138">        UserCrypto crypto = userCryptoRepository.findById(id)</span>
-<span class="fc" id="L139">                .orElseThrow(() -&gt; new CryptoNotFoundException(CRYPTO_NOT_FOUND));</span>
+<span class="fc" id="L139">        UserCrypto crypto = userCryptoRepository.findById(id)</span>
+<span class="fc" id="L140">                .orElseThrow(() -&gt; new CryptoNotFoundException(CRYPTO_NOT_FOUND));</span>
 
-<span class="fc" id="L141">        Platform platform = platformService.findByName(updateCryptoRequest.getPlatform().toUpperCase())</span>
-<span class="fc" id="L142">                .orElseThrow(() -&gt; {</span>
-<span class="fc" id="L143">                    String message = String.format(PLATFORM_NOT_FOUND, updateCryptoRequest.getPlatform());</span>
+<span class="fc" id="L142">        Platform platform = platformService.findByName(updateCryptoRequest.getPlatform().toUpperCase())</span>
+<span class="fc" id="L143">                .orElseThrow(() -&gt; {</span>
+<span class="fc" id="L144">                    String message = String.format(PLATFORM_NOT_FOUND, updateCryptoRequest.getPlatform());</span>
 
-<span class="fc" id="L145">                    return new PlatformNotFoundException(message);</span>
+<span class="fc" id="L146">                    return new PlatformNotFoundException(message);</span>
                 });
 
-<span class="fc" id="L148">        crypto.setQuantity(updateCryptoRequest.getQuantity());</span>
-<span class="fc" id="L149">        crypto.setPlatformId(platform.getId());</span>
-<span class="fc" id="L150">        userCryptoRepository.save(crypto);</span>
+<span class="fc" id="L149">        crypto.setQuantity(updateCryptoRequest.getQuantity());</span>
+<span class="fc" id="L150">        crypto.setPlatformId(platform.getId());</span>
+<span class="fc" id="L151">        userCryptoRepository.save(crypto);</span>
 
-<span class="fc" id="L152">        UserCryptoResponse userCryptoResponse = userCryptoResponseMapperImpl.mapFrom(crypto);</span>
-<span class="fc" id="L153">        log.info(&quot;Updated Crypto {}&quot;, userCryptoResponse);</span>
+<span class="fc" id="L153">        UserCryptoResponse userCryptoResponse = userCryptoResponseMapperImpl.mapFrom(crypto);</span>
+<span class="fc" id="L154">        log.info(&quot;Updated Crypto {}&quot;, userCryptoResponse);</span>
 
-<span class="fc" id="L155">        return userCryptoResponse;</span>
+<span class="fc" id="L156">        return userCryptoResponse;</span>
     }
 
     @Override
     public void deleteUserCrypto(String id) {
-<span class="fc" id="L160">        utilValidations.validateIdMongoEntityFormat(id);</span>
-<span class="fc" id="L161">        userCryptoRepository.findById(id)</span>
-<span class="fc" id="L162">                .ifPresentOrElse(userCrypto -&gt; {</span>
-<span class="fc" id="L163">                    log.info(&quot;Deleted cryptoId [{}] in platform id [{}]&quot;, userCrypto.getCryptoId(), userCrypto.getPlatformId());</span>
+<span class="fc" id="L161">        utilValidations.validateIdMongoEntityFormat(id);</span>
+<span class="fc" id="L162">        userCryptoRepository.findById(id)</span>
+<span class="fc" id="L163">                .ifPresentOrElse(userCrypto -&gt; {</span>
+<span class="fc" id="L164">                    log.info(&quot;Deleted cryptoId [{}] in platform id [{}]&quot;, userCrypto.getCryptoId(), userCrypto.getPlatformId());</span>
 
-<span class="fc" id="L165">                    userCryptoRepository.delete(userCrypto);</span>
-<span class="fc" id="L166">                    cryptoService.deleteCryptoIfNotUsed(userCrypto.getCryptoId());</span>
-<span class="fc" id="L167">                }, () -&gt; {</span>
-<span class="fc" id="L168">                    throw new CryptoNotFoundException(CRYPTO_NOT_FOUND);</span>
+<span class="fc" id="L166">                    userCryptoRepository.delete(userCrypto);</span>
+<span class="fc" id="L167">                    cryptoService.deleteCryptoIfNotUsed(userCrypto.getCryptoId());</span>
+<span class="fc" id="L168">                }, () -&gt; {</span>
+<span class="fc" id="L169">                    throw new CryptoNotFoundException(CRYPTO_NOT_FOUND);</span>
                 });
-<span class="fc" id="L170">    }</span>
+<span class="fc" id="L171">    }</span>
 
     @Override
     public void deleteUserCrypto(UserCrypto userCrypto) {
-<span class="fc" id="L174">        userCryptoRepository.delete(userCrypto);</span>
-<span class="fc" id="L175">        cryptoService.deleteCryptoIfNotUsed(userCrypto.getCryptoId());</span>
-<span class="fc" id="L176">    }</span>
+<span class="fc" id="L175">        userCryptoRepository.delete(userCrypto);</span>
+<span class="fc" id="L176">        cryptoService.deleteCryptoIfNotUsed(userCrypto.getCryptoId());</span>
+<span class="fc" id="L177">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

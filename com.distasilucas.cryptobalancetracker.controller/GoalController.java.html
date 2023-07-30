@@ -4,6 +4,7 @@ import com.distasilucas.cryptobalancetracker.controller.swagger.GoalControllerAp
 import com.distasilucas.cryptobalancetracker.model.request.goal.AddGoalRequest;
 import com.distasilucas.cryptobalancetracker.model.request.goal.UpdateGoalRequest;
 import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
+import com.distasilucas.cryptobalancetracker.model.response.goal.PageGoalResponse;
 import com.distasilucas.cryptobalancetracker.service.GoalService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
@@ -18,12 +19,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-<span class="fc" id="L26">@RequiredArgsConstructor</span>
+<span class="fc" id="L29">@RequiredArgsConstructor</span>
 @RequestMapping(&quot;/api/v1/goals&quot;)
 @CrossOrigin(origins = &quot;${allowed.origins}&quot;)
 @PreAuthorize(&quot;@securityService.isSecurityDisabled() OR hasAuthority('ROLE_ADMIN')&quot;)
@@ -34,45 +37,45 @@ public class GoalController implements GoalControllerApi {
     @Override
     @GetMapping(&quot;/{goalId}&quot;)
     public ResponseEntity&lt;GoalResponse&gt; getGoal(@PathVariable String goalId) {
-<span class="fc" id="L37">        GoalResponse goalResponse = goalService.getGoalResponse(goalId);</span>
+<span class="fc" id="L40">        GoalResponse goalResponse = goalService.getGoalResponse(goalId);</span>
 
-<span class="fc" id="L39">        return ResponseEntity.ok(goalResponse);</span>
+<span class="fc" id="L42">        return ResponseEntity.ok(goalResponse);</span>
     }
 
     @Override
     @GetMapping
-    public ResponseEntity&lt;List&lt;GoalResponse&gt;&gt; getAllGoals() {
-<span class="fc" id="L45">        List&lt;GoalResponse&gt; goalsResponse = goalService.getAllGoalsResponse();</span>
-<span class="fc bfc" id="L46" title="All 2 branches covered.">        HttpStatus httpStatus = CollectionUtils.isNotEmpty(goalsResponse) ? HttpStatus.OK : HttpStatus.NO_CONTENT;</span>
+    public ResponseEntity&lt;Optional&lt;PageGoalResponse&gt;&gt; getGoals(@RequestParam int page) {
+<span class="fc" id="L48">        Optional&lt;PageGoalResponse&gt; goalsResponse = goalService.getGoalsResponse(page);</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        HttpStatus httpStatus = goalsResponse.isPresent() ? HttpStatus.OK : HttpStatus.NO_CONTENT;</span>
 
-<span class="fc" id="L48">        return ResponseEntity.status(httpStatus)</span>
-<span class="fc" id="L49">                .body(goalsResponse);</span>
+<span class="fc" id="L51">        return ResponseEntity.status(httpStatus)</span>
+<span class="fc" id="L52">                .body(goalsResponse);</span>
     }
 
     @Override
     @PostMapping
     public ResponseEntity&lt;GoalResponse&gt; addGoal(@RequestBody AddGoalRequest addGoalRequest) {
-<span class="fc" id="L55">        GoalResponse goalResponse = goalService.saveGoal(addGoalRequest);</span>
+<span class="fc" id="L58">        GoalResponse goalResponse = goalService.saveGoal(addGoalRequest);</span>
 
-<span class="fc" id="L57">        return ResponseEntity.status(HttpStatus.CREATED)</span>
-<span class="fc" id="L58">                .body(goalResponse);</span>
+<span class="fc" id="L60">        return ResponseEntity.status(HttpStatus.CREATED)</span>
+<span class="fc" id="L61">                .body(goalResponse);</span>
     }
 
     @Override
     @PutMapping(&quot;/{goalId}&quot;)
     public ResponseEntity&lt;GoalResponse&gt; updateGoalQuantity(@RequestBody UpdateGoalRequest updateGoalRequest,
                                                            @PathVariable String goalId) {
-<span class="fc" id="L65">        GoalResponse goalResponse = goalService.updateGoalQuantity(updateGoalRequest, goalId);</span>
+<span class="fc" id="L68">        GoalResponse goalResponse = goalService.updateGoalQuantity(updateGoalRequest, goalId);</span>
 
-<span class="fc" id="L67">        return ResponseEntity.ok(goalResponse);</span>
+<span class="fc" id="L70">        return ResponseEntity.ok(goalResponse);</span>
     }
 
     @Override
     @DeleteMapping(&quot;/{goalId}&quot;)
     public ResponseEntity&lt;Void&gt; deleteGoal(@PathVariable String goalId) {
-<span class="fc" id="L73">        goalService.deleteGoal(goalId);</span>
+<span class="fc" id="L76">        goalService.deleteGoal(goalId);</span>
 
-<span class="fc" id="L75">        return ResponseEntity.noContent().build();</span>
+<span class="fc" id="L78">        return ResponseEntity.noContent().build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
