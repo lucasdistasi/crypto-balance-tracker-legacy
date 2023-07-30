@@ -48,7 +48,7 @@ class CoingeckoServiceImplTest {
         var mockResponse = new MockResponse();
         mockBackEnd.enqueue(mockResponse);
 
-        var coins = coingeckoService.retrieveAllCoins();
+        var coins = coingeckoService.retrieveAllCoingeckoCryptos();
 
         StepVerifier.create(Flux.just(coins))
                 .expectNextMatches(CollectionUtils::isNotEmpty)
@@ -56,14 +56,14 @@ class CoingeckoServiceImplTest {
     }
 
     @Test
-    void shouldRetrieveCoinInfo() {
+    void shouldRetrieveCoingeckoCryptoInfo() {
         var mockResponse = new MockResponse();
         mockBackEnd.enqueue(mockResponse);
 
-        var coins = coingeckoService.retrieveCoinInfo("bitcoin");
+        var coingeckoCryptoInfo = coingeckoService.retrieveCoingeckoCryptoInfo("bitcoin");
 
-        StepVerifier.create(Mono.just(coins))
-                .expectNextMatches(coinInfo -> coinInfo.getName().equals("Bitcoin"))
+        StepVerifier.create(Mono.just(coingeckoCryptoInfo))
+                .expectNextMatches(cryptoInfo -> cryptoInfo.getName().equals("Bitcoin"))
                 .verifyComplete();
     }
 
@@ -74,7 +74,7 @@ class CoingeckoServiceImplTest {
         var webClient = WebClient.create("https://pro-api.coingecko.com/api/v3");
         coingeckoService = new CoingeckoServiceImpl("ABC123", webClient);
 
-        assertThrows(WebClientResponseException.class, () -> coingeckoService.retrieveCoinInfo("bitcoin"));
+        assertThrows(WebClientResponseException.class, () -> coingeckoService.retrieveCoingeckoCryptoInfo("bitcoin"));
     }
 
 }

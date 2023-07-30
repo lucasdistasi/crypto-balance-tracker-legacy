@@ -6,7 +6,7 @@ import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.CryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
+import com.distasilucas.cryptobalancetracker.model.coingecko.CoingeckoCryptoInfo;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CurrentPrice;
 import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoBalanceResponse;
@@ -53,9 +53,9 @@ public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalan
     private CryptoResponse mapCryptoResponse(UserCrypto userCrypto) {
         Crypto crypto = cryptoService.findById(userCrypto.getCryptoId())
                 .orElseThrow(() -> new CryptoNotFoundException(CRYPTO_NOT_FOUND));
-        CoinInfo coinInfo = mapCoinInfo().apply(crypto);
+        CoingeckoCryptoInfo coingeckoCryptoInfo = mapCoingeckoCryptoInfo().apply(crypto);
 
-        return getCryptoResponse(userCrypto, coinInfo);
+        return getCryptoResponse(userCrypto, coingeckoCryptoInfo);
     }
 
     private void setPercentage(BigDecimal totalMoney, CryptoResponse cryptoResponse) {
@@ -85,19 +85,19 @@ public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalan
                 .reduce(BigDecimal.valueOf(0), BigDecimal::add);
     }
 
-    private CryptoResponse getCryptoResponse(UserCrypto userCrypto, CoinInfo coinInfo) {
+    private CryptoResponse getCryptoResponse(UserCrypto userCrypto, CoingeckoCryptoInfo coingeckoCryptoInfo) {
         BigDecimal quantity = userCrypto.getQuantity();
-        BigDecimal balanceInUSD = coinInfo.getMarketData()
+        BigDecimal balanceInUSD = coingeckoCryptoInfo.getMarketData()
                 .currentPrice()
                 .usd()
                 .multiply(quantity)
                 .setScale(2, RoundingMode.HALF_UP);
-        BigDecimal balanceInEUR = coinInfo.getMarketData()
+        BigDecimal balanceInEUR = coingeckoCryptoInfo.getMarketData()
                 .currentPrice()
                 .eur()
                 .multiply(quantity)
                 .setScale(2, RoundingMode.HALF_UP);
-        BigDecimal balanceInBTC = coinInfo.getMarketData()
+        BigDecimal balanceInBTC = coingeckoCryptoInfo.getMarketData()
                 .currentPrice()
                 .btc()
                 .multiply(quantity)
@@ -105,21 +105,21 @@ public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalan
         Optional<Platform> platform = platformService.findById(userCrypto.getPlatformId());
         String platformName = platform.isPresent() ? platform.get().getName() : UNKNOWN;
 
-        return new CryptoResponse(userCrypto.getId(), coinInfo, quantity, balanceInUSD, balanceInEUR, balanceInBTC, platformName);
+        return new CryptoResponse(userCrypto.getId(), coingeckoCryptoInfo, quantity, balanceInUSD, balanceInEUR, balanceInBTC, platformName);
     }
 
-    private Function<Crypto, CoinInfo> mapCoinInfo() {
+    private Function<Crypto, CoingeckoCryptoInfo> mapCoingeckoCryptoInfo() {
         return crypto -> {
             CurrentPrice currentPrice = new CurrentPrice(crypto.getLastKnownPrice(), crypto.getLastKnownPriceInEUR(), crypto.getLastKnownPriceInBTC());
             MarketData marketData = new MarketData(currentPrice, crypto.getCirculatingSupply(), crypto.getMaxSupply());
 
-            CoinInfo coinInfo = new CoinInfo();
-            coinInfo.setId(crypto.getId());
-            coinInfo.setSymbol(crypto.getTicker());
-            coinInfo.setName(crypto.getName());
-            coinInfo.setMarketData(marketData);
+            CoingeckoCryptoInfo coingeckoCryptoInfo = new CoingeckoCryptoInfo();
+            coingeckoCryptoInfo.setId(crypto.getId());
+            coingeckoCryptoInfo.setSymbol(crypto.getTicker());
+            coingeckoCryptoInfo.setName(crypto.getName());
+            coingeckoCryptoInfo.setMarketData(marketData);
 
-            return coinInfo;
+            return coingeckoCryptoInfo;
         };
     }
 }

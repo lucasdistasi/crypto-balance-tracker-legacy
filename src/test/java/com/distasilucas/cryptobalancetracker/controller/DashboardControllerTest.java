@@ -40,8 +40,8 @@ class DashboardControllerTest {
 
     @Test
     void shouldReturnCryptosBalances() {
-        var coinInfo = MockData.getBitcoinCoinInfo();
-        var cryptoResponse = MockData.getCryptoResponse(coinInfo);
+        var coingeckoCryptoInfo = MockData.getBitcoinCoingeckoCryptoInfo();
+        var cryptoResponse = MockData.getCryptoResponse(coingeckoCryptoInfo);
         var cryptoBalanceResponse = MockData.getCryptoBalanceResponse();
 
         when(dashboardServiceMock.retrieveCryptosBalances()).thenReturn(Optional.of(cryptoBalanceResponse));
@@ -53,7 +53,7 @@ class DashboardControllerTest {
                 () -> assertTrue(responseEntity.getBody().isPresent()),
                 () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
                 () -> assertEquals(cryptoResponse.getBalance(), responseEntity.getBody().get().cryptos().get(0).getBalance()),
-                () -> assertEquals("btc", responseEntity.getBody().get().cryptos().get(0).getCoinInfo().getSymbol())
+                () -> assertEquals("btc", responseEntity.getBody().get().cryptos().get(0).getCryptoInfo().getSymbol())
         );
     }
 

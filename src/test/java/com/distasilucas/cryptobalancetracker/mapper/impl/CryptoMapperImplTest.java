@@ -54,10 +54,10 @@ class CryptoMapperImplTest {
                 .id("1234")
                 .name(platformName)
                 .build();
-        var allCoins = MockData.getAllCoins("Bitcoin", "bitcoin");
-        var coinInfo = MockData.getBitcoinCoinInfo();
+        var allCoins = MockData.getAllCoingeckoCryptos("Bitcoin", "bitcoin");
+        var coingeckoCryptoInfo = MockData.getBitcoinCoingeckoCryptoInfo();
 
-        when(coingeckoServiceMock.retrieveAllCoins()).thenReturn(allCoins);
+        when(coingeckoServiceMock.retrieveAllCoingeckoCryptos()).thenReturn(allCoins);
         when(platformServiceMock.findPlatformByName(platformName)).thenReturn(platform);
 
         var crypto = entityMapper.mapFrom(addCryptoRequest);
@@ -65,7 +65,7 @@ class CryptoMapperImplTest {
         assertAll(
                 () -> assertEquals(addCryptoRequest.getQuantity(), crypto.getQuantity()),
                 () -> assertEquals(platform.getId(), crypto.getPlatformId()),
-                () -> assertEquals(coinInfo.getId(), crypto.getCryptoId())
+                () -> assertEquals(coingeckoCryptoInfo.getId(), crypto.getCryptoId())
         );
     }
 
@@ -76,7 +76,7 @@ class CryptoMapperImplTest {
         var platform = MockData.getPlatform(platformName);
 
         when(platformServiceMock.findPlatformByName(platformName)).thenReturn(platform);
-        when(coingeckoServiceMock.retrieveAllCoins()).thenReturn(Collections.emptyList());
+        when(coingeckoServiceMock.retrieveAllCoingeckoCryptos()).thenReturn(Collections.emptyList());
 
         var cryptoNotFoundException = assertThrows(CryptoNotFoundException.class,
                 () -> entityMapper.mapFrom(addCryptoRequest));
@@ -91,7 +91,7 @@ class CryptoMapperImplTest {
         var addCryptoRequest = MockData.getAddCryptoRequest();
         var webClientResponseException = new WebClientResponseException(HttpStatus.TOO_MANY_REQUESTS.value(), "TOO_MANY_REQUESTS", null, null, null);
 
-        doThrow(webClientResponseException).when(coingeckoServiceMock).retrieveAllCoins();
+        doThrow(webClientResponseException).when(coingeckoServiceMock).retrieveAllCoingeckoCryptos();
 
         var apiException = assertThrows(ApiException.class,
                 () -> entityMapper.mapFrom(addCryptoRequest));
@@ -107,7 +107,7 @@ class CryptoMapperImplTest {
         var addCryptoRequest = MockData.getAddCryptoRequest();
         var webClientResponseException = new WebClientResponseException(HttpStatus.TOO_EARLY.value(), "TOO_EARLY", null, null, null);
 
-        doThrow(webClientResponseException).when(coingeckoServiceMock).retrieveAllCoins();
+        doThrow(webClientResponseException).when(coingeckoServiceMock).retrieveAllCoingeckoCryptos();
 
         var apiException = assertThrows(ApiException.class,
                 () -> entityMapper.mapFrom(addCryptoRequest));

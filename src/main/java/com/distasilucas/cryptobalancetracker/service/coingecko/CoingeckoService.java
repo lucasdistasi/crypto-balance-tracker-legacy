@@ -1,12 +1,12 @@
 package com.distasilucas.cryptobalancetracker.service.coingecko;
 
-import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
-import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
+import com.distasilucas.cryptobalancetracker.model.coingecko.CoingeckoCrypto;
+import com.distasilucas.cryptobalancetracker.model.coingecko.CoingeckoCryptoInfo;
 
 import java.util.List;
 
 public interface CoingeckoService {
 
-    List<Coin> retrieveAllCoins();
-    CoinInfo retrieveCoinInfo(String coinId);
+    List<CoingeckoCrypto> retrieveAllCoingeckoCryptos();
+    CoingeckoCryptoInfo retrieveCoingeckoCryptoInfo(String coinId);
 }

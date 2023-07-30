@@ -5,7 +5,7 @@ import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.exception.ApiException;
 import com.distasilucas.cryptobalancetracker.exception.CryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
+import com.distasilucas.cryptobalancetracker.model.coingecko.CoingeckoCrypto;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoRequest;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
@@ -33,9 +33,9 @@ public class CryptoMapperImpl implements EntityMapper<UserCrypto, AddCryptoReque
     public UserCrypto mapFrom(AddCryptoRequest cryptoRequest) {
         try {
             log.info("Attempting to retrieve [{}] information from Coingecko or cache", cryptoRequest.getCryptoName());
-            List<Coin> coins = coingeckoService.retrieveAllCoins();
+            List<CoingeckoCrypto> coingeckoCryptos = coingeckoService.retrieveAllCoingeckoCryptos();
 
-            return getUserCrypto(cryptoRequest, coins);
+            return getUserCrypto(cryptoRequest, coingeckoCryptos);
         } catch (WebClientResponseException ex) {
             if (HttpStatus.TOO_MANY_REQUESTS.equals(ex.getStatusCode())) {
                 log.warn("To many requests. Rate limit reached.");
@@ -47,16 +47,16 @@ public class CryptoMapperImpl implements EntityMapper<UserCrypto, AddCryptoReque
         }
     }
 
-    private UserCrypto getUserCrypto(AddCryptoRequest cryptoRequest, List<Coin> coins) {
+    private UserCrypto getUserCrypto(AddCryptoRequest cryptoRequest, List<CoingeckoCrypto> coingeckoCryptos) {
         UserCrypto userCrypto = new UserCrypto();
         Platform platform = platformService.findPlatformByName(cryptoRequest.getPlatform());
         String cryptoName = cryptoRequest.getCryptoName();
 
-        coins.stream()
-                .filter(coin -> coin.getName().equalsIgnoreCase(cryptoName))
+        coingeckoCryptos.stream()
+                .filter(coingeckoCrypto -> coingeckoCrypto.getName().equalsIgnoreCase(cryptoName))
                 .findFirst()
-                .ifPresentOrElse(coin -> {
-                            userCrypto.setCryptoId(coin.getId());
+                .ifPresentOrElse(coingeckoCrypto -> {
+                            userCrypto.setCryptoId(coingeckoCrypto.getId());
                             userCrypto.setQuantity(cryptoRequest.getQuantity());
                             userCrypto.setPlatformId(platform.getId());
                         }, () -> {

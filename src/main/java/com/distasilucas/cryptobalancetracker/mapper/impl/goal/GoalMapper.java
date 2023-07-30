@@ -5,7 +5,7 @@ import com.distasilucas.cryptobalancetracker.exception.CryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.GoalDuplicatedException;
 import com.distasilucas.cryptobalancetracker.exception.GoalNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
+import com.distasilucas.cryptobalancetracker.model.coingecko.CoingeckoCrypto;
 import com.distasilucas.cryptobalancetracker.model.request.goal.AddGoalRequest;
 import com.distasilucas.cryptobalancetracker.model.request.goal.GoalRequest;
 import com.distasilucas.cryptobalancetracker.model.request.goal.UpdateGoalRequest;
@@ -33,9 +33,9 @@ public class GoalMapper<T extends GoalRequest> implements EntityMapper<Goal, T> 
         Goal goal = new Goal();
 
         if (input instanceof AddGoalRequest addGoalRequest) {
-            List<Coin> coins = coingeckoService.retrieveAllCoins();
+            List<CoingeckoCrypto> coingeckoCryptos = coingeckoService.retrieveAllCoingeckoCryptos();
             String requestCryptoName = addGoalRequest.cryptoName();
-            Coin coingeckoCrypto = coins.stream()
+            CoingeckoCrypto coingeckoCrypto = coingeckoCryptos.stream()
                     .filter(crypto -> crypto.getName().equalsIgnoreCase(requestCryptoName))
                     .findFirst()
                     .orElseThrow(() -> new CryptoNotFoundException(String.format(CRYPTO_NAME_NOT_FOUND, requestCryptoName)));

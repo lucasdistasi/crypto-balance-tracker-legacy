@@ -48,26 +48,26 @@ class GoalMapperTest {
 
     @Test
     void shouldMapAddGoalRequestSuccessfully() {
-        var allCoins = MockData.getAllCoins();
+        var allCoingeckoCryptos = MockData.getAllCoingeckoCryptos();
         var addGoalRequest = new AddGoalRequest("ethereum", BigDecimal.TEN);
 
-        when(coingeckoServiceMock.retrieveAllCoins()).thenReturn(allCoins);
+        when(coingeckoServiceMock.retrieveAllCoingeckoCryptos()).thenReturn(allCoingeckoCryptos);
 
         var goal = addGoalRequestMapper.mapFrom(addGoalRequest);
 
         assertAll(
                 () -> assertEquals(addGoalRequest.quantityGoal(), goal.getQuantityGoal()),
-                () -> assertEquals(allCoins.get(0).getId(), goal.getCryptoId())
+                () -> assertEquals(allCoingeckoCryptos.get(0).getId(), goal.getCryptoId())
         );
     }
 
     @Test
     void shouldThrowCryptoNotFoundExceptionWhenMappingAddGoalRequest() {
-        var allCoins = MockData.getAllCoins();
+        var allCoingeckoCryptos = MockData.getAllCoingeckoCryptos();
         var addGoalRequest = new AddGoalRequest("pepe", BigDecimal.TEN);
         var expectedMessage = String.format(CRYPTO_NAME_NOT_FOUND, addGoalRequest.cryptoName());
 
-        when(coingeckoServiceMock.retrieveAllCoins()).thenReturn(allCoins);
+        when(coingeckoServiceMock.retrieveAllCoingeckoCryptos()).thenReturn(allCoingeckoCryptos);
 
         var exception = assertThrows(CryptoNotFoundException.class, () -> addGoalRequestMapper.mapFrom(addGoalRequest));
 
@@ -76,16 +76,16 @@ class GoalMapperTest {
 
     @Test
     void shouldThrowGoalDuplicatedExceptionWhenAddingDuplicatedGoal() {
-        var allCoins = MockData.getAllCoins();
+        var allCoingeckoCryptos = MockData.getAllCoingeckoCryptos();
         var addGoalRequest = new AddGoalRequest("ethereum", BigDecimal.TEN);
-        var coin = allCoins.get(0);
+        var coingeckoCrypto = allCoingeckoCryptos.get(0);
         var goal = Goal.builder()
                 .id("ABC123")
                 .build();
         var expectedMessage = String.format(DUPLICATED_GOAL, addGoalRequest.cryptoName());
 
-        when(coingeckoServiceMock.retrieveAllCoins()).thenReturn(allCoins);
-        when(goalRepositoryMock.findByCryptoId(coin.getId())).thenReturn(Optional.of(goal));
+        when(coingeckoServiceMock.retrieveAllCoingeckoCryptos()).thenReturn(allCoingeckoCryptos);
+        when(goalRepositoryMock.findByCryptoId(coingeckoCrypto.getId())).thenReturn(Optional.of(goal));
 
         var exception = assertThrows(GoalDuplicatedException.class, () -> addGoalRequestMapper.mapFrom(addGoalRequest));
 

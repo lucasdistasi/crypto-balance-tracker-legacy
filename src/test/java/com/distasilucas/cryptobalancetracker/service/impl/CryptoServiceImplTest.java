@@ -59,10 +59,10 @@ class CryptoServiceImplTest {
         var cryptoCaptor = ArgumentCaptor.forClass(Crypto.class);
         var localDateTime = LocalDateTime.of(2023, 5, 3, 18, 55, 0);
         var zonedDateTime = ZonedDateTime.of(2023, 5, 3, 19, 0, 0, 0, ZoneId.of("UTC"));
-        var coinInfo = MockData.getBitcoinCoinInfo();
+        var coingeckoCryptoInfo = MockData.getBitcoinCoingeckoCryptoInfo();
 
         when(cryptoRepositoryMock.findById("bitcoin")).thenReturn(Optional.empty());
-        when(coingeckoServiceMock.retrieveCoinInfo("bitcoin")).thenReturn(coinInfo);
+        when(coingeckoServiceMock.retrieveCoingeckoCryptoInfo("bitcoin")).thenReturn(coingeckoCryptoInfo);
         when(clockMock.instant()).thenReturn(localDateTime.toInstant(ZoneOffset.UTC));
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
 
@@ -104,7 +104,7 @@ class CryptoServiceImplTest {
         cryptoService.saveCryptoIfNotExists("bitcoin");
 
         verify(cryptoRepositoryMock, never()).save(cryptoCaptor.capture());
-        verify(coingeckoServiceMock, never()).retrieveCoinInfo("bitcoin");
+        verify(coingeckoServiceMock, never()).retrieveCoingeckoCryptoInfo("bitcoin");
     }
 
 }

@@ -9,7 +9,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public sealed class Coin implements Serializable permits CoinInfo {
+public sealed class CoingeckoCrypto implements Serializable permits CoingeckoCryptoInfo {
 
     private String id;
     private String symbol;
