@@ -3,6 +3,7 @@ package com.distasilucas.cryptobalancetracker.controller;
 import com.distasilucas.cryptobalancetracker.MockData;
 import com.distasilucas.cryptobalancetracker.model.request.goal.AddGoalRequest;
 import com.distasilucas.cryptobalancetracker.model.request.goal.UpdateGoalRequest;
+import com.distasilucas.cryptobalancetracker.model.response.goal.PageGoalResponse;
 import com.distasilucas.cryptobalancetracker.service.GoalService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,11 +14,13 @@ import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
@@ -56,29 +59,33 @@ class GoalControllerTest {
 
     @Test
     void shouldRetrieveAllGoals() {
-        var goalResponse = Collections.singletonList(MockData.getGoalResponse());
+        var page = 0;
+        var goals = Collections.singletonList(MockData.getGoalResponse());
+        var pageGoalResponse = new PageGoalResponse(0, 1, false, goals);
 
-        when(goalServiceMock.getAllGoalsResponse()).thenReturn(goalResponse);
+        when(goalServiceMock.getGoalsResponse(page)).thenReturn(Optional.of(pageGoalResponse));
 
-        var responseEntity = goalController.getAllGoals();
+        var responseEntity = goalController.getGoals(page);
 
+        assertNotNull(responseEntity.getBody());
         assertAll(
-                () -> assertNotNull(responseEntity.getBody()),
-                () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
-                () -> assertEquals(1, responseEntity.getBody().size())
+                () -> assertTrue(responseEntity.getBody().isPresent()),
+                () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode())
         );
     }
 
     @Test
     void shouldReturnNoContentWhenNoGoalsFound() {
-        when(goalServiceMock.getAllGoalsResponse()).thenReturn(Collections.emptyList());
+        var page = 0;
 
-        var responseEntity = goalController.getAllGoals();
+        when(goalServiceMock.getGoalsResponse(page)).thenReturn(Optional.empty());
 
+        var responseEntity = goalController.getGoals(page);
+
+        assertNotNull(responseEntity.getBody());
         assertAll(
-                () -> assertNotNull(responseEntity.getBody()),
                 () -> assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode()),
-                () -> assertEquals(0, responseEntity.getBody().size())
+                () -> assertTrue(responseEntity.getBody().isEmpty())
         );
     }
 

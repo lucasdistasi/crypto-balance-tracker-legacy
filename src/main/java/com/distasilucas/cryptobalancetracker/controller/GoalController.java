@@ -4,6 +4,7 @@ import com.distasilucas.cryptobalancetracker.controller.swagger.GoalControllerAp
 import com.distasilucas.cryptobalancetracker.model.request.goal.AddGoalRequest;
 import com.distasilucas.cryptobalancetracker.model.request.goal.UpdateGoalRequest;
 import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
+import com.distasilucas.cryptobalancetracker.model.response.goal.PageGoalResponse;
 import com.distasilucas.cryptobalancetracker.service.GoalService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
@@ -18,9 +19,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,9 +44,9 @@ public class GoalController implements GoalControllerApi {
 
     @Override
     @GetMapping
-    public ResponseEntity<List<GoalResponse>> getAllGoals() {
-        List<GoalResponse> goalsResponse = goalService.getAllGoalsResponse();
-        HttpStatus httpStatus = CollectionUtils.isNotEmpty(goalsResponse) ? HttpStatus.OK : HttpStatus.NO_CONTENT;
+    public ResponseEntity<Optional<PageGoalResponse>> getGoals(@RequestParam int page) {
+        Optional<PageGoalResponse> goalsResponse = goalService.getGoalsResponse(page);
+        HttpStatus httpStatus = goalsResponse.isPresent() ? HttpStatus.OK : HttpStatus.NO_CONTENT;
 
         return ResponseEntity.status(httpStatus)
                 .body(goalsResponse);

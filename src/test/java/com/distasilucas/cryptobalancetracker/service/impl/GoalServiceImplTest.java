@@ -18,6 +18,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -118,17 +121,22 @@ class GoalServiceImplTest {
     }
 
     @Test
-    void shouldReturnAllGoals() {
+    void shouldReturnGoals() {
+        var page = 0;
+        var pageable = PageRequest.of(page, 10);
         var goal = MockData.getGoal();
         var goals = Collections.singletonList(goal);
         var goalResponse = MockData.getGoalResponse();
+        var pageImpl = new PageImpl<>(goals, pageable, 10);
 
-        when(goalRepositoryMock.findAll()).thenReturn(goals);
+        when(goalRepositoryMock.findAll(pageable)).thenReturn(pageImpl);
         when(goalResponseMapperMock.mapFrom(goal)).thenReturn(goalResponse);
 
-        var allGoals = goalService.getAllGoalsResponse();
+        var goalsResponse = goalService.getGoalsResponse(page);
 
         verify(goalResponseMapperMock, times(1)).mapFrom(any());
+        assertTrue(goalsResponse.isPresent());
+        var allGoals = goalsResponse.get().goals();
         assertAll(
                 () -> assertEquals(1, allGoals.size()),
                 () -> assertEquals(goalResponse.goalId(), allGoals.get(0).goalId()),
@@ -141,14 +149,17 @@ class GoalServiceImplTest {
     }
 
     @Test
-    void shouldReturnEmptyListIfNoGoalsFound() {
-        when(goalRepositoryMock.findAll()).thenReturn(Collections.emptyList());
+    void shouldReturnEmptyIfNoGoalsFound() {
+        var page = 0;
+        var pageable = PageRequest.of(page, 10);
 
-        var allGoals = goalService.getAllGoalsResponse();
+        when(goalRepositoryMock.findAll(pageable)).thenReturn(Page.empty());
+
+        var allGoals = goalService.getGoalsResponse(page);
 
         verify(goalResponseMapperMock, never()).mapFrom(any());
         assertAll(
-                () -> assertEquals(0, allGoals.size())
+                () -> assertTrue(allGoals.isEmpty())
         );
     }
 
