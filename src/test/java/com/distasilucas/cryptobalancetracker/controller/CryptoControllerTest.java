@@ -49,7 +49,7 @@ class CryptoControllerTest {
                 .id("bitcoin")
                 .build();
 
-        when(userCryptoServiceMocK.getCrypto("1234")).thenReturn(cryptoResponse);
+        when(userCryptoServiceMocK.getUserCryptoResponse("1234")).thenReturn(cryptoResponse);
 
         var responseEntity = cryptoController.getCrypto("1234");
 
@@ -116,7 +116,7 @@ class CryptoControllerTest {
                 .platform("Binance")
                 .build();
 
-        when(userCryptoServiceMocK.updateCrypto(newCrypto, "ABC123")).thenReturn(newCryptoResponse);
+        when(userCryptoServiceMocK.updateUserCrypto(newCrypto, "ABC123")).thenReturn(newCryptoResponse);
 
         var responseEntity = cryptoController.updateCrypto(newCrypto, "ABC123");
 
@@ -128,7 +128,7 @@ class CryptoControllerTest {
 
     @Test
     void shouldDeleteCrypto() {
-        doNothing().when(userCryptoServiceMocK).deleteCrypto("ABC123");
+        doNothing().when(userCryptoServiceMocK).deleteUserCrypto("ABC123");
 
         var responseEntity = cryptoController.deleteCrypto("ABC123");
 

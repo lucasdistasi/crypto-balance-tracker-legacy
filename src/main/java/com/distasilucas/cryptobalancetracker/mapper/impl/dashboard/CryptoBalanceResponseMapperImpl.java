@@ -2,20 +2,19 @@ package com.distasilucas.cryptobalancetracker.mapper.impl.dashboard;
 
 import com.distasilucas.cryptobalancetracker.comparator.DescendingPercentageComparator;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
-import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
-import com.distasilucas.cryptobalancetracker.exception.ApiException;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
+import com.distasilucas.cryptobalancetracker.exception.CryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CurrentPrice;
 import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
-import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoBalanceResponse;
-import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
-import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoResponse;
+import com.distasilucas.cryptobalancetracker.service.CryptoService;
+import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -33,8 +32,8 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 @RequiredArgsConstructor
 public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalanceResponse, List<UserCrypto>> {
 
-    private final CryptoRepository cryptoRepository;
-    private final PlatformRepository platformRepository;
+    private final CryptoService cryptoService;
+    private final PlatformService platformService;
 
     @Override
     public CryptoBalanceResponse mapFrom(List<UserCrypto> input) {
@@ -52,13 +51,9 @@ public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalan
     }
 
     private CryptoResponse mapCryptoResponse(UserCrypto userCrypto) {
-        Optional<Crypto> crypto = cryptoRepository.findById(userCrypto.getCryptoId());
-
-        if (crypto.isEmpty()) {
-            throw new ApiException(CRYPTO_NOT_FOUND, HttpStatus.NOT_FOUND);
-        }
-
-        CoinInfo coinInfo = mapCoinInfo().apply(crypto.get());
+        Crypto crypto = cryptoService.findById(userCrypto.getCryptoId())
+                .orElseThrow(() -> new CryptoNotFoundException(CRYPTO_NOT_FOUND));
+        CoinInfo coinInfo = mapCoinInfo().apply(crypto);
 
         return getCryptoResponse(userCrypto, coinInfo);
     }
@@ -107,7 +102,7 @@ public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalan
                 .btc()
                 .multiply(quantity)
                 .setScale(10, RoundingMode.HALF_UP);
-        Optional<Platform> platform = platformRepository.findById(userCrypto.getPlatformId());
+        Optional<Platform> platform = platformService.findById(userCrypto.getPlatformId());
         String platformName = platform.isPresent() ? platform.get().getName() : UNKNOWN;
 
         return new CryptoResponse(userCrypto.getId(), coinInfo, quantity, balanceInUSD, balanceInEUR, balanceInBTC, platformName);

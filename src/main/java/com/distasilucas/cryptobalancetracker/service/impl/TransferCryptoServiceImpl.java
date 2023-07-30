@@ -1,7 +1,7 @@
 package com.distasilucas.cryptobalancetracker.service.impl;
 
-import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
 import com.distasilucas.cryptobalancetracker.exception.CryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.InsufficientBalanceException;
@@ -10,9 +10,9 @@ import com.distasilucas.cryptobalancetracker.model.request.crypto.FromPlatform;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.ToPlatform;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.TransferCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.TransferCryptoResponse;
-import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
-import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
+import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import com.distasilucas.cryptobalancetracker.service.TransferCryptoService;
+import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,8 +31,8 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 @RequiredArgsConstructor
 public class TransferCryptoServiceImpl implements TransferCryptoService {
 
-    private final UserCryptoRepository userCryptoRepository;
-    private final PlatformRepository platformRepository;
+    private final UserCryptoService userCryptoService;
+    private final PlatformService platformService;
     private final Validation<TransferCryptoRequest> transferCryptoValidation;
 
     @Override
@@ -67,7 +67,7 @@ public class TransferCryptoServiceImpl implements TransferCryptoService {
             toPlatformCrypto.setQuantity(newQuantity);
             cryptoToTransfer.setQuantity(remainingCryptoQuantity);
 
-            userCryptoRepository.saveAll(Arrays.asList(toPlatformCrypto, cryptoToTransfer));
+            userCryptoService.saveAll(Arrays.asList(toPlatformCrypto, cryptoToTransfer));
 
             to = new ToPlatform(newQuantity);
             from = new FromPlatform(networkFee, quantityToTransfer, totalToSubtract, quantityToSendReceive, remainingCryptoQuantity);
@@ -79,7 +79,7 @@ public class TransferCryptoServiceImpl implements TransferCryptoService {
             cryptoToSave.setPlatformId(toPlatform.getId());
             cryptoToTransfer.setQuantity(remainingCryptoQuantity);
 
-            userCryptoRepository.saveAll(Arrays.asList(cryptoToTransfer, cryptoToSave));
+            userCryptoService.saveAll(Arrays.asList(cryptoToTransfer, cryptoToSave));
 
             to = new ToPlatform(quantityToSendReceive);
             from = new FromPlatform(networkFee, quantityToTransfer, totalToSubtract, quantityToSendReceive, remainingCryptoQuantity);
@@ -90,8 +90,8 @@ public class TransferCryptoServiceImpl implements TransferCryptoService {
             BigDecimal newQuantity = toPlatformCrypto.getQuantity().add(quantityToSendReceive);
             toPlatformCrypto.setQuantity(newQuantity);
 
-            userCryptoRepository.delete(cryptoToTransfer);
-            userCryptoRepository.save(toPlatformCrypto);
+            userCryptoService.deleteUserCrypto(cryptoToTransfer);
+            userCryptoService.saveUserCrypto(toPlatformCrypto);
 
             to = new ToPlatform(newQuantity);
             from = new FromPlatform(networkFee, quantityToTransfer, totalToSubtract, quantityToSendReceive, remainingCryptoQuantity);
@@ -100,7 +100,7 @@ public class TransferCryptoServiceImpl implements TransferCryptoService {
         if (!doesFromPlatformHasRemaining(remainingCryptoQuantity) && toPlatformOptionalCrypto.isEmpty()) {
             cryptoToTransfer.setQuantity(quantityToSendReceive);
             cryptoToTransfer.setPlatformId(toPlatform.getId());
-            userCryptoRepository.save(cryptoToTransfer);
+            userCryptoService.saveUserCrypto(cryptoToTransfer);
 
             to = new ToPlatform(quantityToSendReceive);
             from = new FromPlatform(networkFee, quantityToTransfer, totalToSubtract, quantityToSendReceive, remainingCryptoQuantity);
@@ -110,17 +110,17 @@ public class TransferCryptoServiceImpl implements TransferCryptoService {
     }
 
     private Platform getToPlatform(String toPlatformName) {
-        return platformRepository.findByName(toPlatformName)
+        return platformService.findByName(toPlatformName)
                 .orElseThrow(() -> new PlatformNotFoundException(TARGET_PLATFORM_NOT_EXISTS));
     }
 
     private UserCrypto getCryptoToTransfer(String id) {
-        return userCryptoRepository.findById(id)
+        return userCryptoService.findById(id)
                 .orElseThrow(() -> new CryptoNotFoundException(CRYPTO_NOT_FOUND));
     }
 
     private Optional<UserCrypto> getToPlatformOptionalCrypto(String cryptoId, Platform toPlatform) {
-        return userCryptoRepository.findByCryptoIdAndPlatformId(cryptoId, toPlatform.getId());
+        return userCryptoService.findByCryptoIdAndPlatformId(cryptoId, toPlatform.getId());
     }
 
     private boolean isToAndFromSame(String toPlatformId, String fromPlatformId) {

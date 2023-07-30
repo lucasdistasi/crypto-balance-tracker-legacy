@@ -7,6 +7,7 @@ import com.distasilucas.cryptobalancetracker.model.request.goal.AddGoalRequest;
 import com.distasilucas.cryptobalancetracker.model.request.goal.UpdateGoalRequest;
 import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
 import com.distasilucas.cryptobalancetracker.repository.GoalRepository;
+import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import com.distasilucas.cryptobalancetracker.service.GoalService;
 import com.distasilucas.cryptobalancetracker.validation.UtilValidations;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
@@ -27,6 +28,7 @@ public class GoalServiceImpl implements GoalService {
 
     private final GoalRepository goalRepository;
     private final UtilValidations utilValidations;
+    private final CryptoService cryptoService;
     private final EntityMapper<Goal, AddGoalRequest> addGoalRequestMapper;
     private final EntityMapper<Goal, UpdateGoalRequest> updateGoalRequestMapper;
     private final EntityMapper<GoalResponse, Goal> goalResponseMapper;
@@ -34,16 +36,26 @@ public class GoalServiceImpl implements GoalService {
     private final Validation<UpdateGoalRequest> updateGoalRequestValidation;
 
     @Override
-    public GoalResponse getGoal(String goalId) {
+    public Optional<Goal> findById(String id) {
+        return goalRepository.findById(id);
+    }
+
+    @Override
+    public GoalResponse getGoalResponse(String goalId) {
         utilValidations.validateIdMongoEntityFormat(goalId);
         log.info("Trying to retrieve info for goalId {}", goalId);
-        Goal goal = getGoalById(goalId);
+        Goal goal = findById(goalId)
+                .orElseThrow(() -> {
+                    String message = String.format(GOAL_ID_NOT_FOUND, goalId);
+
+                    return new GoalNotFoundException(message);
+                });
 
         return goalResponseMapper.mapFrom(goal);
     }
 
     @Override
-    public List<GoalResponse> getAllGoals() {
+    public List<GoalResponse> getAllGoalsResponse() {
         log.info("Retrieving all goals");
 
         return goalRepository.findAll()
@@ -58,10 +70,11 @@ public class GoalServiceImpl implements GoalService {
         addGoalRequestValidation.validate(addGoalRequest);
 
         Goal goal = addGoalRequestMapper.mapFrom(addGoalRequest);
-        Goal savedGoal = goalRepository.save(goal);
-        log.info("Saved goal {}", savedGoal);
+        goalRepository.save(goal);
+        cryptoService.saveCryptoIfNotExists(goal.getCryptoId());
+        log.info("Saved goal {}", goal);
 
-        return goalResponseMapper.mapFrom(savedGoal);
+        return goalResponseMapper.mapFrom(goal);
     }
 
     @Override
@@ -79,21 +92,20 @@ public class GoalServiceImpl implements GoalService {
     @Override
     public void deleteGoal(String goalId) {
         utilValidations.validateIdMongoEntityFormat(goalId);
-        Goal goal = getGoalById(goalId);
+        Goal goal = findById(goalId)
+                .orElseThrow(() -> {
+                    String message = String.format(GOAL_ID_NOT_FOUND, goalId);
+
+                    return new GoalNotFoundException(message);
+                });
         log.info("Deleting goal {}", goal);
 
         goalRepository.deleteById(goalId);
+        cryptoService.deleteCryptoIfNotUsed(goal.getCryptoId());
     }
 
-    private Goal getGoalById(String goalId) {
-        Optional<Goal> goal = goalRepository.findById(goalId);
-
-        if (goal.isEmpty()) {
-            String message = String.format(GOAL_ID_NOT_FOUND, goalId);
-
-            throw new GoalNotFoundException(message);
-        }
-
-        return goal.get();
+    @Override
+    public Optional<Goal> findByCryptoId(String cryptoId) {
+        return goalRepository.findByCryptoId(cryptoId);
     }
 }

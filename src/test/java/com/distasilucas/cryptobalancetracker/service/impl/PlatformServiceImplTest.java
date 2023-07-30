@@ -38,6 +38,9 @@ import static org.mockito.Mockito.when;
 class PlatformServiceImplTest {
 
     @Mock
+    UtilValidations utilValidationsMock;
+
+    @Mock
     PlatformRepository platformRepositoryMock;
 
     @Mock
@@ -51,9 +54,6 @@ class PlatformServiceImplTest {
 
     @Mock
     EntityMapper<PlatformResponse, Platform> platformResponseMapperImplMock;
-
-    @Mock
-    UtilValidations utilValidationsMock;
 
     PlatformService platformService;
 
@@ -72,7 +72,7 @@ class PlatformServiceImplTest {
 
         when(platformRepositoryMock.findAll()).thenReturn(Collections.singletonList(platform));
 
-        var allPlatforms = platformService.getAllPlatforms();
+        var allPlatforms = platformService.getAllPlatformsResponse();
 
         assertAll(
                 () -> assertFalse(allPlatforms.isEmpty()),

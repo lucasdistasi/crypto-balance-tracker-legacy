@@ -9,6 +9,7 @@ import com.distasilucas.cryptobalancetracker.model.request.goal.AddGoalRequest;
 import com.distasilucas.cryptobalancetracker.model.request.goal.UpdateGoalRequest;
 import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
 import com.distasilucas.cryptobalancetracker.repository.GoalRepository;
+import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import com.distasilucas.cryptobalancetracker.service.GoalService;
 import com.distasilucas.cryptobalancetracker.validation.UtilValidations;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
@@ -45,6 +46,9 @@ class GoalServiceImplTest {
     UtilValidations utilValidationsMock;
 
     @Mock
+    CryptoService cryptoServiceMock;
+
+    @Mock
     EntityMapper<Goal, AddGoalRequest> addGoalRequestMapperMock;
 
     @Mock
@@ -65,7 +69,7 @@ class GoalServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        goalService = new GoalServiceImpl(goalRepositoryMock, utilValidationsMock, addGoalRequestMapperMock,
+        goalService = new GoalServiceImpl(goalRepositoryMock, utilValidationsMock, cryptoServiceMock, addGoalRequestMapperMock,
                 updateGoalRequestMapperMock, goalResponseMapperMock, addGoalRequestValidationMock, updateGoalRequestValidationMock);
     }
 
@@ -78,7 +82,7 @@ class GoalServiceImplTest {
         when(goalRepositoryMock.findById("ABC123")).thenReturn(Optional.of(goal));
         when(goalResponseMapperMock.mapFrom(goal)).thenReturn(mockGoalResponse);
 
-        var goalResponse = goalService.getGoal("ABC123");
+        var goalResponse = goalService.getGoalResponse("ABC123");
 
         assertAll(
                 () -> assertEquals(mockGoalResponse.goalId(), goalResponse.goalId()),
@@ -96,7 +100,7 @@ class GoalServiceImplTest {
 
         doThrow(apiValidationException).when(utilValidationsMock).validateIdMongoEntityFormat(INVALID_MONGO_ID);
 
-        var exception = assertThrows(ApiValidationException.class, () -> goalService.getGoal(INVALID_MONGO_ID));
+        var exception = assertThrows(ApiValidationException.class, () -> goalService.getGoalResponse(INVALID_MONGO_ID));
 
         assertEquals(INVALID_ID_MONGO_FORMAT, exception.getErrorMessage());
     }
@@ -107,7 +111,7 @@ class GoalServiceImplTest {
 
         when(goalRepositoryMock.findById("ABC123")).thenReturn(Optional.empty());
 
-        var exception = assertThrows(GoalNotFoundException.class, () -> goalService.getGoal("ABC123"));
+        var exception = assertThrows(GoalNotFoundException.class, () -> goalService.getGoalResponse("ABC123"));
 
         assertEquals(expectedMessage, exception.getErrorMessage());
     }
@@ -121,7 +125,7 @@ class GoalServiceImplTest {
         when(goalRepositoryMock.findAll()).thenReturn(goals);
         when(goalResponseMapperMock.mapFrom(goal)).thenReturn(goalResponse);
 
-        var allGoals = goalService.getAllGoals();
+        var allGoals = goalService.getAllGoalsResponse();
 
         verify(goalResponseMapperMock, times(1)).mapFrom(any());
         assertAll(
@@ -139,7 +143,7 @@ class GoalServiceImplTest {
     void shouldReturnEmptyListIfNoGoalsFound() {
         when(goalRepositoryMock.findAll()).thenReturn(Collections.emptyList());
 
-        var allGoals = goalService.getAllGoals();
+        var allGoals = goalService.getAllGoalsResponse();
 
         verify(goalResponseMapperMock, never()).mapFrom(any());
         assertAll(
@@ -163,7 +167,8 @@ class GoalServiceImplTest {
 
         assertAll(
                 () -> assertEquals(addGoalRequest.cryptoName(), goalResponse.cryptoName()),
-                () -> assertEquals(addGoalRequest.quantityGoal(), goalResponse.goalQuantity())
+                () -> assertEquals(addGoalRequest.quantityGoal(), goalResponse.goalQuantity()),
+                () -> verify(cryptoServiceMock, times(1)).saveCryptoIfNotExists(goal.getCryptoId())
         );
     }
 

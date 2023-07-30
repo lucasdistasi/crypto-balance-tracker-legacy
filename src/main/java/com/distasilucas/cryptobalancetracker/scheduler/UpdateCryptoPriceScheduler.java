@@ -2,7 +2,7 @@ package com.distasilucas.cryptobalancetracker.scheduler;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
+import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -18,16 +18,16 @@ public class UpdateCryptoPriceScheduler {
 
     private final int maxLimit;
     private final Clock clock;
-    private final CryptoRepository cryptoRepository;
+    private final CryptoService cryptoService;
     private final EntityMapper<Crypto, Crypto> updateCryptoSchedulerMapperImpl;
 
     public UpdateCryptoPriceScheduler(@Value("${max-limit-crypto}") int maxLimit,
                                       Clock clock,
-                                      CryptoRepository cryptoRepository,
+                                      CryptoService cryptoService,
                                       EntityMapper<Crypto, Crypto> updateCryptoSchedulerMapperImpl) {
         this.maxLimit = maxLimit;
         this.clock = clock;
-        this.cryptoRepository = cryptoRepository;
+        this.cryptoService = cryptoService;
         this.updateCryptoSchedulerMapperImpl = updateCryptoSchedulerMapperImpl;
     }
 
@@ -40,17 +40,17 @@ public class UpdateCryptoPriceScheduler {
                 .map(updateCryptoSchedulerMapperImpl::mapFrom)
                 .toList();
 
-        cryptoRepository.saveAll(cryptosToUpdate);
+        cryptoService.saveAllCryptos(cryptosToUpdate);
     }
 
     private List<Crypto> getCryptosToUpdate() {
         LocalDateTime lastUpdatedPrice = LocalDateTime.now(clock).minusMinutes(5);
 
-        List<String> cryptosIdToUpdate = cryptoRepository.findTopNCryptosOrderByLastPriceUpdatedAtAsc(lastUpdatedPrice, maxLimit)
+        List<String> cryptosIdToUpdate = cryptoService.findTopNCryptosOrderByLastPriceUpdatedAtAsc(lastUpdatedPrice, maxLimit)
                 .stream()
                 .map(Crypto::getId)
                 .toList();
 
-        return cryptoRepository.findAllById(cryptosIdToUpdate);
+        return cryptoService.findAllById(cryptosIdToUpdate);
     }
 }

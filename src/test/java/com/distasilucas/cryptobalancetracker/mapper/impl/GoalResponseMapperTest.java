@@ -1,14 +1,14 @@
 package com.distasilucas.cryptobalancetracker.mapper.impl;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
-import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.entity.Goal;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.CryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.mapper.impl.goal.GoalResponseMapper;
 import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
-import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
-import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
+import com.distasilucas.cryptobalancetracker.service.CryptoService;
+import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,16 +31,16 @@ import static org.mockito.Mockito.when;
 class GoalResponseMapperTest {
 
     @Mock
-    CryptoRepository cryptoRepositoryMock;
+    CryptoService cryptoServiceMock;
 
     @Mock
-    UserCryptoRepository userCryptoRepositoryMock;
+    UserCryptoService userCryptoServiceMock;
 
     EntityMapper<GoalResponse, Goal> goalResponseMapper;
 
     @BeforeEach
     void setUp() {
-        goalResponseMapper = new GoalResponseMapper(cryptoRepositoryMock, userCryptoRepositoryMock);
+        goalResponseMapper = new GoalResponseMapper(cryptoServiceMock, userCryptoServiceMock);
     }
 
     @Test
@@ -56,8 +56,8 @@ class GoalResponseMapperTest {
                 .build();
         var goal = new Goal("ABC123", "bitcoin", BigDecimal.valueOf(2));
 
-        when(cryptoRepositoryMock.findById(goal.getCryptoId())).thenReturn(Optional.of(crypto));
-        when(userCryptoRepositoryMock.findAllByCryptoId("bitcoin")).thenReturn(Optional.of(allCryptos));
+        when(cryptoServiceMock.findById(goal.getCryptoId())).thenReturn(Optional.of(crypto));
+        when(userCryptoServiceMock.findAllByCryptoId("bitcoin")).thenReturn(Optional.of(allCryptos));
 
         var goalResponse = goalResponseMapper.mapFrom(goal);
 
@@ -84,8 +84,8 @@ class GoalResponseMapperTest {
                 .build();
         var goal = new Goal("ABC123", "bitcoin", BigDecimal.ONE);
 
-        when(cryptoRepositoryMock.findById(goal.getCryptoId())).thenReturn(Optional.of(crypto));
-        when(userCryptoRepositoryMock.findAllByCryptoId("bitcoin")).thenReturn(Optional.of(allCryptos));
+        when(cryptoServiceMock.findById(goal.getCryptoId())).thenReturn(Optional.of(crypto));
+        when(userCryptoServiceMock.findAllByCryptoId("bitcoin")).thenReturn(Optional.of(allCryptos));
 
         var goalResponse = goalResponseMapper.mapFrom(goal);
 
@@ -103,7 +103,7 @@ class GoalResponseMapperTest {
     void shouldTrowCryptoNotFoundExceptionWhenAddingGoalForNonExistingCrypto() {
         var goal = new Goal("ABC123", "bitcoin", BigDecimal.ONE);
 
-        when(cryptoRepositoryMock.findById("bitcoin")).thenReturn(Optional.empty());
+        when(cryptoServiceMock.findById("bitcoin")).thenReturn(Optional.empty());
 
         var exception = assertThrows(CryptoNotFoundException.class, () -> goalResponseMapper.mapFrom(goal));
 

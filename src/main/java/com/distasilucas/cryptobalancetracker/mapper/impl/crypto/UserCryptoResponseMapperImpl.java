@@ -1,13 +1,13 @@
 package com.distasilucas.cryptobalancetracker.mapper.impl.crypto;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
-import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.CryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.UserCryptoResponse;
-import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
-import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
+import com.distasilucas.cryptobalancetracker.service.CryptoService;
+import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +21,8 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 @RequiredArgsConstructor
 public class UserCryptoResponseMapperImpl implements EntityMapper<UserCryptoResponse, UserCrypto> {
 
-    private final CryptoRepository cryptoRepository;
-    private final PlatformRepository platformRepository;
+    private final CryptoService cryptoService;
+    private final PlatformService platformService;
 
     @Override
     public UserCryptoResponse mapFrom(UserCrypto input) {
@@ -32,9 +32,9 @@ public class UserCryptoResponseMapperImpl implements EntityMapper<UserCryptoResp
     }
 
     private UserCryptoResponse getCryptoResponse(UserCrypto userCrypto) {
-        Optional<Platform> platform = platformRepository.findById(userCrypto.getPlatformId());
+        Optional<Platform> platform = platformService.findById(userCrypto.getPlatformId());
         String platformName = platform.isPresent() ? platform.get().getName() : UNKNOWN;
-        Crypto crypto = cryptoRepository.findById(userCrypto.getCryptoId())
+        Crypto crypto = cryptoService.findById(userCrypto.getCryptoId())
                 .orElseThrow(() -> new CryptoNotFoundException(CRYPTO_NOT_FOUND));
 
         return UserCryptoResponse.builder()

@@ -38,7 +38,7 @@ class PlatformControllerTest {
     void shouldRetrieveAllPlatforms() {
         var platformResponse = new PlatformResponse("Binance");
 
-        when(platformServiceMock.getAllPlatforms()).thenReturn(Collections.singletonList(platformResponse));
+        when(platformServiceMock.getAllPlatformsResponse()).thenReturn(Collections.singletonList(platformResponse));
 
         var allPlatforms = platformController.getAllPlatforms();
 
@@ -51,7 +51,7 @@ class PlatformControllerTest {
 
     @Test
     void shouldReturnNoContentIfPlatformsIsEmpty() {
-        when(platformServiceMock.getAllPlatforms()).thenReturn(Collections.emptyList());
+        when(platformServiceMock.getAllPlatformsResponse()).thenReturn(Collections.emptyList());
 
         var allPlatforms = platformController.getAllPlatforms();
 

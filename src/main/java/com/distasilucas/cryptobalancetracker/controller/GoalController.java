@@ -34,7 +34,7 @@ public class GoalController implements GoalControllerApi {
     @Override
     @GetMapping("/{goalId}")
     public ResponseEntity<GoalResponse> getGoal(@PathVariable String goalId) {
-        GoalResponse goalResponse = goalService.getGoal(goalId);
+        GoalResponse goalResponse = goalService.getGoalResponse(goalId);
 
         return ResponseEntity.ok(goalResponse);
     }
@@ -42,7 +42,7 @@ public class GoalController implements GoalControllerApi {
     @Override
     @GetMapping
     public ResponseEntity<List<GoalResponse>> getAllGoals() {
-        List<GoalResponse> goalsResponse = goalService.getAllGoals();
+        List<GoalResponse> goalsResponse = goalService.getAllGoalsResponse();
         HttpStatus httpStatus = CollectionUtils.isNotEmpty(goalsResponse) ? HttpStatus.OK : HttpStatus.NO_CONTENT;
 
         return ResponseEntity.status(httpStatus)
