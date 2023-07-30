@@ -9,12 +9,12 @@ import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.CryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.UpdateCryptoRequest;
+import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
-import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import com.distasilucas.cryptobalancetracker.validation.EntityValidation;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -26,19 +26,12 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class CryptoPlatformValidator<T extends CryptoRequest> implements EntityValidation<T> {
 
     private final CoingeckoService coingeckoService;
     private final PlatformService platformService;
-    private final UserCryptoService userCryptoService;
-
-    public CryptoPlatformValidator(CoingeckoService coingeckoService,
-                                   PlatformService platformService,
-                                   @Lazy UserCryptoService userCryptoService) {
-        this.coingeckoService = coingeckoService;
-        this.platformService = platformService;
-        this.userCryptoService = userCryptoService;
-    }
+    private final UserCryptoRepository userCryptoRepository;
 
     @Override
     public void validate(T cryptoRequest) {
@@ -65,7 +58,7 @@ public class CryptoPlatformValidator<T extends CryptoRequest> implements EntityV
                         return new CryptoNotFoundException(message);
                     });
 
-            Optional<UserCrypto> optionalCrypto = userCryptoService.findByCryptoIdAndPlatformId(coin.getId(), requestPlatform.getId());
+            Optional<UserCrypto> optionalCrypto = userCryptoRepository.findByCryptoIdAndPlatformId(coin.getId(), requestPlatform.getId());
 
             optionalCrypto.ifPresent(crypto -> {
                 String message = String.format(DUPLICATED_PLATFORM_CRYPTO, requestPlatform.getName());
@@ -76,7 +69,7 @@ public class CryptoPlatformValidator<T extends CryptoRequest> implements EntityV
 
         if (cryptoRequest instanceof UpdateCryptoRequest updateCryptoRequest) {
             String cryptoId = updateCryptoRequest.getCryptoId();
-            Optional<UserCrypto> optionalRequestCrypto = userCryptoService.findById(cryptoId);
+            Optional<UserCrypto> optionalRequestCrypto = userCryptoRepository.findById(cryptoId);
 
             if (optionalRequestCrypto.isEmpty()) {
                 String message = String.format(CRYPTO_ID_NOT_FOUND, cryptoId);
@@ -85,7 +78,7 @@ public class CryptoPlatformValidator<T extends CryptoRequest> implements EntityV
             }
 
             if (didChangePlatform(optionalRequestCrypto.get(), requestPlatform)) {
-                Optional<UserCrypto> optionalUserCrypto = userCryptoService.findByCryptoIdAndPlatformId(optionalRequestCrypto.get().getCryptoId(), requestPlatform.getId());
+                Optional<UserCrypto> optionalUserCrypto = userCryptoRepository.findByCryptoIdAndPlatformId(optionalRequestCrypto.get().getCryptoId(), requestPlatform.getId());
 
                 if (optionalUserCrypto.isPresent()) {
                     String message = String.format(DUPLICATED_PLATFORM_CRYPTO, requestPlatform.getName());

@@ -10,7 +10,6 @@ import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.UpdateCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.UserCryptoResponse;
-import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
@@ -61,7 +60,7 @@ class UserCryptoServiceImplTest {
     EntityMapper<UserCryptoResponse, UserCrypto> cryptoResponseMapperImplMock;
 
     @Mock
-    UserCryptoRepository userCryptoRepositoryMock;
+    com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository userCryptoRepositoryMock;
 
     @Mock
     PlatformService platformServiceMock;

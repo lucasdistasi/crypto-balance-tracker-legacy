@@ -6,7 +6,6 @@ import com.distasilucas.cryptobalancetracker.model.request.crypto.UpdateCryptoRe
 import com.distasilucas.cryptobalancetracker.model.response.crypto.UserCryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.PageCryptoResponse;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,5 +25,4 @@ public interface UserCryptoService {
     UserCryptoResponse updateUserCrypto(UpdateCryptoRequest updateCryptoRequest, String id);
     void deleteUserCrypto(String id);
     void deleteUserCrypto(UserCrypto userCrypto);
-    void deleteAllUserCryptosById(Collection<String> ids);
 }

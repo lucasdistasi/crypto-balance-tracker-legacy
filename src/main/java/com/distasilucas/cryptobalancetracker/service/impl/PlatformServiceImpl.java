@@ -7,14 +7,13 @@ import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.request.platform.PlatformRequest;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
+import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
-import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
 import com.distasilucas.cryptobalancetracker.validation.UtilValidations;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,28 +25,15 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class PlatformServiceImpl implements PlatformService {
 
     private final UtilValidations utilValidations;
     private final PlatformRepository platformRepository;
-    private final UserCryptoService userCryptoService;
+    private final UserCryptoRepository userCryptoRepository;
     private final Validation<PlatformRequest> addPlatformValidation;
     private final EntityMapper<Platform, PlatformRequest> platformMapperImpl;
     private final EntityMapper<PlatformResponse, Platform> platformResponseMapperImpl;
-
-    public PlatformServiceImpl(UtilValidations utilValidations,
-                               PlatformRepository platformRepository,
-                               @Lazy UserCryptoService userCryptoService,
-                               Validation<PlatformRequest> addPlatformValidation,
-                               EntityMapper<Platform, PlatformRequest> platformMapperImpl,
-                               EntityMapper<PlatformResponse, Platform> platformResponseMapperImpl) {
-        this.utilValidations = utilValidations;
-        this.platformRepository = platformRepository;
-        this.userCryptoService = userCryptoService;
-        this.addPlatformValidation = addPlatformValidation;
-        this.platformMapperImpl = platformMapperImpl;
-        this.platformResponseMapperImpl = platformResponseMapperImpl;
-    }
 
     @Override
     public Optional<Platform> findById(String id) {
@@ -124,14 +110,14 @@ public class PlatformServiceImpl implements PlatformService {
 
                     return new PlatformNotFoundException(message);
                 });
-        Optional<List<UserCrypto>> cryptosToDelete = userCryptoService.findAllByPlatformId(platform.getId());
+        Optional<List<UserCrypto>> cryptosToDelete = userCryptoRepository.findAllByPlatformId(platform.getId());
 
         if (cryptosToDelete.isPresent() && CollectionUtils.isNotEmpty(cryptosToDelete.get())) {
             Map<String, String> cryptos = cryptosToDelete.get()
                     .stream()
                     .collect(Collectors.toUnmodifiableMap(UserCrypto::getId, UserCrypto::getCryptoId));
 
-            userCryptoService.deleteAllUserCryptosById(cryptos.keySet());
+            userCryptoRepository.deleteAllById(cryptos.keySet());
             log.info("Deleted {} in platform {}", cryptos.values(), platformName);
         }
 

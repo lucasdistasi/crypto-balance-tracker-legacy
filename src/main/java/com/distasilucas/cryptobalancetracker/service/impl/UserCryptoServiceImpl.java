@@ -10,7 +10,6 @@ import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoReque
 import com.distasilucas.cryptobalancetracker.model.request.crypto.UpdateCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.PageCryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.UserCryptoResponse;
-import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
@@ -23,7 +22,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,7 +39,7 @@ public class UserCryptoServiceImpl implements UserCryptoService {
     private final CryptoService cryptoService;
     private final EntityMapper<UserCrypto, AddCryptoRequest> cryptoMapperImpl;
     private final EntityMapper<UserCryptoResponse, UserCrypto> userCryptoResponseMapperImpl;
-    private final UserCryptoRepository userCryptoRepository;
+    private final com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository userCryptoRepository;
     private final PlatformService platformService;
     private final Validation<AddCryptoRequest> addCryptoValidation;
     private final Validation<UpdateCryptoRequest> updateCryptoValidation;
@@ -180,10 +178,5 @@ public class UserCryptoServiceImpl implements UserCryptoService {
     public void deleteUserCrypto(UserCrypto userCrypto) {
         userCryptoRepository.delete(userCrypto);
         cryptoService.deleteCryptoIfNotUsed(userCrypto.getCryptoId());
-    }
-
-    @Override
-    public void deleteAllUserCryptosById(Collection<String> ids) {
-        userCryptoRepository.deleteAllById(ids);
     }
 }

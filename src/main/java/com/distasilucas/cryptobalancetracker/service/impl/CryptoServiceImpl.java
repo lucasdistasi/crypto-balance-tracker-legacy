@@ -6,11 +6,11 @@ import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
+import com.distasilucas.cryptobalancetracker.repository.GoalRepository;
+import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
-import com.distasilucas.cryptobalancetracker.service.GoalService;
-import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
-import org.springframework.context.annotation.Lazy;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
@@ -19,25 +19,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CryptoServiceImpl implements CryptoService {
 
     private final Clock clock;
     private final CryptoRepository cryptoRepository;
-    private final GoalService goalService;
-    private final UserCryptoService userCryptoService;
+    private final GoalRepository goalRepository;
+    private final UserCryptoRepository userCryptoRepository;
     private final CoingeckoService coingeckoService;
-
-    public CryptoServiceImpl(Clock clock,
-                             CryptoRepository cryptoRepository,
-                             @Lazy GoalService goalService,
-                             @Lazy UserCryptoService userCryptoService,
-                             CoingeckoService coingeckoService) {
-        this.clock = clock;
-        this.cryptoRepository = cryptoRepository;
-        this.goalService = goalService;
-        this.userCryptoService = userCryptoService;
-        this.coingeckoService = coingeckoService;
-    }
 
     @Override
     public Optional<Crypto> findById(String cryptoId) {
@@ -80,8 +69,8 @@ public class CryptoServiceImpl implements CryptoService {
 
     @Override
     public void deleteCryptoIfNotUsed(String cryptoId) {
-        Optional<Goal> optionalGoal = goalService.findByCryptoId(cryptoId);
-        Optional<UserCrypto> optionalUserCrypto = userCryptoService.findFirstByCryptoId(cryptoId);
+        Optional<Goal> optionalGoal = goalRepository.findByCryptoId(cryptoId);
+        Optional<UserCrypto> optionalUserCrypto = userCryptoRepository.findFirstByCryptoId(cryptoId);
 
         if (optionalGoal.isEmpty() && optionalUserCrypto.isEmpty()) {
             findById(cryptoId).ifPresent(cryptoRepository::delete);

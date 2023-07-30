@@ -9,10 +9,9 @@ import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
 import com.distasilucas.cryptobalancetracker.model.request.goal.AddGoalRequest;
 import com.distasilucas.cryptobalancetracker.model.request.goal.GoalRequest;
 import com.distasilucas.cryptobalancetracker.model.request.goal.UpdateGoalRequest;
-import com.distasilucas.cryptobalancetracker.service.GoalService;
+import com.distasilucas.cryptobalancetracker.repository.GoalRepository;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,16 +22,11 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.GOAL_ID_NOT_FOUND;
 
 @Service
+@RequiredArgsConstructor
 public class GoalMapper<T extends GoalRequest> implements EntityMapper<Goal, T> {
 
-    private final GoalService goalService;
+    private final GoalRepository goalRepository;
     private final CoingeckoService coingeckoService;
-
-    public GoalMapper(@Lazy GoalService goalService,
-                      CoingeckoService coingeckoService) {
-        this.goalService = goalService;
-        this.coingeckoService = coingeckoService;
-    }
 
     @Override
     public Goal mapFrom(T input) {
@@ -45,7 +39,7 @@ public class GoalMapper<T extends GoalRequest> implements EntityMapper<Goal, T> 
                     .filter(crypto -> crypto.getName().equalsIgnoreCase(requestCryptoName))
                     .findFirst()
                     .orElseThrow(() -> new CryptoNotFoundException(String.format(CRYPTO_NAME_NOT_FOUND, requestCryptoName)));
-            Optional<Goal> existingGoal = goalService.findByCryptoId(coingeckoCrypto.getId());
+            Optional<Goal> existingGoal = goalRepository.findByCryptoId(coingeckoCrypto.getId());
 
             if (existingGoal.isPresent())
                 throw new GoalDuplicatedException(String.format(DUPLICATED_GOAL, addGoalRequest.cryptoName()));
@@ -56,7 +50,7 @@ public class GoalMapper<T extends GoalRequest> implements EntityMapper<Goal, T> 
 
         if (input instanceof UpdateGoalRequest updateGoalRequest) {
             String goalId = updateGoalRequest.getGoalId();
-            Goal existingGoal = goalService.findById(goalId)
+            Goal existingGoal = goalRepository.findById(goalId)
                     .orElseThrow(() -> new GoalNotFoundException(String.format(GOAL_ID_NOT_FOUND, goalId)));
 
             goal.setId(existingGoal.getId());

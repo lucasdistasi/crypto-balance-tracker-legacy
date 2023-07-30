@@ -9,7 +9,7 @@ import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.mapper.impl.goal.GoalMapper;
 import com.distasilucas.cryptobalancetracker.model.request.goal.AddGoalRequest;
 import com.distasilucas.cryptobalancetracker.model.request.goal.UpdateGoalRequest;
-import com.distasilucas.cryptobalancetracker.service.GoalService;
+import com.distasilucas.cryptobalancetracker.repository.GoalRepository;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 class GoalMapperTest {
 
     @Mock
-    GoalService goalServiceMock;
+    GoalRepository goalRepositoryMock;
 
     @Mock
     CoingeckoService coingeckoServiceMock;
@@ -42,8 +42,8 @@ class GoalMapperTest {
 
     @BeforeEach
     void setUp() {
-        addGoalRequestMapper = new GoalMapper<>(goalServiceMock, coingeckoServiceMock);
-        updateGoalRequestMapper = new GoalMapper<>(goalServiceMock, coingeckoServiceMock);
+        addGoalRequestMapper = new GoalMapper<>(goalRepositoryMock, coingeckoServiceMock);
+        updateGoalRequestMapper = new GoalMapper<>(goalRepositoryMock, coingeckoServiceMock);
     }
 
     @Test
@@ -85,7 +85,7 @@ class GoalMapperTest {
         var expectedMessage = String.format(DUPLICATED_GOAL, addGoalRequest.cryptoName());
 
         when(coingeckoServiceMock.retrieveAllCoins()).thenReturn(allCoins);
-        when(goalServiceMock.findByCryptoId(coin.getId())).thenReturn(Optional.of(goal));
+        when(goalRepositoryMock.findByCryptoId(coin.getId())).thenReturn(Optional.of(goal));
 
         var exception = assertThrows(GoalDuplicatedException.class, () -> addGoalRequestMapper.mapFrom(addGoalRequest));
 
@@ -101,7 +101,7 @@ class GoalMapperTest {
                 .cryptoId("ethereum")
                 .build();
 
-        when(goalServiceMock.findById(updateGoalRequest.getGoalId())).thenReturn(Optional.of(existingGoal));
+        when(goalRepositoryMock.findById(updateGoalRequest.getGoalId())).thenReturn(Optional.of(existingGoal));
 
         var goal = updateGoalRequestMapper.mapFrom(updateGoalRequest);
 
@@ -118,7 +118,7 @@ class GoalMapperTest {
         updateGoalRequest.setGoalId("ABC123");
         var expectedMessage = String.format(GOAL_ID_NOT_FOUND, updateGoalRequest.getGoalId());
 
-        when(goalServiceMock.findById(updateGoalRequest.getGoalId())).thenReturn(Optional.empty());
+        when(goalRepositoryMock.findById(updateGoalRequest.getGoalId())).thenReturn(Optional.empty());
 
         var exception = assertThrows(GoalNotFoundException.class, () -> updateGoalRequestMapper.mapFrom(updateGoalRequest));
 
