@@ -30,18 +30,18 @@ public class CryptoServiceImpl implements CryptoService {
 
     @Override
     public Optional&lt;Crypto&gt; findById(String cryptoId) {
-<span class="nc" id="L33">        return cryptoRepository.findById(cryptoId);</span>
+<span class="fc" id="L33">        return cryptoRepository.findById(cryptoId);</span>
     }
 
     @Override
     public List&lt;Crypto&gt; findAllById(List&lt;String&gt; cryptoIds) {
-<span class="nc" id="L38">        return cryptoRepository.findAllById(cryptoIds);</span>
+<span class="fc" id="L38">        return cryptoRepository.findAllById(cryptoIds);</span>
     }
 
     @Override
     public void saveAllCryptos(List&lt;Crypto&gt; cryptosToSave) {
-<span class="nc" id="L43">        cryptoRepository.saveAll(cryptosToSave);</span>
-<span class="nc" id="L44">    }</span>
+<span class="fc" id="L43">        cryptoRepository.saveAll(cryptosToSave);</span>
+<span class="fc" id="L44">    }</span>
 
     @Override
     public void saveCryptoIfNotExists(String cryptoId) {
@@ -69,17 +69,17 @@ public class CryptoServiceImpl implements CryptoService {
 
     @Override
     public void deleteCryptoIfNotUsed(String cryptoId) {
-<span class="nc" id="L72">        Optional&lt;Goal&gt; optionalGoal = goalRepository.findByCryptoId(cryptoId);</span>
-<span class="nc" id="L73">        Optional&lt;UserCrypto&gt; optionalUserCrypto = userCryptoRepository.findFirstByCryptoId(cryptoId);</span>
+<span class="fc" id="L72">        Optional&lt;Goal&gt; optionalGoal = goalRepository.findByCryptoId(cryptoId);</span>
+<span class="fc" id="L73">        Optional&lt;UserCrypto&gt; optionalUserCrypto = userCryptoRepository.findFirstByCryptoId(cryptoId);</span>
 
-<span class="nc bnc" id="L75" title="All 4 branches missed.">        if (optionalGoal.isEmpty() &amp;&amp; optionalUserCrypto.isEmpty()) {</span>
-<span class="nc" id="L76">            findById(cryptoId).ifPresent(cryptoRepository::delete);</span>
+<span class="pc bpc" id="L75" title="1 of 4 branches missed.">        if (optionalGoal.isEmpty() &amp;&amp; optionalUserCrypto.isEmpty()) {</span>
+<span class="fc" id="L76">            findById(cryptoId).ifPresent(cryptoRepository::delete);</span>
         }
-<span class="nc" id="L78">    }</span>
+<span class="fc" id="L78">    }</span>
 
     @Override
     public List&lt;Crypto&gt; findTopNCryptosOrderByLastPriceUpdatedAtAsc(LocalDateTime dateFilter, int limit) {
-<span class="nc" id="L82">        return cryptoRepository.findTopNCryptosOrderByLastPriceUpdatedAtAsc(dateFilter, limit);</span>
+<span class="fc" id="L82">        return cryptoRepository.findTopNCryptosOrderByLastPriceUpdatedAtAsc(dateFilter, limit);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

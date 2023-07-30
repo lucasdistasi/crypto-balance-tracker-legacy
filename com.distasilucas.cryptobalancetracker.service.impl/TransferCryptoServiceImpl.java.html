@@ -116,7 +116,7 @@ public class TransferCryptoServiceImpl implements TransferCryptoService {
 
     private UserCrypto getCryptoToTransfer(String id) {
 <span class="fc" id="L118">        return userCryptoService.findById(id)</span>
-<span class="pc" id="L119">                .orElseThrow(() -&gt; new CryptoNotFoundException(CRYPTO_NOT_FOUND));</span>
+<span class="fc" id="L119">                .orElseThrow(() -&gt; new CryptoNotFoundException(CRYPTO_NOT_FOUND));</span>
     }
 
     private Optional&lt;UserCrypto&gt; getToPlatformOptionalCrypto(String cryptoId, Platform toPlatform) {

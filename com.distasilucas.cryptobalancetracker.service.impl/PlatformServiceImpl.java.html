@@ -37,7 +37,7 @@ public class PlatformServiceImpl implements PlatformService {
 
     @Override
     public Optional&lt;Platform&gt; findById(String id) {
-<span class="nc" id="L40">        return platformRepository.findById(id);</span>
+<span class="fc" id="L40">        return platformRepository.findById(id);</span>
     }
 
     @Override
@@ -88,9 +88,9 @@ public class PlatformServiceImpl implements PlatformService {
 <span class="fc" id="L88">        addPlatformValidation.validate(platformRequest);</span>
 <span class="fc" id="L89">        Platform platform = findByName(platformName)</span>
 <span class="fc" id="L90">                .orElseThrow(() -&gt; {</span>
-<span class="nc" id="L91">                    String message = String.format(PLATFORM_NOT_FOUND, platformName);</span>
+<span class="fc" id="L91">                    String message = String.format(PLATFORM_NOT_FOUND, platformName);</span>
 
-<span class="nc" id="L93">                    return new PlatformNotFoundException(message);</span>
+<span class="fc" id="L93">                    return new PlatformNotFoundException(message);</span>
                 });
 <span class="fc" id="L95">        String newPlatformName = platformRequest.getName();</span>
 <span class="fc" id="L96">        platform.setName(newPlatformName);</span>
@@ -106,9 +106,9 @@ public class PlatformServiceImpl implements PlatformService {
     public void deletePlatform(String platformName) {
 <span class="fc" id="L107">        Platform platform = findByName(platformName)</span>
 <span class="fc" id="L108">                .orElseThrow(() -&gt; {</span>
-<span class="nc" id="L109">                    String message = String.format(PLATFORM_NOT_FOUND, platformName);</span>
+<span class="fc" id="L109">                    String message = String.format(PLATFORM_NOT_FOUND, platformName);</span>
 
-<span class="nc" id="L111">                    return new PlatformNotFoundException(message);</span>
+<span class="fc" id="L111">                    return new PlatformNotFoundException(message);</span>
                 });
 <span class="fc" id="L113">        Optional&lt;List&lt;UserCrypto&gt;&gt; cryptosToDelete = userCryptoRepository.findAllByPlatformId(platform.getId());</span>
 

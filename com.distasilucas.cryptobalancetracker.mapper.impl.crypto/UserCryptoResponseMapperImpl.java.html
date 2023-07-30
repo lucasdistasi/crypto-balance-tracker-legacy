@@ -35,7 +35,7 @@ public class UserCryptoResponseMapperImpl implements EntityMapper&lt;UserCryptoR
 <span class="fc" id="L35">        Optional&lt;Platform&gt; platform = platformService.findById(userCrypto.getPlatformId());</span>
 <span class="fc bfc" id="L36" title="All 2 branches covered.">        String platformName = platform.isPresent() ? platform.get().getName() : UNKNOWN;</span>
 <span class="fc" id="L37">        Crypto crypto = cryptoService.findById(userCrypto.getCryptoId())</span>
-<span class="pc" id="L38">                .orElseThrow(() -&gt; new CryptoNotFoundException(CRYPTO_NOT_FOUND));</span>
+<span class="fc" id="L38">                .orElseThrow(() -&gt; new CryptoNotFoundException(CRYPTO_NOT_FOUND));</span>
 
 <span class="fc" id="L40">        return UserCryptoResponse.builder()</span>
 <span class="fc" id="L41">                .id(userCrypto.getId())</span>
