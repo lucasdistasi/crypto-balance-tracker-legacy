@@ -10,6 +10,7 @@ import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoReque
 import com.distasilucas.cryptobalancetracker.model.request.crypto.UpdateCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.PageCryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.UserCryptoResponse;
+import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
@@ -39,7 +40,7 @@ public class UserCryptoServiceImpl implements UserCryptoService {
     private final CryptoService cryptoService;
     private final EntityMapper<UserCrypto, AddCryptoRequest> cryptoMapperImpl;
     private final EntityMapper<UserCryptoResponse, UserCrypto> userCryptoResponseMapperImpl;
-    private final com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository userCryptoRepository;
+    private final UserCryptoRepository userCryptoRepository;
     private final PlatformService platformService;
     private final Validation<AddCryptoRequest> addCryptoValidation;
     private final Validation<UpdateCryptoRequest> updateCryptoValidation;

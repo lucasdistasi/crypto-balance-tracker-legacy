@@ -10,7 +10,6 @@ import java.util.Optional;
 
 public interface UserCryptoRepository extends MongoRepository<UserCrypto, String> {
 
-    Page<UserCrypto> findAll(Pageable pageable);
     Optional<UserCrypto> findByCryptoIdAndPlatformId(String cryptoId, String platformId);
     Optional<List<UserCrypto>> findAllByPlatformId(String platformId);
     Optional<List<UserCrypto>> findAllByCryptoId(String cryptoId);

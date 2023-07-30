@@ -6,6 +6,7 @@ import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.request.goal.AddGoalRequest;
 import com.distasilucas.cryptobalancetracker.model.request.goal.UpdateGoalRequest;
 import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
+import com.distasilucas.cryptobalancetracker.model.response.goal.PageGoalResponse;
 import com.distasilucas.cryptobalancetracker.repository.GoalRepository;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import com.distasilucas.cryptobalancetracker.service.GoalService;
@@ -13,8 +14,12 @@ import com.distasilucas.cryptobalancetracker.validation.UtilValidations;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -55,14 +60,19 @@ public class GoalServiceImpl implements GoalService {
     }
 
     @Override
-    public List<GoalResponse> getAllGoalsResponse() {
-        log.info("Retrieving all goals");
+    public Optional<PageGoalResponse> getGoalsResponse(int page) {
+        log.info("Retrieving goals for page {}", page);
+        Pageable pageable = PageRequest.of(page, 10);
+        Page<Goal> goalPage = goalRepository.findAll(pageable);
 
-        return goalRepository.findAll()
-                .stream()
+        if (goalPage.isEmpty()) return Optional.empty();
+
+        List<GoalResponse> goals = goalPage.stream()
                 .map(goalResponseMapper::mapFrom)
                 .sorted(Comparator.comparing(GoalResponse::moneyNeeded))
                 .toList();
+
+        return Optional.of(new PageGoalResponse(page, goalPage.getTotalPages(), goals));
     }
 
     @Override

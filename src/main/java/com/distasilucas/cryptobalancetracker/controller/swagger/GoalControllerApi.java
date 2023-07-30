@@ -4,6 +4,7 @@ import com.distasilucas.cryptobalancetracker.model.error.ErrorResponse;
 import com.distasilucas.cryptobalancetracker.model.request.goal.AddGoalRequest;
 import com.distasilucas.cryptobalancetracker.model.request.goal.UpdateGoalRequest;
 import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
+import com.distasilucas.cryptobalancetracker.model.response.goal.PageGoalResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.APPLICATION_JSON;
 import static com.distasilucas.cryptobalancetracker.constant.SwaggerConstants.BAD_REQUEST_CODE;
@@ -46,7 +48,7 @@ public interface GoalControllerApi {
                     }
             )
     })
-    ResponseEntity<List<GoalResponse>> getAllGoals();
+    ResponseEntity<Optional<PageGoalResponse>> getGoals(int page);
 
     @Operation(summary = "Return Goal for the given ID")
     @ApiResponses(value = {
