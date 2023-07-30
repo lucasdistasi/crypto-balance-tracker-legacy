@@ -15,6 +15,7 @@ import com.distasilucas.cryptobalancetracker.service.TransferCryptoService;
 import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -27,8 +28,9 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.SAME_FROM_TO_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.TARGET_PLATFORM_NOT_EXISTS;
 
+<span class="fc" id="L31">@Slf4j</span>
 @Service
-<span class="fc" id="L31">@RequiredArgsConstructor</span>
+<span class="fc" id="L33">@RequiredArgsConstructor</span>
 public class TransferCryptoServiceImpl implements TransferCryptoService {
 
     private final UserCryptoService userCryptoService;
@@ -37,122 +39,124 @@ public class TransferCryptoServiceImpl implements TransferCryptoService {
 
     @Override
     public TransferCryptoResponse transferCrypto(TransferCryptoRequest transferCryptoRequest) {
-<span class="fc" id="L40">        transferCryptoValidation.validate(transferCryptoRequest);</span>
+<span class="fc" id="L42">        transferCryptoValidation.validate(transferCryptoRequest);</span>
 
-<span class="fc" id="L42">        String toPlatformName = transferCryptoRequest.getToPlatform().toUpperCase();</span>
-<span class="fc" id="L43">        Platform toPlatform = getToPlatform(toPlatformName);</span>
-<span class="fc" id="L44">        String id = transferCryptoRequest.getCryptoId();</span>
-<span class="fc" id="L45">        UserCrypto cryptoToTransfer = getCryptoToTransfer(id);</span>
+<span class="fc" id="L44">        String toPlatformName = transferCryptoRequest.getToPlatform().toUpperCase();</span>
+<span class="fc" id="L45">        Platform toPlatform = getToPlatform(toPlatformName);</span>
+<span class="fc" id="L46">        String id = transferCryptoRequest.getCryptoId();</span>
+<span class="fc" id="L47">        UserCrypto cryptoToTransfer = getCryptoToTransfer(id);</span>
 
-<span class="fc bfc" id="L47" title="All 2 branches covered.">        if (isToAndFromSame(toPlatform.getId(), cryptoToTransfer.getPlatformId()))</span>
-<span class="fc" id="L48">            throw new ApiValidationException(SAME_FROM_TO_PLATFORM);</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        if (isToAndFromSame(toPlatform.getId(), cryptoToTransfer.getPlatformId()))</span>
+<span class="fc" id="L50">            throw new ApiValidationException(SAME_FROM_TO_PLATFORM);</span>
 
-<span class="fc" id="L50">        BigDecimal actualCryptoQuantity = cryptoToTransfer.getQuantity();</span>
-<span class="fc" id="L51">        BigDecimal networkFee = transferCryptoRequest.getNetworkFee();</span>
-<span class="fc" id="L52">        BigDecimal quantityToTransfer = transferCryptoRequest.getQuantityToTransfer();</span>
-<span class="fc" id="L53">        BigDecimal totalToSubtract = getTotalToSubtract(actualCryptoQuantity, quantityToTransfer, networkFee);</span>
-<span class="fc" id="L54">        BigDecimal quantityToSendReceive = quantityToTransfer.subtract(networkFee);</span>
+<span class="fc" id="L52">        BigDecimal actualCryptoQuantity = cryptoToTransfer.getQuantity();</span>
+<span class="fc" id="L53">        BigDecimal networkFee = transferCryptoRequest.getNetworkFee();</span>
+<span class="fc" id="L54">        BigDecimal quantityToTransfer = transferCryptoRequest.getQuantityToTransfer();</span>
+<span class="fc" id="L55">        BigDecimal totalToSubtract = getTotalToSubtract(actualCryptoQuantity, quantityToTransfer, networkFee);</span>
+<span class="fc" id="L56">        BigDecimal quantityToSendReceive = quantityToTransfer.subtract(networkFee);</span>
 
-<span class="fc bfc" id="L56" title="All 2 branches covered.">        if (hasInsufficientBalance(actualCryptoQuantity, quantityToTransfer))</span>
-<span class="fc" id="L57">            throw new InsufficientBalanceException(NOT_ENOUGH_BALANCE);</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">        if (hasInsufficientBalance(actualCryptoQuantity, quantityToTransfer))</span>
+<span class="fc" id="L59">            throw new InsufficientBalanceException(NOT_ENOUGH_BALANCE);</span>
 
-<span class="fc" id="L59">        Optional&lt;UserCrypto&gt; toPlatformOptionalCrypto = getToPlatformOptionalCrypto(cryptoToTransfer.getCryptoId(), toPlatform);</span>
-<span class="fc" id="L60">        BigDecimal remainingCryptoQuantity = getRemainingCryptoQuantity(actualCryptoQuantity, totalToSubtract);</span>
-<span class="fc" id="L61">        ToPlatform to = new ToPlatform();</span>
-<span class="fc" id="L62">        FromPlatform from = new FromPlatform();</span>
+<span class="fc" id="L61">        Optional&lt;UserCrypto&gt; toPlatformOptionalCrypto = getToPlatformOptionalCrypto(cryptoToTransfer.getCryptoId(), toPlatform);</span>
+<span class="fc" id="L62">        BigDecimal remainingCryptoQuantity = getRemainingCryptoQuantity(actualCryptoQuantity, totalToSubtract);</span>
+<span class="fc" id="L63">        ToPlatform to = new ToPlatform();</span>
+<span class="fc" id="L64">        FromPlatform from = new FromPlatform();</span>
 
-<span class="fc bfc" id="L64" title="All 4 branches covered.">        if (doesFromPlatformHasRemaining(remainingCryptoQuantity) &amp;&amp; toPlatformOptionalCrypto.isPresent()) {</span>
-<span class="fc" id="L65">            UserCrypto toPlatformCrypto = toPlatformOptionalCrypto.get();</span>
-<span class="fc" id="L66">            BigDecimal newQuantity = toPlatformCrypto.getQuantity().add(quantityToSendReceive);</span>
-<span class="fc" id="L67">            toPlatformCrypto.setQuantity(newQuantity);</span>
-<span class="fc" id="L68">            cryptoToTransfer.setQuantity(remainingCryptoQuantity);</span>
+<span class="fc bfc" id="L66" title="All 4 branches covered.">        if (doesFromPlatformHasRemaining(remainingCryptoQuantity) &amp;&amp; toPlatformOptionalCrypto.isPresent()) {</span>
+<span class="fc" id="L67">            UserCrypto toPlatformCrypto = toPlatformOptionalCrypto.get();</span>
+<span class="fc" id="L68">            BigDecimal newQuantity = toPlatformCrypto.getQuantity().add(quantityToSendReceive);</span>
+<span class="fc" id="L69">            toPlatformCrypto.setQuantity(newQuantity);</span>
+<span class="fc" id="L70">            cryptoToTransfer.setQuantity(remainingCryptoQuantity);</span>
 
-<span class="fc" id="L70">            userCryptoService.saveAll(Arrays.asList(toPlatformCrypto, cryptoToTransfer));</span>
+<span class="fc" id="L72">            userCryptoService.saveAll(Arrays.asList(toPlatformCrypto, cryptoToTransfer));</span>
 
-<span class="fc" id="L72">            to = new ToPlatform(newQuantity);</span>
-<span class="fc" id="L73">            from = new FromPlatform(networkFee, quantityToTransfer, totalToSubtract, quantityToSendReceive, remainingCryptoQuantity);</span>
+<span class="fc" id="L74">            to = new ToPlatform(newQuantity);</span>
+<span class="fc" id="L75">            from = new FromPlatform(networkFee, quantityToTransfer, totalToSubtract, quantityToSendReceive, remainingCryptoQuantity);</span>
         }
 
-<span class="fc bfc" id="L76" title="All 4 branches covered.">        if (doesFromPlatformHasRemaining(remainingCryptoQuantity) &amp;&amp; toPlatformOptionalCrypto.isEmpty()) {</span>
-<span class="fc" id="L77">            UserCrypto cryptoToSave = mapCrypto().apply(cryptoToTransfer);</span>
-<span class="fc" id="L78">            cryptoToSave.setQuantity(quantityToSendReceive);</span>
-<span class="fc" id="L79">            cryptoToSave.setPlatformId(toPlatform.getId());</span>
-<span class="fc" id="L80">            cryptoToTransfer.setQuantity(remainingCryptoQuantity);</span>
+<span class="fc bfc" id="L78" title="All 4 branches covered.">        if (doesFromPlatformHasRemaining(remainingCryptoQuantity) &amp;&amp; toPlatformOptionalCrypto.isEmpty()) {</span>
+<span class="fc" id="L79">            UserCrypto cryptoToSave = mapCrypto().apply(cryptoToTransfer);</span>
+<span class="fc" id="L80">            cryptoToSave.setQuantity(quantityToSendReceive);</span>
+<span class="fc" id="L81">            cryptoToSave.setPlatformId(toPlatform.getId());</span>
+<span class="fc" id="L82">            cryptoToTransfer.setQuantity(remainingCryptoQuantity);</span>
 
-<span class="fc" id="L82">            userCryptoService.saveAll(Arrays.asList(cryptoToTransfer, cryptoToSave));</span>
+<span class="fc" id="L84">            userCryptoService.saveAll(Arrays.asList(cryptoToTransfer, cryptoToSave));</span>
 
-<span class="fc" id="L84">            to = new ToPlatform(quantityToSendReceive);</span>
-<span class="fc" id="L85">            from = new FromPlatform(networkFee, quantityToTransfer, totalToSubtract, quantityToSendReceive, remainingCryptoQuantity);</span>
+<span class="fc" id="L86">            to = new ToPlatform(quantityToSendReceive);</span>
+<span class="fc" id="L87">            from = new FromPlatform(networkFee, quantityToTransfer, totalToSubtract, quantityToSendReceive, remainingCryptoQuantity);</span>
         }
 
-<span class="fc bfc" id="L88" title="All 4 branches covered.">        if (!doesFromPlatformHasRemaining(remainingCryptoQuantity) &amp;&amp; toPlatformOptionalCrypto.isPresent()) {</span>
-<span class="fc" id="L89">            UserCrypto toPlatformCrypto = toPlatformOptionalCrypto.get();</span>
-<span class="fc" id="L90">            BigDecimal newQuantity = toPlatformCrypto.getQuantity().add(quantityToSendReceive);</span>
-<span class="fc" id="L91">            toPlatformCrypto.setQuantity(newQuantity);</span>
+<span class="fc bfc" id="L90" title="All 4 branches covered.">        if (!doesFromPlatformHasRemaining(remainingCryptoQuantity) &amp;&amp; toPlatformOptionalCrypto.isPresent()) {</span>
+<span class="fc" id="L91">            UserCrypto toPlatformCrypto = toPlatformOptionalCrypto.get();</span>
+<span class="fc" id="L92">            BigDecimal newQuantity = toPlatformCrypto.getQuantity().add(quantityToSendReceive);</span>
+<span class="fc" id="L93">            toPlatformCrypto.setQuantity(newQuantity);</span>
 
-<span class="fc" id="L93">            userCryptoService.deleteUserCrypto(cryptoToTransfer);</span>
-<span class="fc" id="L94">            userCryptoService.saveUserCrypto(toPlatformCrypto);</span>
+<span class="fc" id="L95">            userCryptoService.deleteUserCrypto(cryptoToTransfer);</span>
+<span class="fc" id="L96">            userCryptoService.saveUserCrypto(toPlatformCrypto);</span>
 
-<span class="fc" id="L96">            to = new ToPlatform(newQuantity);</span>
-<span class="fc" id="L97">            from = new FromPlatform(networkFee, quantityToTransfer, totalToSubtract, quantityToSendReceive, remainingCryptoQuantity);</span>
+<span class="fc" id="L98">            to = new ToPlatform(newQuantity);</span>
+<span class="fc" id="L99">            from = new FromPlatform(networkFee, quantityToTransfer, totalToSubtract, quantityToSendReceive, remainingCryptoQuantity);</span>
         }
 
-<span class="fc bfc" id="L100" title="All 4 branches covered.">        if (!doesFromPlatformHasRemaining(remainingCryptoQuantity) &amp;&amp; toPlatformOptionalCrypto.isEmpty()) {</span>
-<span class="fc" id="L101">            cryptoToTransfer.setQuantity(quantityToSendReceive);</span>
-<span class="fc" id="L102">            cryptoToTransfer.setPlatformId(toPlatform.getId());</span>
-<span class="fc" id="L103">            userCryptoService.saveUserCrypto(cryptoToTransfer);</span>
+<span class="fc bfc" id="L102" title="All 4 branches covered.">        if (!doesFromPlatformHasRemaining(remainingCryptoQuantity) &amp;&amp; toPlatformOptionalCrypto.isEmpty()) {</span>
+<span class="fc" id="L103">            cryptoToTransfer.setQuantity(quantityToSendReceive);</span>
+<span class="fc" id="L104">            cryptoToTransfer.setPlatformId(toPlatform.getId());</span>
+<span class="fc" id="L105">            userCryptoService.saveUserCrypto(cryptoToTransfer);</span>
 
-<span class="fc" id="L105">            to = new ToPlatform(quantityToSendReceive);</span>
-<span class="fc" id="L106">            from = new FromPlatform(networkFee, quantityToTransfer, totalToSubtract, quantityToSendReceive, remainingCryptoQuantity);</span>
+<span class="fc" id="L107">            to = new ToPlatform(quantityToSendReceive);</span>
+<span class="fc" id="L108">            from = new FromPlatform(networkFee, quantityToTransfer, totalToSubtract, quantityToSendReceive, remainingCryptoQuantity);</span>
         }
 
-<span class="fc" id="L109">        return new TransferCryptoResponse(from, to);</span>
+<span class="fc" id="L111">        log.info(&quot;Transferred {} {} from to {}&quot;, quantityToSendReceive, cryptoToTransfer.getCryptoId(), toPlatform.getName());</span>
+
+<span class="fc" id="L113">        return new TransferCryptoResponse(from, to);</span>
     }
 
     private Platform getToPlatform(String toPlatformName) {
-<span class="fc" id="L113">        return platformService.findByName(toPlatformName)</span>
-<span class="fc" id="L114">                .orElseThrow(() -&gt; new PlatformNotFoundException(TARGET_PLATFORM_NOT_EXISTS));</span>
+<span class="fc" id="L117">        return platformService.findByName(toPlatformName)</span>
+<span class="fc" id="L118">                .orElseThrow(() -&gt; new PlatformNotFoundException(TARGET_PLATFORM_NOT_EXISTS));</span>
     }
 
     private UserCrypto getCryptoToTransfer(String id) {
-<span class="fc" id="L118">        return userCryptoService.findById(id)</span>
-<span class="fc" id="L119">                .orElseThrow(() -&gt; new CryptoNotFoundException(CRYPTO_NOT_FOUND));</span>
+<span class="fc" id="L122">        return userCryptoService.findById(id)</span>
+<span class="fc" id="L123">                .orElseThrow(() -&gt; new CryptoNotFoundException(CRYPTO_NOT_FOUND));</span>
     }
 
     private Optional&lt;UserCrypto&gt; getToPlatformOptionalCrypto(String cryptoId, Platform toPlatform) {
-<span class="fc" id="L123">        return userCryptoService.findByCryptoIdAndPlatformId(cryptoId, toPlatform.getId());</span>
+<span class="fc" id="L127">        return userCryptoService.findByCryptoIdAndPlatformId(cryptoId, toPlatform.getId());</span>
     }
 
     private boolean isToAndFromSame(String toPlatformId, String fromPlatformId) {
-<span class="fc" id="L127">        return toPlatformId.equals(fromPlatformId);</span>
+<span class="fc" id="L131">        return toPlatformId.equals(fromPlatformId);</span>
     }
 
     private BigDecimal getRemainingCryptoQuantity(BigDecimal actualCryptoQuantity, BigDecimal totalToSubtract) {
-<span class="fc bfc" id="L131" title="All 2 branches covered.">        return actualCryptoQuantity.compareTo(totalToSubtract) &gt; 0 ?</span>
-<span class="fc" id="L132">                actualCryptoQuantity.subtract(totalToSubtract) :</span>
-<span class="fc" id="L133">                BigDecimal.ZERO;</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">        return actualCryptoQuantity.compareTo(totalToSubtract) &gt; 0 ?</span>
+<span class="fc" id="L136">                actualCryptoQuantity.subtract(totalToSubtract) :</span>
+<span class="fc" id="L137">                BigDecimal.ZERO;</span>
     }
 
     private BigDecimal getTotalToSubtract(BigDecimal actualCryptoQuantity, BigDecimal quantityToTransfer, BigDecimal networkFee) {
-<span class="fc" id="L137">        BigDecimal totalToSpent = quantityToTransfer.add(networkFee);</span>
+<span class="fc" id="L141">        BigDecimal totalToSpent = quantityToTransfer.add(networkFee);</span>
 
-<span class="fc bfc" id="L139" title="All 2 branches covered.">        return actualCryptoQuantity.compareTo(totalToSpent) &gt; 0 ? totalToSpent : actualCryptoQuantity;</span>
+<span class="fc bfc" id="L143" title="All 2 branches covered.">        return actualCryptoQuantity.compareTo(totalToSpent) &gt; 0 ? totalToSpent : actualCryptoQuantity;</span>
     }
 
     private boolean hasInsufficientBalance(BigDecimal actualCryptoQuantity, BigDecimal totalToSubtract) {
-<span class="fc bfc" id="L143" title="All 2 branches covered.">        return totalToSubtract.compareTo(actualCryptoQuantity) &gt; 0;</span>
+<span class="fc bfc" id="L147" title="All 2 branches covered.">        return totalToSubtract.compareTo(actualCryptoQuantity) &gt; 0;</span>
     }
 
     private boolean doesFromPlatformHasRemaining(BigDecimal remainingCryptoQuantity) {
-<span class="fc bfc" id="L147" title="All 2 branches covered.">        return remainingCryptoQuantity.compareTo(BigDecimal.ZERO) &gt; 0;</span>
+<span class="fc bfc" id="L151" title="All 2 branches covered.">        return remainingCryptoQuantity.compareTo(BigDecimal.ZERO) &gt; 0;</span>
     }
 
     private Function&lt;UserCrypto, UserCrypto&gt; mapCrypto() {
-<span class="fc" id="L151">        return userCrypto -&gt; UserCrypto.builder()</span>
-<span class="fc" id="L152">                .quantity(userCrypto.getQuantity())</span>
-<span class="fc" id="L153">                .cryptoId(userCrypto.getCryptoId())</span>
-<span class="fc" id="L154">                .platformId(userCrypto.getPlatformId())</span>
-<span class="fc" id="L155">                .build();</span>
+<span class="fc" id="L155">        return userCrypto -&gt; UserCrypto.builder()</span>
+<span class="fc" id="L156">                .quantity(userCrypto.getQuantity())</span>
+<span class="fc" id="L157">                .cryptoId(userCrypto.getCryptoId())</span>
+<span class="fc" id="L158">                .platformId(userCrypto.getPlatformId())</span>
+<span class="fc" id="L159">                .build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

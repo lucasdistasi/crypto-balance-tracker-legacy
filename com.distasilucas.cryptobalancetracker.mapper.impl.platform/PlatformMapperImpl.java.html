@@ -3,18 +3,21 @@
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.request.platform.PlatformRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.function.Function;
 
+<span class="fc" id="L11">@Slf4j</span>
 @Service
-<span class="fc" id="L11">public class PlatformMapperImpl implements EntityMapper&lt;Platform, PlatformRequest&gt; {</span>
+<span class="fc" id="L13">public class PlatformMapperImpl implements EntityMapper&lt;Platform, PlatformRequest&gt; {</span>
 
     @Override
     public Platform mapFrom(PlatformRequest input) {
-<span class="fc" id="L15">        Function&lt;PlatformRequest, Platform&gt; platformFunction = platformRequest -&gt; new Platform(platformRequest.getName());</span>
+<span class="fc" id="L17">        log.info(&quot;Mapping PlatformRequest for {}&quot;, input.getName());</span>
+<span class="fc" id="L18">        Function&lt;PlatformRequest, Platform&gt; platformFunction = platformRequest -&gt; new Platform(platformRequest.getName());</span>
 
-<span class="fc" id="L17">        return platformFunction.apply(input);</span>
+<span class="fc" id="L20">        return platformFunction.apply(input);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -161,7 +161,7 @@ public class UserCryptoServiceImpl implements UserCryptoService {
 <span class="fc" id="L161">        utilValidations.validateIdMongoEntityFormat(id);</span>
 <span class="fc" id="L162">        userCryptoRepository.findById(id)</span>
 <span class="fc" id="L163">                .ifPresentOrElse(userCrypto -&gt; {</span>
-<span class="fc" id="L164">                    log.info(&quot;Deleted cryptoId [{}] in platform id [{}]&quot;, userCrypto.getCryptoId(), userCrypto.getPlatformId());</span>
+<span class="fc" id="L164">                    log.info(&quot;Deleted cryptoId {} in platform id {}&quot;, userCrypto.getCryptoId(), userCrypto.getPlatformId());</span>
 
 <span class="fc" id="L166">                    userCryptoRepository.delete(userCrypto);</span>
 <span class="fc" id="L167">                    cryptoService.deleteCryptoIfNotUsed(userCrypto.getCryptoId());</span>

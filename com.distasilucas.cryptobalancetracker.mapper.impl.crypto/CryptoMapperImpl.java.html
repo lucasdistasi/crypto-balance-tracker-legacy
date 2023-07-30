@@ -32,7 +32,7 @@ public class CryptoMapperImpl implements EntityMapper&lt;UserCrypto, AddCryptoRe
     @Override
     public UserCrypto mapFrom(AddCryptoRequest cryptoRequest) {
         try {
-<span class="fc" id="L35">            log.info(&quot;Attempting to retrieve [{}] information from Coingecko or cache&quot;, cryptoRequest.getCryptoName());</span>
+<span class="fc" id="L35">            log.info(&quot;Attempting to retrieve {} information from Coingecko or cache&quot;, cryptoRequest.getCryptoName());</span>
 <span class="fc" id="L36">            List&lt;CoingeckoCrypto&gt; coingeckoCryptos = coingeckoService.retrieveAllCoingeckoCryptos();</span>
 
 <span class="fc" id="L38">            return getUserCrypto(cryptoRequest, coingeckoCryptos);</span>

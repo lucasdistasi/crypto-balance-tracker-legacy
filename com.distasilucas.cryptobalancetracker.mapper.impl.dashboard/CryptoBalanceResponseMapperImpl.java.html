@@ -37,89 +37,90 @@ public class CryptoBalanceResponseMapperImpl implements EntityMapper&lt;CryptoBa
 
     @Override
     public CryptoBalanceResponse mapFrom(List&lt;UserCrypto&gt; input) {
-<span class="fc" id="L40">        List&lt;CryptoResponse&gt; cryptos = input.stream()</span>
-<span class="fc" id="L41">                .map(this::mapCryptoResponse)</span>
-<span class="fc" id="L42">                .collect(Collectors.toList());</span>
+<span class="fc" id="L40">        log.info(&quot;Mapping CryptoBalanceResponse for {} cryptos&quot;, input.size());</span>
+<span class="fc" id="L41">        List&lt;CryptoResponse&gt; cryptos = input.stream()</span>
+<span class="fc" id="L42">                .map(this::mapCryptoResponse)</span>
+<span class="fc" id="L43">                .collect(Collectors.toList());</span>
 
-<span class="fc" id="L44">        BigDecimal totalMoneyInUSD = getTotalMoneyInUSD(cryptos).setScale(2, RoundingMode.HALF_UP);</span>
-<span class="fc" id="L45">        BigDecimal totalMoneyInEUR = getTotalMoneyInEUR(cryptos).setScale(2, RoundingMode.HALF_UP);</span>
-<span class="fc" id="L46">        BigDecimal totalMoneyInBTC = getTotalMoneyInBTC(cryptos).setScale(10, RoundingMode.HALF_UP);</span>
-<span class="fc" id="L47">        cryptos.forEach(crypto -&gt; setPercentage(totalMoneyInUSD, crypto));</span>
-<span class="fc" id="L48">        cryptos.sort(new DescendingPercentageComparator());</span>
+<span class="fc" id="L45">        BigDecimal totalMoneyInUSD = getTotalMoneyInUSD(cryptos).setScale(2, RoundingMode.HALF_UP);</span>
+<span class="fc" id="L46">        BigDecimal totalMoneyInEUR = getTotalMoneyInEUR(cryptos).setScale(2, RoundingMode.HALF_UP);</span>
+<span class="fc" id="L47">        BigDecimal totalMoneyInBTC = getTotalMoneyInBTC(cryptos).setScale(10, RoundingMode.HALF_UP);</span>
+<span class="fc" id="L48">        cryptos.forEach(crypto -&gt; setPercentage(totalMoneyInUSD, crypto));</span>
+<span class="fc" id="L49">        cryptos.sort(new DescendingPercentageComparator());</span>
 
-<span class="fc" id="L50">        return new CryptoBalanceResponse(totalMoneyInUSD, totalMoneyInEUR, totalMoneyInBTC, cryptos);</span>
+<span class="fc" id="L51">        return new CryptoBalanceResponse(totalMoneyInUSD, totalMoneyInEUR, totalMoneyInBTC, cryptos);</span>
     }
 
     private CryptoResponse mapCryptoResponse(UserCrypto userCrypto) {
-<span class="fc" id="L54">        Crypto crypto = cryptoService.findById(userCrypto.getCryptoId())</span>
-<span class="fc" id="L55">                .orElseThrow(() -&gt; new CryptoNotFoundException(CRYPTO_NOT_FOUND));</span>
-<span class="fc" id="L56">        CoingeckoCryptoInfo coingeckoCryptoInfo = mapCoingeckoCryptoInfo().apply(crypto);</span>
+<span class="fc" id="L55">        Crypto crypto = cryptoService.findById(userCrypto.getCryptoId())</span>
+<span class="fc" id="L56">                .orElseThrow(() -&gt; new CryptoNotFoundException(CRYPTO_NOT_FOUND));</span>
+<span class="fc" id="L57">        CoingeckoCryptoInfo coingeckoCryptoInfo = mapCoingeckoCryptoInfo().apply(crypto);</span>
 
-<span class="fc" id="L58">        return getCryptoResponse(userCrypto, coingeckoCryptoInfo);</span>
+<span class="fc" id="L59">        return getCryptoResponse(userCrypto, coingeckoCryptoInfo);</span>
     }
 
     private void setPercentage(BigDecimal totalMoney, CryptoResponse cryptoResponse) {
-<span class="fc" id="L62">        BigDecimal percentage = cryptoResponse.getBalance()</span>
-<span class="fc" id="L63">                .setScale(2, RoundingMode.HALF_UP)</span>
-<span class="fc" id="L64">                .multiply(BigDecimal.valueOf(100))</span>
-<span class="fc" id="L65">                .divide(totalMoney, RoundingMode.HALF_UP);</span>
+<span class="fc" id="L63">        BigDecimal percentage = cryptoResponse.getBalance()</span>
+<span class="fc" id="L64">                .setScale(2, RoundingMode.HALF_UP)</span>
+<span class="fc" id="L65">                .multiply(BigDecimal.valueOf(100))</span>
+<span class="fc" id="L66">                .divide(totalMoney, RoundingMode.HALF_UP);</span>
 
-<span class="fc" id="L67">        cryptoResponse.setPercentage(percentage);</span>
-<span class="fc" id="L68">    }</span>
+<span class="fc" id="L68">        cryptoResponse.setPercentage(percentage);</span>
+<span class="fc" id="L69">    }</span>
 
     private BigDecimal getTotalMoneyInUSD(List&lt;CryptoResponse&gt; cryptos) {
-<span class="fc" id="L71">        return cryptos.stream()</span>
-<span class="fc" id="L72">                .map(CryptoResponse::getBalance)</span>
-<span class="fc" id="L73">                .reduce(BigDecimal.valueOf(0), BigDecimal::add);</span>
+<span class="fc" id="L72">        return cryptos.stream()</span>
+<span class="fc" id="L73">                .map(CryptoResponse::getBalance)</span>
+<span class="fc" id="L74">                .reduce(BigDecimal.valueOf(0), BigDecimal::add);</span>
     }
 
     private BigDecimal getTotalMoneyInEUR(List&lt;CryptoResponse&gt; cryptos) {
-<span class="fc" id="L77">        return cryptos.stream()</span>
-<span class="fc" id="L78">                .map(CryptoResponse::getBalanceInEUR)</span>
-<span class="fc" id="L79">                .reduce(BigDecimal.valueOf(0), BigDecimal::add);</span>
+<span class="fc" id="L78">        return cryptos.stream()</span>
+<span class="fc" id="L79">                .map(CryptoResponse::getBalanceInEUR)</span>
+<span class="fc" id="L80">                .reduce(BigDecimal.valueOf(0), BigDecimal::add);</span>
     }
 
     private BigDecimal getTotalMoneyInBTC(List&lt;CryptoResponse&gt; cryptos) {
-<span class="fc" id="L83">        return cryptos.stream()</span>
-<span class="fc" id="L84">                .map(CryptoResponse::getBalanceInBTC)</span>
-<span class="fc" id="L85">                .reduce(BigDecimal.valueOf(0), BigDecimal::add);</span>
+<span class="fc" id="L84">        return cryptos.stream()</span>
+<span class="fc" id="L85">                .map(CryptoResponse::getBalanceInBTC)</span>
+<span class="fc" id="L86">                .reduce(BigDecimal.valueOf(0), BigDecimal::add);</span>
     }
 
     private CryptoResponse getCryptoResponse(UserCrypto userCrypto, CoingeckoCryptoInfo coingeckoCryptoInfo) {
-<span class="fc" id="L89">        BigDecimal quantity = userCrypto.getQuantity();</span>
-<span class="fc" id="L90">        BigDecimal balanceInUSD = coingeckoCryptoInfo.getMarketData()</span>
-<span class="fc" id="L91">                .currentPrice()</span>
-<span class="fc" id="L92">                .usd()</span>
-<span class="fc" id="L93">                .multiply(quantity)</span>
-<span class="fc" id="L94">                .setScale(2, RoundingMode.HALF_UP);</span>
-<span class="fc" id="L95">        BigDecimal balanceInEUR = coingeckoCryptoInfo.getMarketData()</span>
-<span class="fc" id="L96">                .currentPrice()</span>
-<span class="fc" id="L97">                .eur()</span>
-<span class="fc" id="L98">                .multiply(quantity)</span>
-<span class="fc" id="L99">                .setScale(2, RoundingMode.HALF_UP);</span>
-<span class="fc" id="L100">        BigDecimal balanceInBTC = coingeckoCryptoInfo.getMarketData()</span>
-<span class="fc" id="L101">                .currentPrice()</span>
-<span class="fc" id="L102">                .btc()</span>
-<span class="fc" id="L103">                .multiply(quantity)</span>
-<span class="fc" id="L104">                .setScale(10, RoundingMode.HALF_UP);</span>
-<span class="fc" id="L105">        Optional&lt;Platform&gt; platform = platformService.findById(userCrypto.getPlatformId());</span>
-<span class="fc bfc" id="L106" title="All 2 branches covered.">        String platformName = platform.isPresent() ? platform.get().getName() : UNKNOWN;</span>
+<span class="fc" id="L90">        BigDecimal quantity = userCrypto.getQuantity();</span>
+<span class="fc" id="L91">        BigDecimal balanceInUSD = coingeckoCryptoInfo.getMarketData()</span>
+<span class="fc" id="L92">                .currentPrice()</span>
+<span class="fc" id="L93">                .usd()</span>
+<span class="fc" id="L94">                .multiply(quantity)</span>
+<span class="fc" id="L95">                .setScale(2, RoundingMode.HALF_UP);</span>
+<span class="fc" id="L96">        BigDecimal balanceInEUR = coingeckoCryptoInfo.getMarketData()</span>
+<span class="fc" id="L97">                .currentPrice()</span>
+<span class="fc" id="L98">                .eur()</span>
+<span class="fc" id="L99">                .multiply(quantity)</span>
+<span class="fc" id="L100">                .setScale(2, RoundingMode.HALF_UP);</span>
+<span class="fc" id="L101">        BigDecimal balanceInBTC = coingeckoCryptoInfo.getMarketData()</span>
+<span class="fc" id="L102">                .currentPrice()</span>
+<span class="fc" id="L103">                .btc()</span>
+<span class="fc" id="L104">                .multiply(quantity)</span>
+<span class="fc" id="L105">                .setScale(10, RoundingMode.HALF_UP);</span>
+<span class="fc" id="L106">        Optional&lt;Platform&gt; platform = platformService.findById(userCrypto.getPlatformId());</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">        String platformName = platform.isPresent() ? platform.get().getName() : UNKNOWN;</span>
 
-<span class="fc" id="L108">        return new CryptoResponse(userCrypto.getId(), coingeckoCryptoInfo, quantity, balanceInUSD, balanceInEUR, balanceInBTC, platformName);</span>
+<span class="fc" id="L109">        return new CryptoResponse(userCrypto.getId(), coingeckoCryptoInfo, quantity, balanceInUSD, balanceInEUR, balanceInBTC, platformName);</span>
     }
 
     private Function&lt;Crypto, CoingeckoCryptoInfo&gt; mapCoingeckoCryptoInfo() {
-<span class="fc" id="L112">        return crypto -&gt; {</span>
-<span class="fc" id="L113">            CurrentPrice currentPrice = new CurrentPrice(crypto.getLastKnownPrice(), crypto.getLastKnownPriceInEUR(), crypto.getLastKnownPriceInBTC());</span>
-<span class="fc" id="L114">            MarketData marketData = new MarketData(currentPrice, crypto.getCirculatingSupply(), crypto.getMaxSupply());</span>
+<span class="fc" id="L113">        return crypto -&gt; {</span>
+<span class="fc" id="L114">            CurrentPrice currentPrice = new CurrentPrice(crypto.getLastKnownPrice(), crypto.getLastKnownPriceInEUR(), crypto.getLastKnownPriceInBTC());</span>
+<span class="fc" id="L115">            MarketData marketData = new MarketData(currentPrice, crypto.getCirculatingSupply(), crypto.getMaxSupply());</span>
 
-<span class="fc" id="L116">            CoingeckoCryptoInfo coingeckoCryptoInfo = new CoingeckoCryptoInfo();</span>
-<span class="fc" id="L117">            coingeckoCryptoInfo.setId(crypto.getId());</span>
-<span class="fc" id="L118">            coingeckoCryptoInfo.setSymbol(crypto.getTicker());</span>
-<span class="fc" id="L119">            coingeckoCryptoInfo.setName(crypto.getName());</span>
-<span class="fc" id="L120">            coingeckoCryptoInfo.setMarketData(marketData);</span>
+<span class="fc" id="L117">            CoingeckoCryptoInfo coingeckoCryptoInfo = new CoingeckoCryptoInfo();</span>
+<span class="fc" id="L118">            coingeckoCryptoInfo.setId(crypto.getId());</span>
+<span class="fc" id="L119">            coingeckoCryptoInfo.setSymbol(crypto.getTicker());</span>
+<span class="fc" id="L120">            coingeckoCryptoInfo.setName(crypto.getName());</span>
+<span class="fc" id="L121">            coingeckoCryptoInfo.setMarketData(marketData);</span>
 
-<span class="fc" id="L122">            return coingeckoCryptoInfo;</span>
+<span class="fc" id="L123">            return coingeckoCryptoInfo;</span>
         };
     }
 }

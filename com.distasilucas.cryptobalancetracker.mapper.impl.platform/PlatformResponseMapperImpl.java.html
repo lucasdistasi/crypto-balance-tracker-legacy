@@ -3,14 +3,17 @@
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+<span class="fc" id="L9">@Slf4j</span>
 @Service
-<span class="fc" id="L9">public class PlatformResponseMapperImpl implements EntityMapper&lt;PlatformResponse, Platform&gt; {</span>
+<span class="fc" id="L11">public class PlatformResponseMapperImpl implements EntityMapper&lt;PlatformResponse, Platform&gt; {</span>
 
     @Override
     public PlatformResponse mapFrom(Platform input) {
-<span class="fc" id="L13">        return new PlatformResponse(input.getName());</span>
+<span class="fc" id="L15">        log.info(&quot;Mapping Platform {}&quot;, input.getName());</span>
+<span class="fc" id="L16">        return new PlatformResponse(input.getName());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

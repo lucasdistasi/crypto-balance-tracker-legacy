@@ -30,7 +30,7 @@ public class GoalResponseMapper implements EntityMapper&lt;GoalResponse, Goal&gt
     @Override
     public GoalResponse mapFrom(Goal input) {
 <span class="fc" id="L32">        String cryptoId = input.getCryptoId();</span>
-<span class="fc" id="L33">        log.info(&quot;Mapping {}&quot;, cryptoId);</span>
+<span class="fc" id="L33">        log.info(&quot;Mapping goal for {}&quot;, cryptoId);</span>
 <span class="fc" id="L34">        Crypto crypto = cryptoService.findById(cryptoId)</span>
 <span class="fc" id="L35">                .orElseThrow(() -&gt; new CryptoNotFoundException(CRYPTO_NOT_FOUND));</span>
 

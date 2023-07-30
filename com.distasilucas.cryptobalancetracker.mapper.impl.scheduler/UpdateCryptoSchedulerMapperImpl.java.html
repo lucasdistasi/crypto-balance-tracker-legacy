@@ -51,10 +51,10 @@ public class UpdateCryptoSchedulerMapperImpl implements EntityMapper&lt;Crypto, 
 
 <span class="fc" id="L52">            return cryptoToUpdate;</span>
 <span class="fc" id="L53">        } catch (WebClientResponseException ex) {</span>
-<span class="fc" id="L54">            log.warn(&quot;A WebClientResponseException occurred and [{}] price could not be updated {}&quot;, id, ex);</span>
+<span class="fc" id="L54">            log.warn(&quot;A WebClientResponseException occurred and {} price could not be updated {}&quot;, id, ex);</span>
 <span class="fc" id="L55">            return input;</span>
 <span class="fc" id="L56">        } catch (Exception ex) {</span>
-<span class="fc" id="L57">            log.warn(&quot;An uncaught exception occurred and [{}] price could not be updated {}&quot;, id, ex);</span>
+<span class="fc" id="L57">            log.warn(&quot;An uncaught exception occurred and {} price could not be updated {}&quot;, id, ex);</span>
 <span class="fc" id="L58">            return input;</span>
         }
     }

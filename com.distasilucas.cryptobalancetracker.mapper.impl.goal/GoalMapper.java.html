@@ -12,6 +12,7 @@ import com.distasilucas.cryptobalancetracker.model.request.goal.UpdateGoalReques
 import com.distasilucas.cryptobalancetracker.repository.GoalRepository;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,8 +22,9 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.DUPLICATED_GOAL;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.GOAL_ID_NOT_FOUND;
 
+<span class="fc" id="L25">@Slf4j</span>
 @Service
-<span class="fc" id="L25">@RequiredArgsConstructor</span>
+<span class="fc" id="L27">@RequiredArgsConstructor</span>
 public class GoalMapper&lt;T extends GoalRequest&gt; implements EntityMapper&lt;Goal, T&gt; {
 
     private final GoalRepository goalRepository;
@@ -30,35 +32,37 @@ public class GoalMapper&lt;T extends GoalRequest&gt; implements EntityMapper&lt;
 
     @Override
     public Goal mapFrom(T input) {
-<span class="fc" id="L33">        Goal goal = new Goal();</span>
+<span class="fc" id="L35">        Goal goal = new Goal();</span>
 
-<span class="fc bfc" id="L35" title="All 2 branches covered.">        if (input instanceof AddGoalRequest addGoalRequest) {</span>
-<span class="fc" id="L36">            List&lt;CoingeckoCrypto&gt; coingeckoCryptos = coingeckoService.retrieveAllCoingeckoCryptos();</span>
-<span class="fc" id="L37">            String requestCryptoName = addGoalRequest.cryptoName();</span>
-<span class="fc" id="L38">            CoingeckoCrypto coingeckoCrypto = coingeckoCryptos.stream()</span>
-<span class="fc" id="L39">                    .filter(crypto -&gt; crypto.getName().equalsIgnoreCase(requestCryptoName))</span>
-<span class="fc" id="L40">                    .findFirst()</span>
-<span class="fc" id="L41">                    .orElseThrow(() -&gt; new CryptoNotFoundException(String.format(CRYPTO_NAME_NOT_FOUND, requestCryptoName)));</span>
-<span class="fc" id="L42">            Optional&lt;Goal&gt; existingGoal = goalRepository.findByCryptoId(coingeckoCrypto.getId());</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        if (input instanceof AddGoalRequest addGoalRequest) {</span>
+<span class="fc" id="L38">            List&lt;CoingeckoCrypto&gt; coingeckoCryptos = coingeckoService.retrieveAllCoingeckoCryptos();</span>
+<span class="fc" id="L39">            String requestCryptoName = addGoalRequest.cryptoName();</span>
+<span class="fc" id="L40">            CoingeckoCrypto coingeckoCrypto = coingeckoCryptos.stream()</span>
+<span class="fc" id="L41">                    .filter(crypto -&gt; crypto.getName().equalsIgnoreCase(requestCryptoName))</span>
+<span class="fc" id="L42">                    .findFirst()</span>
+<span class="fc" id="L43">                    .orElseThrow(() -&gt; new CryptoNotFoundException(String.format(CRYPTO_NAME_NOT_FOUND, requestCryptoName)));</span>
+<span class="fc" id="L44">            Optional&lt;Goal&gt; existingGoal = goalRepository.findByCryptoId(coingeckoCrypto.getId());</span>
 
-<span class="fc bfc" id="L44" title="All 2 branches covered.">            if (existingGoal.isPresent())</span>
-<span class="fc" id="L45">                throw new GoalDuplicatedException(String.format(DUPLICATED_GOAL, addGoalRequest.cryptoName()));</span>
+<span class="fc bfc" id="L46" title="All 2 branches covered.">            if (existingGoal.isPresent())</span>
+<span class="fc" id="L47">                throw new GoalDuplicatedException(String.format(DUPLICATED_GOAL, addGoalRequest.cryptoName()));</span>
 
-<span class="fc" id="L47">            goal.setCryptoId(coingeckoCrypto.getId());</span>
-<span class="fc" id="L48">            goal.setQuantityGoal(input.quantityGoal());</span>
+<span class="fc" id="L49">            goal.setCryptoId(coingeckoCrypto.getId());</span>
+<span class="fc" id="L50">            goal.setQuantityGoal(input.quantityGoal());</span>
+<span class="fc" id="L51">            log.info(&quot;Adding goal for {}&quot;, coingeckoCrypto.getId());</span>
         }
 
-<span class="fc bfc" id="L51" title="All 2 branches covered.">        if (input instanceof UpdateGoalRequest updateGoalRequest) {</span>
-<span class="fc" id="L52">            String goalId = updateGoalRequest.getGoalId();</span>
-<span class="fc" id="L53">            Goal existingGoal = goalRepository.findById(goalId)</span>
-<span class="fc" id="L54">                    .orElseThrow(() -&gt; new GoalNotFoundException(String.format(GOAL_ID_NOT_FOUND, goalId)));</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">        if (input instanceof UpdateGoalRequest updateGoalRequest) {</span>
+<span class="fc" id="L55">            String goalId = updateGoalRequest.getGoalId();</span>
+<span class="fc" id="L56">            Goal existingGoal = goalRepository.findById(goalId)</span>
+<span class="fc" id="L57">                    .orElseThrow(() -&gt; new GoalNotFoundException(String.format(GOAL_ID_NOT_FOUND, goalId)));</span>
 
-<span class="fc" id="L56">            goal.setId(existingGoal.getId());</span>
-<span class="fc" id="L57">            goal.setCryptoId(existingGoal.getCryptoId());</span>
-<span class="fc" id="L58">            goal.setQuantityGoal(updateGoalRequest.quantityGoal());</span>
+<span class="fc" id="L59">            goal.setId(existingGoal.getId());</span>
+<span class="fc" id="L60">            goal.setCryptoId(existingGoal.getCryptoId());</span>
+<span class="fc" id="L61">            goal.setQuantityGoal(updateGoalRequest.quantityGoal());</span>
+<span class="fc" id="L62">            log.info(&quot;Updating goal for {}&quot;, existingGoal.getCryptoId());</span>
         }
 
-<span class="fc" id="L61">        return goal;</span>
+<span class="fc" id="L65">        return goal;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -5,6 +5,7 @@ import com.distasilucas.cryptobalancetracker.mapper.BiFunctionMapper;
 import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoInfoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoBalanceResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -15,56 +16,58 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+<span class="fc" id="L19">@Slf4j</span>
 @Service
-<span class="fc" id="L19">public class CryptoInfoResponseMapperImpl implements BiFunctionMapper&lt;Map&lt;String, BigDecimal&gt;, CryptoBalanceResponse, List&lt;CryptoInfoResponse&gt;&gt; {</span>
+<span class="fc" id="L21">public class CryptoInfoResponseMapperImpl implements BiFunctionMapper&lt;Map&lt;String, BigDecimal&gt;, CryptoBalanceResponse, List&lt;CryptoInfoResponse&gt;&gt; {</span>
 
     @Override
     public BiFunction&lt;Map&lt;String, BigDecimal&gt;, CryptoBalanceResponse, List&lt;CryptoInfoResponse&gt;&gt; map() {
-<span class="fc" id="L23">        List&lt;CryptoInfoResponse&gt; cryptoInfoResponses = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L25">        log.info(&quot;Mapping to List&lt;CryptoInfoResponse&gt;&quot;);</span>
+<span class="fc" id="L26">        List&lt;CryptoInfoResponse&gt; cryptoInfoResponses = new ArrayList&lt;&gt;();</span>
 
-<span class="fc" id="L25">        return (cryptoByPlatform, cryptoBalanceResponse) -&gt; {</span>
-<span class="fc" id="L26">            List&lt;CryptoResponse&gt; cryptos = cryptoBalanceResponse.cryptos();</span>
+<span class="fc" id="L28">        return (cryptoByPlatform, cryptoBalanceResponse) -&gt; {</span>
+<span class="fc" id="L29">            List&lt;CryptoResponse&gt; cryptos = cryptoBalanceResponse.cryptos();</span>
 
-<span class="fc" id="L28">            cryptoByPlatform.forEach((cryptoName, cryptoTotalBalance) -&gt; {</span>
-<span class="fc" id="L29">                List&lt;CryptoResponse&gt; cryptosResponse = getCryptosResponse(cryptos, cryptoName);</span>
-<span class="fc" id="L30">                BigDecimal totalQuantity = getTotalQuantity(cryptosResponse);</span>
-<span class="fc" id="L31">                BigDecimal totalPercentage = getTotalPercentage(cryptosResponse);</span>
-<span class="fc" id="L32">                Set&lt;String&gt; platforms = getPlatforms(cryptosResponse);</span>
+<span class="fc" id="L31">            cryptoByPlatform.forEach((cryptoName, cryptoTotalBalance) -&gt; {</span>
+<span class="fc" id="L32">                List&lt;CryptoResponse&gt; cryptosResponse = getCryptosResponse(cryptos, cryptoName);</span>
+<span class="fc" id="L33">                BigDecimal totalQuantity = getTotalQuantity(cryptosResponse);</span>
+<span class="fc" id="L34">                BigDecimal totalPercentage = getTotalPercentage(cryptosResponse);</span>
+<span class="fc" id="L35">                Set&lt;String&gt; platforms = getPlatforms(cryptosResponse);</span>
 
-<span class="fc" id="L34">                CryptoInfoResponse cryptoInfoResponse = new CryptoInfoResponse(cryptoName, totalQuantity, cryptoTotalBalance,</span>
+<span class="fc" id="L37">                CryptoInfoResponse cryptoInfoResponse = new CryptoInfoResponse(cryptoName, totalQuantity, cryptoTotalBalance,</span>
                         totalPercentage, platforms);
 
-<span class="fc" id="L37">                cryptoInfoResponses.add(cryptoInfoResponse);</span>
-<span class="fc" id="L38">            });</span>
+<span class="fc" id="L40">                cryptoInfoResponses.add(cryptoInfoResponse);</span>
+<span class="fc" id="L41">            });</span>
 
-<span class="fc" id="L40">            cryptoInfoResponses.sort(new DescendingBalanceComparator());</span>
+<span class="fc" id="L43">            cryptoInfoResponses.sort(new DescendingBalanceComparator());</span>
 
-<span class="fc" id="L42">            return cryptoInfoResponses;</span>
+<span class="fc" id="L45">            return cryptoInfoResponses;</span>
         };
     }
 
     private List&lt;CryptoResponse&gt; getCryptosResponse(List&lt;CryptoResponse&gt; cryptos, String cryptoName) {
-<span class="fc" id="L47">        return cryptos.stream()</span>
-<span class="fc" id="L48">                .filter(crypto -&gt; crypto.getCryptoInfo().getName().equals(cryptoName))</span>
-<span class="fc" id="L49">                .toList();</span>
+<span class="fc" id="L50">        return cryptos.stream()</span>
+<span class="fc" id="L51">                .filter(crypto -&gt; crypto.getCryptoInfo().getName().equals(cryptoName))</span>
+<span class="fc" id="L52">                .toList();</span>
     }
 
     private BigDecimal getTotalQuantity(List&lt;CryptoResponse&gt; cryptosResponse) {
-<span class="fc" id="L53">        return cryptosResponse.stream()</span>
-<span class="fc" id="L54">                .map(CryptoResponse::getQuantity)</span>
-<span class="fc" id="L55">                .reduce(BigDecimal.ZERO, BigDecimal::add);</span>
+<span class="fc" id="L56">        return cryptosResponse.stream()</span>
+<span class="fc" id="L57">                .map(CryptoResponse::getQuantity)</span>
+<span class="fc" id="L58">                .reduce(BigDecimal.ZERO, BigDecimal::add);</span>
     }
 
     private BigDecimal getTotalPercentage(List&lt;CryptoResponse&gt; cryptosResponse) {
-<span class="fc" id="L59">        return cryptosResponse.stream()</span>
-<span class="fc" id="L60">                .map(CryptoResponse::getPercentage)</span>
-<span class="fc" id="L61">                .reduce(BigDecimal.ZERO, BigDecimal::add);</span>
+<span class="fc" id="L62">        return cryptosResponse.stream()</span>
+<span class="fc" id="L63">                .map(CryptoResponse::getPercentage)</span>
+<span class="fc" id="L64">                .reduce(BigDecimal.ZERO, BigDecimal::add);</span>
     }
 
     private Set&lt;String&gt; getPlatforms(List&lt;CryptoResponse&gt; cryptosResponse) {
-<span class="fc" id="L65">        return cryptosResponse.stream()</span>
-<span class="fc" id="L66">                .map(CryptoResponse::getPlatform)</span>
-<span class="fc" id="L67">                .collect(Collectors.toSet());</span>
+<span class="fc" id="L68">        return cryptosResponse.stream()</span>
+<span class="fc" id="L69">                .map(CryptoResponse::getPlatform)</span>
+<span class="fc" id="L70">                .collect(Collectors.toSet());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
