@@ -27,6 +27,7 @@ import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN;
@@ -35,6 +36,7 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.PLATFORM_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -78,6 +80,103 @@ class UserCryptoServiceImplTest {
         userCryptoService = new UserCryptoServiceImpl(utilValidationsMock, cryptoServiceMock, cryptoMapperImplMock,
                 cryptoResponseMapperImplMock, userCryptoRepositoryMock, platformServiceMock, addCryptoValidationMock,
                 updateCryptoValidationMock);
+    }
+
+    @Test
+    void shouldFindAllByCryptoId() {
+        var userCrypto = UserCrypto.builder()
+                .cryptoId("bitcoin")
+                .build();
+
+        when(userCryptoRepositoryMock.findAllByCryptoId("bitcoin"))
+                .thenReturn(Optional.of(Collections.singletonList(userCrypto)));
+
+        var userCryptos = userCryptoService.findAllByCryptoId("bitcoin");
+
+        assertTrue(userCryptos.isPresent());
+    }
+
+    @Test
+    void shouldFindById() {
+        var userCrypto = UserCrypto.builder()
+                .id("ABC123")
+                .cryptoId("bitcoin")
+                .build();
+
+        when(userCryptoRepositoryMock.findById("ABC123"))
+                .thenReturn(Optional.of(userCrypto));
+
+        var savedUserCrypto = userCryptoService.findById("ABC123");
+
+        assertTrue(savedUserCrypto.isPresent());
+    }
+
+    @Test
+    void shouldFindByCryptoIdAndPlatformId() {
+        var userCrypto = UserCrypto.builder()
+                .cryptoId("bitcoin")
+                .platformId("ABC123")
+                .build();
+
+        when(userCryptoRepositoryMock.findByCryptoIdAndPlatformId("bitcoin", "ABC123"))
+                .thenReturn(Optional.of(userCrypto));
+
+        var savedUserCrypto = userCryptoService.findByCryptoIdAndPlatformId("bitcoin", "ABC123");
+
+        assertTrue(savedUserCrypto.isPresent());
+    }
+
+    @Test
+    void shouldFindAll() {
+        var userCrypto = UserCrypto.builder()
+                .cryptoId("bitcoin")
+                .platformId("ABC123")
+                .build();
+
+        when(userCryptoRepositoryMock.findAll()).thenReturn(Collections.singletonList(userCrypto));
+
+        var savedUserCrypto = userCryptoService.findAll();
+
+        assertFalse(savedUserCrypto.isEmpty());
+    }
+
+    @Test
+    void shouldFindAllByPlatformId() {
+        var userCrypto = UserCrypto.builder()
+                .cryptoId("bitcoin")
+                .platformId("ABC123")
+                .build();
+
+        when(userCryptoRepositoryMock.findAllByPlatformId("ABC123"))
+                .thenReturn(Optional.of(Collections.singletonList(userCrypto)));
+
+        var savedUserCrypto = userCryptoService.findAllByPlatformId("ABC123");
+
+        assertTrue(savedUserCrypto.isPresent());
+    }
+
+    @Test
+    void shouldSaveUserCrypto() {
+        var userCrypto = UserCrypto.builder()
+                .cryptoId("bitcoin")
+                .platformId("ABC123")
+                .build();
+
+        userCryptoService.saveUserCrypto(userCrypto);
+
+        verify(userCryptoRepositoryMock, times(1)).save(userCrypto);
+    }
+
+    @Test
+    void shouldSaveAllUserCrypto() {
+        var userCrypto = UserCrypto.builder()
+                .cryptoId("bitcoin")
+                .platformId("ABC123")
+                .build();
+
+        userCryptoService.saveAll(Collections.singletonList(userCrypto));
+
+        verify(userCryptoRepositoryMock, times(1)).saveAll(Collections.singletonList(userCrypto));
     }
 
     @Test
@@ -288,5 +387,18 @@ class UserCryptoServiceImplTest {
         assertAll(
                 () -> assertEquals(CRYPTO_NOT_FOUND, cryptoNotFoundException.getErrorMessage())
         );
+    }
+
+    @Test
+    void shouldDeleteCrypto() {
+        var userCrypto = UserCrypto.builder()
+                .cryptoId("bitcoin")
+                .platformId("ABC123")
+                .build();
+
+        userCryptoService.deleteUserCrypto(userCrypto);
+
+        verify(userCryptoRepositoryMock, times(1)).delete(userCrypto);
+        verify(cryptoServiceMock, times(1)).deleteCryptoIfNotUsed("bitcoin");
     }
 }
