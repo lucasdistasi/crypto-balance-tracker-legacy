@@ -1,24 +1,31 @@
 # Crypto Balance Tracker :rocket:
 
-![Pipeline Status](https://github.com/lucasdistasi/crypto-balance-tracker/actions/workflows/main.yml/badge.svg)
-[![HitCount](https://hits.dwyl.com/lucasdistasi/crypto-balance-tracker.svg)](https://hits.dwyl.com/lucasdistasi/crypto-balance-tracker)
+<a href="https://github.com/lucasdistasi/crypto-balance-tracker/actions">
+    <img alt="Pipeline Status" src="https://github.com/lucasdistasi/crypto-balance-tracker/actions/workflows/main.yml/badge.svg"/>
+</a>
+<a href="https://lucasdistasi.github.io/crypto-balance-tracker/">
+    <img alt="Code Coverage" src="https://github.com/lucasdistasi/crypto-balance-tracker/blob/gh-pages/badges/jacoco.svg"/>
+</a>
+<a href="#">
+    <img alt="Pipeline Status" src="https://hits.dwyl.com/lucasdistasi/crypto-balance-tracker.svg"/>
+</a>
 
 Crypto Balance Tracker is a Java-Spring application that acts as a portfolio tracker for monitoring your crypto assets. 
-It allows you to retrieve data such as the percentage of each coin owned, the total value of your assets, 
-the current price of each coin, and the balance per platform. The application makes use of the 
-[Coingecko](https://www.coingecko.com) API to fetch all the required information about the coins.
+It allows you to retrieve data such as the percentage of each crypto owned, the total value of your assets, 
+the current price of each crypto, and the balance per platform. The application makes use of the 
+[Coingecko](https://www.coingecko.com) API to fetch all the required information about the crypto.
 
 :warning: Please note that the Coingecko API has [rate limits for the Free Plan](https://www.coingecko.com/en/api/pricing). 
-To avoid hitting the rate limit, a scheduler periodically retrieves the price of the saved coins every 180 seconds. 
+To avoid hitting the rate limit, a scheduler periodically retrieves the price of the saved cryptos every 180 seconds. 
 This ensures that the end-users do not exceed the rate limit by making multiple API calls. Also, keep in mind 
 that the balances displayed in the  app might not be 100% accurate due to variations in price data from different exchanges. 
 However, any discrepancies should be minimal.
 <br>
 
 ## Approach and Challenges
-Initially, the idea was to allow users to add their wallet addresses to track their coins. However, this approach posed 
-some challenges, such as specifying the network for the address and the difficulty of tracking coins held in exchange 
-addresses shared by multiple users. Due to these complexities, tracking coins based on non cold/hard-wallet addresses became unfeasible. 
+Initially, the idea was to allow users to add their wallet addresses to track their cryptos. However, this approach posed 
+some challenges, such as specifying the network for the address and the difficulty of tracking cryptos held in exchange 
+addresses shared by multiple users. Due to these complexities, tracking cryptos based on non cold/hard-wallet addresses became unfeasible. 
 Instead, the current approach was adopted to provide a more reliable and feasible solution.
 <br>
 
