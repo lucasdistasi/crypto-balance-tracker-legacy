@@ -63,7 +63,7 @@ class DashboardServiceImplTest {
 
     @Test
     void shouldRetrieveCryptoBalances() {
-        var coinInfo = MockData.getBitcoinCoinInfo();
+        var coingeckoCryptoInfo = MockData.getBitcoinCoingeckoCryptoInfo();
         var balanceResponse = MockData.getCryptoBalanceResponse();
         var firstCrypto = balanceResponse.cryptos().get(0);
         var userCrypto = MockData.getUserCrypto();
@@ -80,7 +80,7 @@ class DashboardServiceImplTest {
                 () -> assertEquals(expectedBalance, cryptosBalances.get().totalBalance()),
                 () -> assertEquals(BigDecimal.valueOf(5), firstCrypto.getQuantity()),
                 () -> assertEquals(cryptosBalances.get().cryptos().get(0).getPercentage(), firstCrypto.getPercentage()),
-                () -> assertEquals(coinInfo, firstCrypto.getCoinInfo())
+                () -> assertEquals(coingeckoCryptoInfo, firstCrypto.getCryptoInfo())
         );
     }
 
@@ -97,7 +97,7 @@ class DashboardServiceImplTest {
 
     @Test
     void shouldRetrieveBalancesForCrypto() {
-        var coinInfo = MockData.getBitcoinCoinInfo();
+        var coingeckoCryptoInfo = MockData.getBitcoinCoingeckoCryptoInfo();
         var userCrypto = MockData.getUserCrypto();
         var userCryptos = Collections.singletonList(userCrypto);
         var balanceResponse = MockData.getCryptoBalanceResponse();
@@ -114,7 +114,7 @@ class DashboardServiceImplTest {
                 () -> assertEquals(expectedBalance, cryptoBalance.get().totalBalance()),
                 () -> assertEquals(BigDecimal.valueOf(5), firstCrypto.getQuantity()),
                 () -> assertEquals(cryptoBalance.get().cryptos().get(0).getPercentage(), firstCrypto.getPercentage()),
-                () -> assertEquals(coinInfo, firstCrypto.getCoinInfo())
+                () -> assertEquals(coingeckoCryptoInfo, firstCrypto.getCryptoInfo())
         );
     }
 

@@ -43,12 +43,12 @@ class UpdateCryptoSchedulerMapperImplTest {
 
     @Test
     void shouldMapSuccessfully() {
-        var coinInfo = MockData.getBitcoinCoinInfo();
+        var coingeckoCryptoInfo = MockData.getBitcoinCoingeckoCryptoInfo();
         var cryptoToMap = MockData.getCrypto();
         var localDateTime = LocalDateTime.of(2023, 5, 3, 18, 55, 0);
         var zonedDateTime = ZonedDateTime.of(2023, 5, 3, 19, 0, 0, 0, ZoneId.of("UTC"));
 
-        when(coingeckoServiceMock.retrieveCoinInfo("bitcoin")).thenReturn(coinInfo);
+        when(coingeckoServiceMock.retrieveCoingeckoCryptoInfo("bitcoin")).thenReturn(coingeckoCryptoInfo);
         when(clockMock.instant()).thenReturn(localDateTime.toInstant(ZoneOffset.UTC));
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
 
@@ -72,7 +72,7 @@ class UpdateCryptoSchedulerMapperImplTest {
         var cryptoToMap = MockData.getCrypto();
         var webClientResponseException = new WebClientResponseException(HttpStatus.TOO_MANY_REQUESTS.value(), "TOO_MANY_REQUESTS", null, null, null);
 
-        doThrow(webClientResponseException).when(coingeckoServiceMock).retrieveCoinInfo("bitcoin");
+        doThrow(webClientResponseException).when(coingeckoServiceMock).retrieveCoingeckoCryptoInfo("bitcoin");
 
         var mappedCrypto = updateCryptoSchedulerMapperImpl.mapFrom(cryptoToMap);
 
@@ -94,7 +94,7 @@ class UpdateCryptoSchedulerMapperImplTest {
         var cryptoToMap = MockData.getCrypto();
         var runtimeException = new RuntimeException("RuntimeException");
 
-        doThrow(runtimeException).when(coingeckoServiceMock).retrieveCoinInfo("bitcoin");
+        doThrow(runtimeException).when(coingeckoServiceMock).retrieveCoingeckoCryptoInfo("bitcoin");
 
         var mappedCrypto = updateCryptoSchedulerMapperImpl.mapFrom(cryptoToMap);
 

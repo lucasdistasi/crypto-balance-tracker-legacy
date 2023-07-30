@@ -5,7 +5,7 @@ import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
 import com.distasilucas.cryptobalancetracker.exception.CryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
-import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
+import com.distasilucas.cryptobalancetracker.model.coingecko.CoingeckoCrypto;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.UpdateCryptoRequest;
 import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
@@ -55,9 +55,9 @@ class CryptoPlatformValidatorTest {
     void shouldValidateSuccessfullyForAdd() {
         var addCryptoRequest = MockData.getAddCryptoRequest();
         var platform = MockData.getPlatform("LEDGER");
-        var coin = new Coin("ethereum", "ETH", "Ethereum");
+        var coingeckoCrypto = new CoingeckoCrypto("ethereum", "ETH", "Ethereum");
 
-        when(coingeckoServiceMock.retrieveAllCoins()).thenReturn(Collections.singletonList(coin));
+        when(coingeckoServiceMock.retrieveAllCoingeckoCryptos()).thenReturn(Collections.singletonList(coingeckoCrypto));
         when(platformServiceMock.findByName(addCryptoRequest.getPlatform().toUpperCase()))
                 .thenReturn(Optional.of(platform));
 
@@ -98,13 +98,13 @@ class CryptoPlatformValidatorTest {
     void shouldThrowApiValidationExceptionWhenValidatingForAdd() {
         var addCryptoRequest = MockData.getAddCryptoRequest();
         var platform = MockData.getPlatform("LEDGER");
-        var coin = new Coin("ethereum", "ETH", "Ethereum");
+        var coingeckoCrypto = new CoingeckoCrypto("ethereum", "ETH", "Ethereum");
         var userCrypto = MockData.getUserCrypto();
 
-        when(coingeckoServiceMock.retrieveAllCoins()).thenReturn(Collections.singletonList(coin));
+        when(coingeckoServiceMock.retrieveAllCoingeckoCryptos()).thenReturn(Collections.singletonList(coingeckoCrypto));
         when(platformServiceMock.findByName(addCryptoRequest.getPlatform().toUpperCase()))
                 .thenReturn(Optional.of(platform));
-        when(userCryptoRepositoryMock.findByCryptoIdAndPlatformId(coin.getId(), platform.getId()))
+        when(userCryptoRepositoryMock.findByCryptoIdAndPlatformId(coingeckoCrypto.getId(), platform.getId()))
                 .thenReturn(Optional.of(userCrypto));
 
         var apiValidationException = assertThrows(ApiValidationException.class,

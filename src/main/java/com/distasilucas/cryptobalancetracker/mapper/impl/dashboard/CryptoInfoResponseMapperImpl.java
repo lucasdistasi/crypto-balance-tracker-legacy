@@ -45,7 +45,7 @@ public class CryptoInfoResponseMapperImpl implements BiFunctionMapper<Map<String
 
     private List<CryptoResponse> getCryptosResponse(List<CryptoResponse> cryptos, String cryptoName) {
         return cryptos.stream()
-                .filter(crypto -> crypto.getCoinInfo().getName().equals(cryptoName))
+                .filter(crypto -> crypto.getCryptoInfo().getName().equals(cryptoName))
                 .toList();
     }
 

@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @EqualsAndHashCode(callSuper = false)
-public final class CoinInfo extends Coin {
+public final class CoingeckoCryptoInfo extends CoingeckoCrypto {
 
     @JsonProperty("market_data")
     private MarketData marketData;

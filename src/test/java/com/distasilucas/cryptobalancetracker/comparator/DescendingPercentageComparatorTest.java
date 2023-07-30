@@ -16,10 +16,10 @@ class DescendingPercentageComparatorTest {
 
     @Test
     void shouldCompareSuccessfully() {
-        var coinInfo = MockData.getBitcoinCoinInfo();
-        var higherCryptoResponse = MockData.getCryptoResponse(coinInfo);
+        var coingeckoCryptoInfo = MockData.getBitcoinCoingeckoCryptoInfo();
+        var higherCryptoResponse = MockData.getCryptoResponse(coingeckoCryptoInfo);
         higherCryptoResponse.setPercentage(BigDecimal.valueOf(60));
-        var lowerCryptoResponse = MockData.getCryptoResponse(coinInfo);
+        var lowerCryptoResponse = MockData.getCryptoResponse(coingeckoCryptoInfo);
         lowerCryptoResponse.setPercentage(BigDecimal.valueOf(40));
 
         var firstCompare = comparator.compare(higherCryptoResponse, lowerCryptoResponse);

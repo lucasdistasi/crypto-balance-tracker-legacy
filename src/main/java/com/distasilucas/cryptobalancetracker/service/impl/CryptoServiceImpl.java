@@ -3,7 +3,7 @@ package com.distasilucas.cryptobalancetracker.service.impl;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Goal;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
-import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
+import com.distasilucas.cryptobalancetracker.model.coingecko.CoingeckoCryptoInfo;
 import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.GoalRepository;
@@ -48,13 +48,13 @@ public class CryptoServiceImpl implements CryptoService {
         Optional<Crypto> optionalCrypto = cryptoRepository.findById(cryptoId);
 
         if (optionalCrypto.isEmpty()) {
-            CoinInfo coinInfo = coingeckoService.retrieveCoinInfo(cryptoId);
-            MarketData marketData = coinInfo.getMarketData();
+            CoingeckoCryptoInfo coingeckoCryptoInfo = coingeckoService.retrieveCoingeckoCryptoInfo(cryptoId);
+            MarketData marketData = coingeckoCryptoInfo.getMarketData();
 
             Crypto crypto = Crypto.builder()
-                    .id(coinInfo.getId())
-                    .name(coinInfo.getName())
-                    .ticker(coinInfo.getSymbol())
+                    .id(coingeckoCryptoInfo.getId())
+                    .name(coingeckoCryptoInfo.getName())
+                    .ticker(coingeckoCryptoInfo.getSymbol())
                     .lastKnownPrice(marketData.currentPrice().usd())
                     .lastKnownPriceInEUR(marketData.currentPrice().eur())
                     .lastKnownPriceInBTC(marketData.currentPrice().btc())

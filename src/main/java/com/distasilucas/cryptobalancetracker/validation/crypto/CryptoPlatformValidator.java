@@ -5,7 +5,7 @@ import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
 import com.distasilucas.cryptobalancetracker.exception.CryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
-import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
+import com.distasilucas.cryptobalancetracker.model.coingecko.CoingeckoCrypto;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.CryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.UpdateCryptoRequest;
@@ -48,7 +48,7 @@ public class CryptoPlatformValidator<T extends CryptoRequest> implements EntityV
         Platform requestPlatform = requestOptionalPlatform.get();
 
         if (cryptoRequest instanceof AddCryptoRequest addCryptoRequest) {
-            Coin coin = coingeckoService.retrieveAllCoins()
+            CoingeckoCrypto coingeckoCrypto = coingeckoService.retrieveAllCoingeckoCryptos()
                     .stream()
                     .filter(c -> c.getName().equalsIgnoreCase(addCryptoRequest.getCryptoName()))
                     .findFirst()
@@ -58,7 +58,7 @@ public class CryptoPlatformValidator<T extends CryptoRequest> implements EntityV
                         return new CryptoNotFoundException(message);
                     });
 
-            Optional<UserCrypto> optionalCrypto = userCryptoRepository.findByCryptoIdAndPlatformId(coin.getId(), requestPlatform.getId());
+            Optional<UserCrypto> optionalCrypto = userCryptoRepository.findByCryptoIdAndPlatformId(coingeckoCrypto.getId(), requestPlatform.getId());
 
             optionalCrypto.ifPresent(crypto -> {
                 String message = String.format(DUPLICATED_PLATFORM_CRYPTO, requestPlatform.getName());

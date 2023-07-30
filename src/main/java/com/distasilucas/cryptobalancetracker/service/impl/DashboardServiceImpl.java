@@ -74,7 +74,7 @@ public class DashboardServiceImpl implements DashboardService {
 
             cryptoBalanceResponse.cryptos()
                     .forEach(crypto -> {
-                        String cryptoName = crypto.getCoinInfo().getName();
+                        String cryptoName = crypto.getCryptoInfo().getName();
                         BigDecimal balance = crypto.getBalance();
 
                         cryptosByPlatform.compute(cryptoName, (k, v) -> (v == null) ? balance : v.add(balance));

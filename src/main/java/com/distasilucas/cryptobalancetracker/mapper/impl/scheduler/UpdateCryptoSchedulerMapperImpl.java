@@ -2,7 +2,7 @@ package com.distasilucas.cryptobalancetracker.mapper.impl.scheduler;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
+import com.distasilucas.cryptobalancetracker.model.coingecko.CoingeckoCryptoInfo;
 import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +28,8 @@ public class UpdateCryptoSchedulerMapperImpl implements EntityMapper<Crypto, Cry
         String id = input.getId();
 
         try {
-            CoinInfo coinInfo = coingeckoService.retrieveCoinInfo(id);
-            MarketData marketData = coinInfo.getMarketData();
+            CoingeckoCryptoInfo coingeckoCryptoInfo = coingeckoService.retrieveCoingeckoCryptoInfo(id);
+            MarketData marketData = coingeckoCryptoInfo.getMarketData();
             BigDecimal currentUSDPrice = marketData.currentPrice().usd();
             BigDecimal currentEURPrice = marketData.currentPrice().eur();
             BigDecimal currentBTCPrice = marketData.currentPrice().btc();

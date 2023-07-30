@@ -1,7 +1,7 @@
 package com.distasilucas.cryptobalancetracker.service.coingecko.impl;
 
-import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
-import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
+import com.distasilucas.cryptobalancetracker.model.coingecko.CoingeckoCrypto;
+import com.distasilucas.cryptobalancetracker.model.coingecko.CoingeckoCryptoInfo;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -39,13 +39,13 @@ public class CoingeckoServiceImpl implements CoingeckoService {
     @Override
     @Cacheable(cacheNames = COINGECKO_CRYPTOS_CACHE)
     @Retryable(retryFor = { WebClientException.class }, backoff = @Backoff(delay = 1500))
-    public List<Coin> retrieveAllCoins() {
+    public List<CoingeckoCrypto> retrieveAllCoingeckoCryptos() {
         log.info("Hitting Coingecko API... Retrieving all cryptos");
 
         return coingeckoWebClient.get()
                 .uri(getAllCoinsUriBuilder("/coins/list"))
                 .retrieve()
-                .bodyToFlux(Coin.class)
+                .bodyToFlux(CoingeckoCrypto.class)
                 .collectList()
                 .block();
     }
@@ -53,17 +53,15 @@ public class CoingeckoServiceImpl implements CoingeckoService {
     @Override
     @Cacheable(cacheNames = CRYPTO_PRICE_CACHE, key = "#coinId")
     @Retryable(retryFor = { WebClientException.class }, backoff = @Backoff(delay = 1500))
-    public CoinInfo retrieveCoinInfo(String coinId) {
+    public CoingeckoCryptoInfo retrieveCoingeckoCryptoInfo(String coinId) {
         log.info("Hitting Coingecko API... Retrieving information for [{}]", coinId);
         String uri = String.format("/coins/%s", coinId);
 
-        CoinInfo coinInfo = coingeckoWebClient.get()
-                .uri(getCoinInfoUriBuilder(uri))
+        return coingeckoWebClient.get()
+                .uri(getCoingeckoCryptoInfoUriBuilder(uri))
                 .retrieve()
-                .bodyToMono(CoinInfo.class)
+                .bodyToMono(CoingeckoCryptoInfo.class)
                 .block();
-
-        return mapCoinInfo().apply(coinInfo);
     }
 
     private Function<UriBuilder, URI> getAllCoinsUriBuilder(String url) {
@@ -79,7 +77,7 @@ public class CoingeckoServiceImpl implements CoingeckoService {
                 freeCoingekoUri;
     }
 
-    private Function<UriBuilder, URI> getCoinInfoUriBuilder(String url) {
+    private Function<UriBuilder, URI> getCoingeckoCryptoInfoUriBuilder(String url) {
         MultiValueMap<String, String> commonParams = new HttpHeaders();
         commonParams.add("tickers", Boolean.FALSE.toString());
         commonParams.add("community_data", Boolean.FALSE.toString());
@@ -97,17 +95,5 @@ public class CoingeckoServiceImpl implements CoingeckoService {
         return StringUtils.isNotBlank(coingeckoApiKey) ?
                 proCoingekoUri :
                 freeCoingekoUri;
-    }
-
-    private Function<CoinInfo, CoinInfo> mapCoinInfo() {
-        return originalCoinInfo -> {
-            CoinInfo coinInfo = new CoinInfo();
-            coinInfo.setId(originalCoinInfo.getId());
-            coinInfo.setName(originalCoinInfo.getName());
-            coinInfo.setSymbol(originalCoinInfo.getSymbol());
-            coinInfo.setMarketData(originalCoinInfo.getMarketData());
-
-            return coinInfo;
-        };
     }
 }

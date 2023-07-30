@@ -1,6 +1,6 @@
 package com.distasilucas.cryptobalancetracker.model.response.dashboard;
 
-import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
+import com.distasilucas.cryptobalancetracker.model.coingecko.CoingeckoCryptoInfo;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Data;
@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 public class CryptoResponse {
 
     private String cryptoId;
-    private CoinInfo coinInfo;
+    private CoingeckoCryptoInfo cryptoInfo;
     private BigDecimal quantity;
     private BigDecimal balance;
     private BigDecimal balanceInEUR;
@@ -20,10 +20,10 @@ public class CryptoResponse {
     private BigDecimal percentage;
     private String platform;
 
-    public CryptoResponse(String cryptoId, CoinInfo coinInfo, BigDecimal quantity,
+    public CryptoResponse(String cryptoId, CoingeckoCryptoInfo cryptoInfo, BigDecimal quantity,
                           BigDecimal balance, BigDecimal balanceInEUR, BigDecimal balanceInBTC, String platform) {
         this.cryptoId = cryptoId;
-        this.coinInfo = coinInfo;
+        this.cryptoInfo = cryptoInfo;
         this.quantity = quantity;
         this.balance = balance;
         this.balanceInEUR = balanceInEUR;

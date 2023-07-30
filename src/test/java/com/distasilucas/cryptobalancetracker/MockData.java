@@ -4,8 +4,8 @@ import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.entity.Goal;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
-import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
-import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
+import com.distasilucas.cryptobalancetracker.model.coingecko.CoingeckoCrypto;
+import com.distasilucas.cryptobalancetracker.model.coingecko.CoingeckoCryptoInfo;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CurrentPrice;
 import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoRequest;
@@ -36,8 +36,8 @@ public class MockData {
     }
 
     public static CryptoBalanceResponse getCryptoBalanceResponse() {
-        var coinInfo = getBitcoinCoinInfo();
-        var coinResponse = getCryptoResponse(coinInfo);
+        var coingeckoCryptoInfo = getBitcoinCoingeckoCryptoInfo();
+        var coinResponse = getCryptoResponse(coingeckoCryptoInfo);
         var cryptoBalanceResponse = new CryptoBalanceResponse(TOTAL_BALANCE_USD, TOTAL_BALANCE_EUR,
                 TOTAL_BALANCE_BTC, Collections.singletonList(coinResponse));
         setPercentage(coinResponse);
@@ -56,21 +56,21 @@ public class MockData {
                 BigDecimal.valueOf(10), Set.of("Trezor", "Ledger"));
     }
 
-    public static CryptoResponse getCryptoResponse(CoinInfo coinInfo) {
-        return new CryptoResponse("ABC123", coinInfo, BigDecimal.valueOf(5),
+    public static CryptoResponse getCryptoResponse(CoingeckoCryptoInfo coingeckoCryptoInfo) {
+        return new CryptoResponse("ABC123", coingeckoCryptoInfo, BigDecimal.valueOf(5),
                 TOTAL_BALANCE_USD, TOTAL_BALANCE_EUR, TOTAL_BALANCE_BTC, "LEDGER");
     }
 
-    public static CoinInfo getBitcoinCoinInfo() {
+    public static CoingeckoCryptoInfo getBitcoinCoingeckoCryptoInfo() {
         var currentPrice = new CurrentPrice(BigDecimal.valueOf(150_000), BigDecimal.valueOf(170_000), BigDecimal.valueOf(1));
         var marketData = new MarketData(currentPrice, BigDecimal.valueOf(1000), BigDecimal.valueOf(1000));
-        var coinInfo = new CoinInfo();
-        coinInfo.setMarketData(marketData);
-        coinInfo.setSymbol("btc");
-        coinInfo.setName("Bitcoin");
-        coinInfo.setId("bitcoin");
+        var coingeckoCryptoInfo = new CoingeckoCryptoInfo();
+        coingeckoCryptoInfo.setMarketData(marketData);
+        coingeckoCryptoInfo.setSymbol("btc");
+        coingeckoCryptoInfo.setName("Bitcoin");
+        coingeckoCryptoInfo.setId("bitcoin");
 
-        return coinInfo;
+        return coingeckoCryptoInfo;
     }
 
     public static List<Crypto> getAllCryptos() {
@@ -102,22 +102,22 @@ public class MockData {
                 .build();
     }
 
-    public static List<Coin> getAllCoins() {
-        var coin = new Coin();
-        coin.setId("ethereum");
-        coin.setSymbol("ETH");
-        coin.setName("Ethereum");
+    public static List<CoingeckoCrypto> getAllCoingeckoCryptos() {
+        var coingeckoCrypto = new CoingeckoCrypto();
+        coingeckoCrypto.setId("ethereum");
+        coingeckoCrypto.setSymbol("ETH");
+        coingeckoCrypto.setName("Ethereum");
 
-        return Collections.singletonList(coin);
+        return Collections.singletonList(coingeckoCrypto);
     }
 
-    public static List<Coin> getAllCoins(String cryptoName, String cryptoId) {
-        var coin = new Coin();
-        coin.setId(cryptoId);
-        coin.setSymbol("BTC");
-        coin.setName(cryptoName);
+    public static List<CoingeckoCrypto> getAllCoingeckoCryptos(String cryptoName, String cryptoId) {
+        var coingeckoCrypto = new CoingeckoCrypto();
+        coingeckoCrypto.setId(cryptoId);
+        coingeckoCrypto.setSymbol("BTC");
+        coingeckoCrypto.setName(cryptoName);
 
-        return Collections.singletonList(coin);
+        return Collections.singletonList(coingeckoCrypto);
     }
 
     public static AddCryptoRequest getAddCryptoRequest() {
