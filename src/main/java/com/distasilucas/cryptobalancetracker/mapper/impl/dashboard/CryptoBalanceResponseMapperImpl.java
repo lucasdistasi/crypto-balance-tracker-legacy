@@ -37,6 +37,7 @@ public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalan
 
     @Override
     public CryptoBalanceResponse mapFrom(List<UserCrypto> input) {
+        log.info("Mapping CryptoBalanceResponse for {} cryptos", input.size());
         List<CryptoResponse> cryptos = input.stream()
                 .map(this::mapCryptoResponse)
                 .collect(Collectors.toList());

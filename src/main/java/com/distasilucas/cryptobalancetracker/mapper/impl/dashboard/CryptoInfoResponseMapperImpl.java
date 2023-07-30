@@ -5,6 +5,7 @@ import com.distasilucas.cryptobalancetracker.mapper.BiFunctionMapper;
 import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoInfoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoBalanceResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -15,11 +16,13 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class CryptoInfoResponseMapperImpl implements BiFunctionMapper<Map<String, BigDecimal>, CryptoBalanceResponse, List<CryptoInfoResponse>> {
 
     @Override
     public BiFunction<Map<String, BigDecimal>, CryptoBalanceResponse, List<CryptoInfoResponse>> map() {
+        log.info("Mapping to List<CryptoInfoResponse>");
         List<CryptoInfoResponse> cryptoInfoResponses = new ArrayList<>();
 
         return (cryptoByPlatform, cryptoBalanceResponse) -> {

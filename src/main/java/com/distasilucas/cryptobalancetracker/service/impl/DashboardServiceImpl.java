@@ -55,7 +55,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public Optional<CryptoBalanceResponse> retrieveCryptoBalance(String cryptoId) {
-        log.info("Retrieving balances for crypto [{}]", cryptoId);
+        log.info("Retrieving balances for crypto {}", cryptoId);
         Optional<List<UserCrypto>> userCryptos = userCryptoService.findAllByCryptoId(cryptoId);
 
         return userCryptos.isEmpty() || CollectionUtils.isEmpty(userCryptos.get()) ?
@@ -95,6 +95,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public Optional<PlatformBalanceResponse> getPlatformsBalances() {
+        log.info("Retrieving platforms balances");
         List<UserCrypto> userCryptos = userCryptoService.findAll();
         CryptoBalanceResponse cryptoBalanceResponse = cryptoBalanceResponseMapperImpl.mapFrom(userCryptos);
         List<CryptoResponse> cryptos = cryptoBalanceResponse.cryptos();
@@ -136,6 +137,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public Optional<List<PlatformsCryptoDistributionResponse>> getPlatformsCryptoDistributionResponse() {
+        log.info("Retrieving platforms cryptos distribution");
         List<String> platformNames = platformService.getAllPlatformsResponse()
                 .stream()
                 .map(PlatformResponse::getName)
@@ -156,6 +158,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public Optional<List<CryptosPlatformDistributionResponse>> getCryptosPlatformDistribution() {
+        log.info("Retrieving cryptos platform distribution");
         Set<String> cryptosIds = userCryptoService.findAll()
                 .stream()
                 .map(UserCrypto::getCryptoId)

@@ -9,6 +9,7 @@ import com.distasilucas.cryptobalancetracker.model.response.crypto.UserCryptoRes
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -17,6 +18,7 @@ import java.util.function.Function;
 import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.CRYPTO_NOT_FOUND;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserCryptoResponseMapperImpl implements EntityMapper<UserCryptoResponse, UserCrypto> {
@@ -26,6 +28,7 @@ public class UserCryptoResponseMapperImpl implements EntityMapper<UserCryptoResp
 
     @Override
     public UserCryptoResponse mapFrom(UserCrypto input) {
+        log.info("Mapping UserCrypto with id {}", input.getId());
         Function<UserCrypto, UserCryptoResponse> cryptoResponse = this::getCryptoResponse;
 
         return cryptoResponse.apply(input);

@@ -11,6 +11,7 @@ import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CryptoServiceImpl implements CryptoService {
@@ -40,6 +42,7 @@ public class CryptoServiceImpl implements CryptoService {
 
     @Override
     public void saveAllCryptos(List<Crypto> cryptosToSave) {
+        log.info("Saving or updating {} cryptos", cryptosToSave.size());
         cryptoRepository.saveAll(cryptosToSave);
     }
 
@@ -64,6 +67,7 @@ public class CryptoServiceImpl implements CryptoService {
                     .build();
 
             cryptoRepository.save(crypto);
+            log.info("Saving Crypto {}", crypto.getName());
         }
     }
 
@@ -73,7 +77,10 @@ public class CryptoServiceImpl implements CryptoService {
         Optional<UserCrypto> optionalUserCrypto = userCryptoRepository.findFirstByCryptoId(cryptoId);
 
         if (optionalGoal.isEmpty() && optionalUserCrypto.isEmpty()) {
-            findById(cryptoId).ifPresent(cryptoRepository::delete);
+            findById(cryptoId).ifPresent(crypto -> {
+                log.info("Deleting Crypto {} because is not being used", crypto.getName());
+                cryptoRepository.delete(crypto);
+            });
         }
     }
 
