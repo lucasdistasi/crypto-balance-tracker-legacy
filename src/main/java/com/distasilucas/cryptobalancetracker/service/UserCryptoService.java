@@ -11,7 +11,6 @@ import java.util.Optional;
 
 public interface UserCryptoService {
 
-    Optional<UserCrypto> findFirstByCryptoId(String cryptoId);
     Optional<List<UserCrypto>> findAllByCryptoId(String cryptoId);
     Optional<UserCrypto> findById(String id);
     Optional<UserCrypto> findByCryptoIdAndPlatformId(String cryptoId, String platformId);

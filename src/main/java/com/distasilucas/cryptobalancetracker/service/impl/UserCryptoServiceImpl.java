@@ -45,11 +45,6 @@ public class UserCryptoServiceImpl implements UserCryptoService {
     private final Validation<UpdateCryptoRequest> updateCryptoValidation;
 
     @Override
-    public Optional<UserCrypto> findFirstByCryptoId(String cryptoId) {
-        return userCryptoRepository.findFirstByCryptoId(cryptoId);
-    }
-
-    @Override
     public Optional<List<UserCrypto>> findAllByCryptoId(String cryptoId) {
         return userCryptoRepository.findAllByCryptoId(cryptoId);
     }

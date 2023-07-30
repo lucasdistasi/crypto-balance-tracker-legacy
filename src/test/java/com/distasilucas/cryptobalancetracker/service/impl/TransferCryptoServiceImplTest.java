@@ -3,6 +3,7 @@ package com.distasilucas.cryptobalancetracker.service.impl;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
+import com.distasilucas.cryptobalancetracker.exception.CryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.InsufficientBalanceException;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.TransferCryptoRequest;
@@ -20,6 +21,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Optional;
 
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.CRYPTO_NOT_FOUND;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.NOT_ENOUGH_BALANCE;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.SAME_FROM_TO_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.TARGET_PLATFORM_NOT_EXISTS;
@@ -48,6 +50,30 @@ class TransferCryptoServiceImplTest {
     @BeforeEach
     void setUp() {
         transferCryptoService = new TransferCryptoServiceImpl(userCryptoServiceMock, platformServiceMock, transferCryptoValidationMock);
+    }
+
+    @Test
+    void shouldThrowCryptoNotFoundExceptionIfCryptoToTransferNotExists() {
+        var transferCryptoRequest = new TransferCryptoRequest(
+                "ABC123",
+                BigDecimal.valueOf(0.5),
+                BigDecimal.valueOf(0.001),
+                "BINANCE"
+        );
+        var toPlatform = Platform.builder()
+                .id("PLTFRM456")
+                .name(transferCryptoRequest.getToPlatform())
+                .build();
+
+        when(platformServiceMock.findByName(transferCryptoRequest.getToPlatform()))
+                .thenReturn(Optional.of(toPlatform));
+        when(userCryptoServiceMock.findById("ABC123"))
+                .thenReturn(Optional.empty());
+
+        var exception = assertThrows(CryptoNotFoundException.class,
+                () -> transferCryptoService.transferCrypto(transferCryptoRequest));
+
+        assertEquals(CRYPTO_NOT_FOUND, exception.getErrorMessage());
     }
 
     //      FROM        |       TO

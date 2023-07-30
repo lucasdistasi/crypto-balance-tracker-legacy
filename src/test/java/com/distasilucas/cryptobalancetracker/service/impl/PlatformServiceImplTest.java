@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
@@ -61,6 +62,20 @@ class PlatformServiceImplTest {
     void setUp() {
         platformService = new PlatformServiceImpl(utilValidationsMock, platformRepositoryMock, userCryptoRepositoryMock, addPlatformValidationMock,
                 platformMapperImplMock, platformResponseMapperImplMock);
+    }
+
+    @Test
+    void shouldFindById() {
+        var platform = Platform.builder()
+                .id("ABC123")
+                .build();
+
+        when(platformRepositoryMock.findById("ABC123"))
+                .thenReturn(Optional.of(platform));
+
+        var savedPlatform = platformService.findById("ABC123");
+
+        assertTrue(savedPlatform.isPresent());
     }
 
     @Test
@@ -141,6 +156,19 @@ class PlatformServiceImplTest {
     }
 
     @Test
+    void shouldThrowPlatformNotFoundExceptionWhenUpdatingPlatform() {
+        var platformRequest = MockData.getPlatformRequest("Trezor");
+        var exceptionMessage = String.format(PLATFORM_NOT_FOUND, platformRequest.getName());
+
+        when(platformRepositoryMock.findByName("TREZOR")).thenReturn(Optional.empty());
+
+        var exception = assertThrows(PlatformNotFoundException.class,
+                () -> platformService.updatePlatform("TREZOR", platformRequest));
+
+        assertEquals(exceptionMessage, exception.getErrorMessage());
+    }
+
+    @Test
     void shouldDeletePlatformAndCryptosInThatPlatform() {
         var platformEntity = MockData.getPlatform("Ledger");
         var userCryptos = Collections.singletonList(MockData.getUserCrypto());
@@ -157,6 +185,18 @@ class PlatformServiceImplTest {
                 () -> verify(userCryptoRepositoryMock, times(1)).deleteAllById(cryptoIds),
                 () -> verify(platformRepositoryMock, times(1)).delete(platformEntity)
         );
+    }
+
+    @Test
+    void shouldThrowPlatformNotFoundExceptionWhenDeletingPlatform() {
+        var expectedMessage = String.format(PLATFORM_NOT_FOUND, "Ledger");
+
+        when(platformRepositoryMock.findByName("LEDGER")).thenReturn(Optional.empty());
+
+        var exception = assertThrows(PlatformNotFoundException.class,
+                () -> platformService.deletePlatform("Ledger"));
+
+        assertEquals(expectedMessage, exception.getErrorMessage());
     }
 
     @Test

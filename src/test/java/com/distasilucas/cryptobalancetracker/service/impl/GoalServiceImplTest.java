@@ -28,6 +28,7 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -232,5 +233,19 @@ class GoalServiceImplTest {
         var exception = assertThrows(GoalNotFoundException.class, () -> goalService.deleteGoal(mongoEntityId));
 
         assertEquals(expectedMessage, exception.getErrorMessage());
+    }
+
+    @Test
+    void shouldFindByCryptoId() {
+        var goal = Goal.builder()
+                .cryptoId("bitcoin")
+                .build();
+
+        when(goalRepositoryMock.findByCryptoId("bitcoin"))
+                .thenReturn(Optional.of(goal));
+
+        var savedGoal = goalService.findByCryptoId("bitcoin");
+
+        assertTrue(savedGoal.isPresent());
     }
 }
