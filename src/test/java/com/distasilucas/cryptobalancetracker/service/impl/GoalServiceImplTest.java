@@ -9,6 +9,7 @@ import com.distasilucas.cryptobalancetracker.model.request.goal.AddGoalRequest;
 import com.distasilucas.cryptobalancetracker.model.request.goal.UpdateGoalRequest;
 import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
 import com.distasilucas.cryptobalancetracker.repository.GoalRepository;
+import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import com.distasilucas.cryptobalancetracker.service.GoalService;
 import com.distasilucas.cryptobalancetracker.validation.UtilValidations;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
@@ -45,7 +46,7 @@ class GoalServiceImplTest {
     UtilValidations utilValidationsMock;
 
     @Mock
-    CryptoServiceImpl cryptoServiceMock;
+    CryptoService cryptoServiceMock;
 
     @Mock
     EntityMapper<Goal, AddGoalRequest> addGoalRequestMapperMock;

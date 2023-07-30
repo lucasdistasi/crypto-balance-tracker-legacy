@@ -159,18 +159,21 @@ class CryptoPlatformValidatorTest {
     void shouldThrowApiValidationExceptionWhenUpdateWithDifferentPlatform() {
         var updateCryptoRequest = new UpdateCryptoRequest("ABC1234", BigDecimal.valueOf(0.35), "Trezor");
         var platform = MockData.getPlatform("Trezor");
-        var userCrypto = UserCrypto.builder()
+        var cryptoToUpdate = UserCrypto.builder()
+                .id("ABC1234")
                 .cryptoId("bitcoin")
-                .platformId(platform.getId())
+                .platformId("4321")
+                .build();
+        var anotherCrypto = UserCrypto.builder()
                 .build();
         var expectedMessage = String.format(DUPLICATED_PLATFORM_CRYPTO, platform.getName());
 
         when(platformServiceMock.findByName("TREZOR"))
                 .thenReturn(Optional.of(platform));
-        when(userCryptoServiceMock.findById(updateCryptoRequest.getCryptoId()))
-                .thenReturn(Optional.of(userCrypto));
-        when(userCryptoServiceMock.findByCryptoIdAndPlatformId(userCrypto.getCryptoId(), platform.getId()))
-                .thenReturn(Optional.of(userCrypto));
+        when(userCryptoServiceMock.findById("ABC1234"))
+                .thenReturn(Optional.of(cryptoToUpdate));
+        when(userCryptoServiceMock.findByCryptoIdAndPlatformId("bitcoin", "1234"))
+                .thenReturn(Optional.of(anotherCrypto));
 
         var apiValidationException = assertThrows(ApiValidationException.class,
                 () -> updateCryptoRequestEntityValidation.validate(updateCryptoRequest));

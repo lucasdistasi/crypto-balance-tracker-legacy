@@ -13,8 +13,8 @@ import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import com.distasilucas.cryptobalancetracker.validation.EntityValidation;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -26,26 +26,33 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class CryptoPlatformValidator<T extends CryptoRequest> implements EntityValidation<T> {
 
     private final CoingeckoService coingeckoService;
     private final PlatformService platformService;
     private final UserCryptoService userCryptoService;
 
+    public CryptoPlatformValidator(CoingeckoService coingeckoService,
+                                   PlatformService platformService,
+                                   @Lazy UserCryptoService userCryptoService) {
+        this.coingeckoService = coingeckoService;
+        this.platformService = platformService;
+        this.userCryptoService = userCryptoService;
+    }
+
     @Override
     public void validate(T cryptoRequest) {
         String platformName = cryptoRequest.getPlatform().toUpperCase();
-        Optional<Platform> optionalPlatform = platformService.findByName(platformName);
+        Optional<Platform> requestOptionalPlatform = platformService.findByName(platformName);
 
-        if (optionalPlatform.isEmpty()) {
+        if (requestOptionalPlatform.isEmpty()) {
             log.info("Platform {} does not exists", cryptoRequest.getPlatform());
             String message = String.format(PLATFORM_NOT_FOUND, cryptoRequest.getPlatform());
 
             throw new PlatformNotFoundException(message);
         }
 
-        Platform platform = optionalPlatform.get();
+        Platform requestPlatform = requestOptionalPlatform.get();
 
         if (cryptoRequest instanceof AddCryptoRequest addCryptoRequest) {
             Coin coin = coingeckoService.retrieveAllCoins()
@@ -58,10 +65,10 @@ public class CryptoPlatformValidator<T extends CryptoRequest> implements EntityV
                         return new CryptoNotFoundException(message);
                     });
 
-            Optional<UserCrypto> optionalCrypto = userCryptoService.findByCryptoIdAndPlatformId(coin.getId(), platform.getId());
+            Optional<UserCrypto> optionalCrypto = userCryptoService.findByCryptoIdAndPlatformId(coin.getId(), requestPlatform.getId());
 
             optionalCrypto.ifPresent(crypto -> {
-                String message = String.format(DUPLICATED_PLATFORM_CRYPTO, platform.getName());
+                String message = String.format(DUPLICATED_PLATFORM_CRYPTO, requestPlatform.getName());
 
                 throw new ApiValidationException(message);
             });
@@ -69,19 +76,19 @@ public class CryptoPlatformValidator<T extends CryptoRequest> implements EntityV
 
         if (cryptoRequest instanceof UpdateCryptoRequest updateCryptoRequest) {
             String cryptoId = updateCryptoRequest.getCryptoId();
-            Optional<UserCrypto> currentCrypto = userCryptoService.findById(cryptoId);
+            Optional<UserCrypto> optionalRequestCrypto = userCryptoService.findById(cryptoId);
 
-            if (currentCrypto.isEmpty()) {
+            if (optionalRequestCrypto.isEmpty()) {
                 String message = String.format(CRYPTO_ID_NOT_FOUND, cryptoId);
 
                 throw new CryptoNotFoundException(message);
             }
 
-            if (!isSamePlatform(currentCrypto.get(), updateCryptoRequest, platform)) {
-                Optional<UserCrypto> optionalUserCrypto = userCryptoService.findByCryptoIdAndPlatformId(currentCrypto.get().getCryptoId(), platform.getId());
+            if (didChangePlatform(optionalRequestCrypto.get(), requestPlatform)) {
+                Optional<UserCrypto> optionalUserCrypto = userCryptoService.findByCryptoIdAndPlatformId(optionalRequestCrypto.get().getCryptoId(), requestPlatform.getId());
 
                 if (optionalUserCrypto.isPresent()) {
-                    String message = String.format(DUPLICATED_PLATFORM_CRYPTO, platform.getName());
+                    String message = String.format(DUPLICATED_PLATFORM_CRYPTO, requestPlatform.getName());
 
                     throw new ApiValidationException(message);
                 }
@@ -89,8 +96,7 @@ public class CryptoPlatformValidator<T extends CryptoRequest> implements EntityV
         }
     }
 
-    private boolean isSamePlatform(UserCrypto crypto, UpdateCryptoRequest updateCryptoRequest, Platform platform) {
-        return crypto.getCryptoId().equals(updateCryptoRequest.getCryptoId()) &&
-                crypto.getPlatformId().equals(platform.getId());
+    private boolean didChangePlatform(UserCrypto requestCrypto, Platform requestPlatform) {
+        return !requestCrypto.getPlatformId().equals(requestPlatform.getId());
     }
 }

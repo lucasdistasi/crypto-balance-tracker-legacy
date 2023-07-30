@@ -14,6 +14,7 @@ import com.distasilucas.cryptobalancetracker.validation.Validation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,7 +26,6 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class PlatformServiceImpl implements PlatformService {
 
     private final UtilValidations utilValidations;
@@ -34,6 +34,20 @@ public class PlatformServiceImpl implements PlatformService {
     private final Validation<PlatformRequest> addPlatformValidation;
     private final EntityMapper<Platform, PlatformRequest> platformMapperImpl;
     private final EntityMapper<PlatformResponse, Platform> platformResponseMapperImpl;
+
+    public PlatformServiceImpl(UtilValidations utilValidations,
+                               PlatformRepository platformRepository,
+                               @Lazy UserCryptoService userCryptoService,
+                               Validation<PlatformRequest> addPlatformValidation,
+                               EntityMapper<Platform, PlatformRequest> platformMapperImpl,
+                               EntityMapper<PlatformResponse, Platform> platformResponseMapperImpl) {
+        this.utilValidations = utilValidations;
+        this.platformRepository = platformRepository;
+        this.userCryptoService = userCryptoService;
+        this.addPlatformValidation = addPlatformValidation;
+        this.platformMapperImpl = platformMapperImpl;
+        this.platformResponseMapperImpl = platformResponseMapperImpl;
+    }
 
     @Override
     public Optional<Platform> findById(String id) {

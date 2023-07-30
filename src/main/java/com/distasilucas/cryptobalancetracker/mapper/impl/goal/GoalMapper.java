@@ -12,6 +12,7 @@ import com.distasilucas.cryptobalancetracker.model.request.goal.UpdateGoalReques
 import com.distasilucas.cryptobalancetracker.service.GoalService;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,11 +23,16 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.GOAL_ID_NOT_FOUND;
 
 @Service
-@RequiredArgsConstructor
 public class GoalMapper<T extends GoalRequest> implements EntityMapper<Goal, T> {
 
     private final GoalService goalService;
     private final CoingeckoService coingeckoService;
+
+    public GoalMapper(@Lazy GoalService goalService,
+                      CoingeckoService coingeckoService) {
+        this.goalService = goalService;
+        this.coingeckoService = coingeckoService;
+    }
 
     @Override
     public Goal mapFrom(T input) {

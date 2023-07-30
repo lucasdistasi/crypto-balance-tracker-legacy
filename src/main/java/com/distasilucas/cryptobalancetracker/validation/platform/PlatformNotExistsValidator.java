@@ -6,6 +6,7 @@ import com.distasilucas.cryptobalancetracker.model.request.platform.PlatformRequ
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import com.distasilucas.cryptobalancetracker.validation.EntityValidation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -13,10 +14,13 @@ import java.util.Optional;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.DUPLICATED_PLATFORM;
 
 @Service
-@RequiredArgsConstructor
 public class PlatformNotExistsValidator implements EntityValidation<PlatformRequest> {
 
     private final PlatformService platformService;
+
+    public PlatformNotExistsValidator(@Lazy PlatformService platformService) {
+        this.platformService = platformService;
+    }
 
     @Override
     public void validate(PlatformRequest platformRequest) {
