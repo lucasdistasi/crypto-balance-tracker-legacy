@@ -5,10 +5,13 @@ import com.distasilucas.cryptobalancetracker.model.request.platform.PlatformRequ
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PlatformService {
 
-    List<PlatformResponse> getAllPlatforms();
+    Optional<Platform> findById(String id);
+    Optional<Platform> findByName(String name);
+    List<PlatformResponse> getAllPlatformsResponse();
     PlatformResponse addPlatForm(PlatformRequest platform);
     Platform findPlatformByName(String platformName);
     PlatformResponse updatePlatform(String platformName, PlatformRequest platformRequest);

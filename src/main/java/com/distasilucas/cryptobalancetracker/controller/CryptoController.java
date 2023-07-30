@@ -40,7 +40,7 @@ public class CryptoController implements CryptoControllerApi, ControllerHelper {
     @Override
     @GetMapping("/{id}")
     public ResponseEntity<UserCryptoResponse> getCrypto(@PathVariable String id) {
-        UserCryptoResponse crypto = userCryptoService.getCrypto(id);
+        UserCryptoResponse crypto = userCryptoService.getUserCryptoResponse(id);
 
         return ResponseEntity.ok(crypto);
     }
@@ -68,7 +68,7 @@ public class CryptoController implements CryptoControllerApi, ControllerHelper {
     @PutMapping("/{cryptoId}")
     public ResponseEntity<UserCryptoResponse> updateCrypto(@RequestBody UpdateCryptoRequest updateCryptoRequest,
                                                            @PathVariable String cryptoId) {
-        UserCryptoResponse updatedCrypto = userCryptoService.updateCrypto(updateCryptoRequest, cryptoId);
+        UserCryptoResponse updatedCrypto = userCryptoService.updateUserCrypto(updateCryptoRequest, cryptoId);
 
         return ResponseEntity.ok(updatedCrypto);
     }
@@ -76,7 +76,7 @@ public class CryptoController implements CryptoControllerApi, ControllerHelper {
     @Override
     @DeleteMapping("/{cryptoId}")
     public ResponseEntity<Void> deleteCrypto(@PathVariable String cryptoId) {
-        userCryptoService.deleteCrypto(cryptoId);
+        userCryptoService.deleteUserCrypto(cryptoId);
 
         return ResponseEntity.noContent().build();
     }

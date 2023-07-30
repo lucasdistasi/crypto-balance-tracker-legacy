@@ -1,25 +1,49 @@
 package com.distasilucas.cryptobalancetracker.service.impl;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.Goal;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoinInfo;
 import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
+import com.distasilucas.cryptobalancetracker.service.CryptoService;
+import com.distasilucas.cryptobalancetracker.service.GoalService;
+import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class CryptoServiceImpl {
+public class CryptoServiceImpl implements CryptoService {
 
     private final Clock clock;
     private final CryptoRepository cryptoRepository;
+    private final GoalService goalService;
+    private final UserCryptoService userCryptoService;
     private final CoingeckoService coingeckoService;
 
+    @Override
+    public Optional<Crypto> findById(String cryptoId) {
+        return cryptoRepository.findById(cryptoId);
+    }
+
+    @Override
+    public List<Crypto> findAllById(List<String> cryptoIds) {
+        return cryptoRepository.findAllById(cryptoIds);
+    }
+
+    @Override
+    public void saveAllCryptos(List<Crypto> cryptosToSave) {
+        cryptoRepository.saveAll(cryptosToSave);
+    }
+
+    @Override
     public void saveCryptoIfNotExists(String cryptoId) {
         Optional<Crypto> optionalCrypto = cryptoRepository.findById(cryptoId);
 
@@ -43,8 +67,18 @@ public class CryptoServiceImpl {
         }
     }
 
-    // TODO
+    @Override
     public void deleteCryptoIfNotUsed(String cryptoId) {
+        Optional<Goal> optionalGoal = goalService.findByCryptoId(cryptoId);
+        Optional<UserCrypto> optionalUserCrypto = userCryptoService.findFirstByCryptoId(cryptoId);
 
+        if (optionalGoal.isEmpty() && optionalUserCrypto.isEmpty()) {
+            findById(cryptoId).ifPresent(cryptoRepository::delete);
+        }
+    }
+
+    @Override
+    public List<Crypto> findTopNCryptosOrderByLastPriceUpdatedAtAsc(LocalDateTime dateFilter, int limit) {
+        return cryptoRepository.findTopNCryptosOrderByLastPriceUpdatedAtAsc(dateFilter, limit);
     }
 }

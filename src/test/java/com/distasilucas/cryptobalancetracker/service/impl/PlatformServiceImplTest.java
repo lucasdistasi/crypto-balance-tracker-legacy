@@ -8,8 +8,8 @@ import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.request.platform.PlatformRequest;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
-import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
+import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
 import com.distasilucas.cryptobalancetracker.validation.UtilValidations;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,10 +38,13 @@ import static org.mockito.Mockito.when;
 class PlatformServiceImplTest {
 
     @Mock
+    UtilValidations utilValidationsMock;
+
+    @Mock
     PlatformRepository platformRepositoryMock;
 
     @Mock
-    UserCryptoRepository userCryptoRepositoryMock;
+    UserCryptoService userCryptoServiceMock;
 
     @Mock
     Validation<PlatformRequest> addPlatformValidationMock;
@@ -52,14 +55,11 @@ class PlatformServiceImplTest {
     @Mock
     EntityMapper<PlatformResponse, Platform> platformResponseMapperImplMock;
 
-    @Mock
-    UtilValidations utilValidationsMock;
-
     PlatformService platformService;
 
     @BeforeEach
     void setUp() {
-        platformService = new PlatformServiceImpl(utilValidationsMock, platformRepositoryMock, userCryptoRepositoryMock, addPlatformValidationMock,
+        platformService = new PlatformServiceImpl(utilValidationsMock, platformRepositoryMock, userCryptoServiceMock, addPlatformValidationMock,
                 platformMapperImplMock, platformResponseMapperImplMock);
     }
 
@@ -72,7 +72,7 @@ class PlatformServiceImplTest {
 
         when(platformRepositoryMock.findAll()).thenReturn(Collections.singletonList(platform));
 
-        var allPlatforms = platformService.getAllPlatforms();
+        var allPlatforms = platformService.getAllPlatformsResponse();
 
         assertAll(
                 () -> assertFalse(allPlatforms.isEmpty()),
@@ -149,12 +149,12 @@ class PlatformServiceImplTest {
                 .collect(Collectors.toUnmodifiableSet());
 
         when(platformRepositoryMock.findByName("LEDGER")).thenReturn(Optional.of(platformEntity));
-        when(userCryptoRepositoryMock.findAllByPlatformId("1234")).thenReturn(Optional.of(userCryptos));
+        when(userCryptoServiceMock.findAllByPlatformId("1234")).thenReturn(Optional.of(userCryptos));
 
         platformService.deletePlatform("Ledger");
 
         assertAll(
-                () -> verify(userCryptoRepositoryMock, times(1)).deleteAllById(cryptoIds),
+                () -> verify(userCryptoServiceMock, times(1)).deleteAllUserCryptosById(cryptoIds),
                 () -> verify(platformRepositoryMock, times(1)).delete(platformEntity)
         );
     }
@@ -164,12 +164,12 @@ class PlatformServiceImplTest {
         var platformEntity = MockData.getPlatform("Ledger");
 
         when(platformRepositoryMock.findByName("LEDGER")).thenReturn(Optional.of(platformEntity));
-        when(userCryptoRepositoryMock.findAllByPlatformId("1234")).thenReturn(Optional.empty());
+        when(userCryptoServiceMock.findAllByPlatformId("1234")).thenReturn(Optional.empty());
 
         platformService.deletePlatform("Ledger");
 
         assertAll(
-                () -> verify(userCryptoRepositoryMock, never()).deleteAllById(any()),
+                () -> verify(userCryptoServiceMock, never()).deleteAllUserCryptosById(any()),
                 () -> verify(platformRepositoryMock, times(1)).delete(platformEntity)
         );
     }

@@ -1,14 +1,14 @@
 package com.distasilucas.cryptobalancetracker.service.impl;
 
-import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.request.platform.PlatformRequest;
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
-import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
 import com.distasilucas.cryptobalancetracker.service.PlatformService;
+import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
 import com.distasilucas.cryptobalancetracker.validation.UtilValidations;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
 import lombok.RequiredArgsConstructor;
@@ -30,13 +30,26 @@ public class PlatformServiceImpl implements PlatformService {
 
     private final UtilValidations utilValidations;
     private final PlatformRepository platformRepository;
-    private final UserCryptoRepository userCryptoRepository;
+    private final UserCryptoService userCryptoService;
     private final Validation<PlatformRequest> addPlatformValidation;
     private final EntityMapper<Platform, PlatformRequest> platformMapperImpl;
     private final EntityMapper<PlatformResponse, Platform> platformResponseMapperImpl;
 
     @Override
-    public List<PlatformResponse> getAllPlatforms() {
+    public Optional<Platform> findById(String id) {
+        return platformRepository.findById(id);
+    }
+
+    @Override
+    public Optional<Platform> findByName(String name) {
+        utilValidations.validatePlatformNameFormat(name);
+        String platformName = name.toUpperCase();
+
+        return platformRepository.findByName(platformName);
+    }
+
+    @Override
+    public List<PlatformResponse> getAllPlatformsResponse() {
         return platformRepository.findAll()
                 .stream()
                 .map(platformResponseMapperImpl::mapFrom)
@@ -73,8 +86,12 @@ public class PlatformServiceImpl implements PlatformService {
     @Override
     public PlatformResponse updatePlatform(String platformName, PlatformRequest platformRequest) {
         addPlatformValidation.validate(platformRequest);
+        Platform platform = findByName(platformName)
+                .orElseThrow(() -> {
+                    String message = String.format(PLATFORM_NOT_FOUND, platformName);
 
-        Platform platform = findPlatformByName(platformName);
+                    return new PlatformNotFoundException(message);
+                });
         String newPlatformName = platformRequest.getName();
         platform.setName(newPlatformName);
 
@@ -87,15 +104,20 @@ public class PlatformServiceImpl implements PlatformService {
 
     @Override
     public void deletePlatform(String platformName) {
-        Platform platform = findPlatformByName(platformName);
-        Optional<List<UserCrypto>> cryptosToDelete = userCryptoRepository.findAllByPlatformId(platform.getId());
+        Platform platform = findByName(platformName)
+                .orElseThrow(() -> {
+                    String message = String.format(PLATFORM_NOT_FOUND, platformName);
+
+                    return new PlatformNotFoundException(message);
+                });
+        Optional<List<UserCrypto>> cryptosToDelete = userCryptoService.findAllByPlatformId(platform.getId());
 
         if (cryptosToDelete.isPresent() && CollectionUtils.isNotEmpty(cryptosToDelete.get())) {
             Map<String, String> cryptos = cryptosToDelete.get()
                     .stream()
                     .collect(Collectors.toUnmodifiableMap(UserCrypto::getId, UserCrypto::getCryptoId));
 
-            userCryptoRepository.deleteAllById(cryptos.keySet());
+            userCryptoService.deleteAllUserCryptosById(cryptos.keySet());
             log.info("Deleted {} in platform {}", cryptos.values(), platformName);
         }
 

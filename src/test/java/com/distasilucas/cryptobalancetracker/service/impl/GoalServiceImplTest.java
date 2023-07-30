@@ -81,7 +81,7 @@ class GoalServiceImplTest {
         when(goalRepositoryMock.findById("ABC123")).thenReturn(Optional.of(goal));
         when(goalResponseMapperMock.mapFrom(goal)).thenReturn(mockGoalResponse);
 
-        var goalResponse = goalService.getGoal("ABC123");
+        var goalResponse = goalService.getGoalResponse("ABC123");
 
         assertAll(
                 () -> assertEquals(mockGoalResponse.goalId(), goalResponse.goalId()),
@@ -99,7 +99,7 @@ class GoalServiceImplTest {
 
         doThrow(apiValidationException).when(utilValidationsMock).validateIdMongoEntityFormat(INVALID_MONGO_ID);
 
-        var exception = assertThrows(ApiValidationException.class, () -> goalService.getGoal(INVALID_MONGO_ID));
+        var exception = assertThrows(ApiValidationException.class, () -> goalService.getGoalResponse(INVALID_MONGO_ID));
 
         assertEquals(INVALID_ID_MONGO_FORMAT, exception.getErrorMessage());
     }
@@ -110,7 +110,7 @@ class GoalServiceImplTest {
 
         when(goalRepositoryMock.findById("ABC123")).thenReturn(Optional.empty());
 
-        var exception = assertThrows(GoalNotFoundException.class, () -> goalService.getGoal("ABC123"));
+        var exception = assertThrows(GoalNotFoundException.class, () -> goalService.getGoalResponse("ABC123"));
 
         assertEquals(expectedMessage, exception.getErrorMessage());
     }
@@ -124,7 +124,7 @@ class GoalServiceImplTest {
         when(goalRepositoryMock.findAll()).thenReturn(goals);
         when(goalResponseMapperMock.mapFrom(goal)).thenReturn(goalResponse);
 
-        var allGoals = goalService.getAllGoals();
+        var allGoals = goalService.getAllGoalsResponse();
 
         verify(goalResponseMapperMock, times(1)).mapFrom(any());
         assertAll(
@@ -142,7 +142,7 @@ class GoalServiceImplTest {
     void shouldReturnEmptyListIfNoGoalsFound() {
         when(goalRepositoryMock.findAll()).thenReturn(Collections.emptyList());
 
-        var allGoals = goalService.getAllGoals();
+        var allGoals = goalService.getAllGoalsResponse();
 
         verify(goalResponseMapperMock, never()).mapFrom(any());
         assertAll(

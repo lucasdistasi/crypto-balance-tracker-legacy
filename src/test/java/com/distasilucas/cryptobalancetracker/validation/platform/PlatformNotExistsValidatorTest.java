@@ -3,7 +3,7 @@ package com.distasilucas.cryptobalancetracker.validation.platform;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
 import com.distasilucas.cryptobalancetracker.model.request.platform.PlatformRequest;
-import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
+import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import com.distasilucas.cryptobalancetracker.validation.EntityValidation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,20 +22,20 @@ import static org.mockito.Mockito.when;
 class PlatformNotExistsValidatorTest {
 
     @Mock
-    PlatformRepository platformRepositoryMock;
+    PlatformService platformServiceMock;
 
     EntityValidation<PlatformRequest> entityValidation;
 
     @BeforeEach
     void setUp() {
-        entityValidation = new PlatformNotExistsValidator(platformRepositoryMock);
+        entityValidation = new PlatformNotExistsValidator(platformServiceMock);
     }
 
     @Test
     void shouldValidateSuccessfully() {
         var platformRequest = new PlatformRequest("TREZOR");
 
-        when(platformRepositoryMock.findByName(platformRequest.getName())).thenReturn(Optional.empty());
+        when(platformServiceMock.findByName(platformRequest.getName())).thenReturn(Optional.empty());
 
         entityValidation.validate(platformRequest);
     }
@@ -48,7 +48,7 @@ class PlatformNotExistsValidatorTest {
                 .name(platformRequest.getName())
                 .build();
 
-        when(platformRepositoryMock.findByName(platformRequest.getName())).thenReturn(Optional.of(platform));
+        when(platformServiceMock.findByName(platformRequest.getName())).thenReturn(Optional.of(platform));
 
         var apiValidationException = assertThrows(ApiValidationException.class,
                 () -> entityValidation.validate(platformRequest)

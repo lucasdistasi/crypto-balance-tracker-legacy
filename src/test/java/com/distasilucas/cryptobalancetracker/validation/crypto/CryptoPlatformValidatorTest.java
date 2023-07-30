@@ -8,8 +8,8 @@ import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException
 import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.UpdateCryptoRequest;
-import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
-import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
+import com.distasilucas.cryptobalancetracker.service.PlatformService;
+import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import com.distasilucas.cryptobalancetracker.validation.EntityValidation;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,18 +37,18 @@ class CryptoPlatformValidatorTest {
     CoingeckoService coingeckoServiceMock;
 
     @Mock
-    UserCryptoRepository userCryptoRepositoryMock;
+    PlatformService platformServiceMock;
 
     @Mock
-    PlatformRepository platformRepositoryMock;
+    UserCryptoService userCryptoServiceMock;
 
     EntityValidation<AddCryptoRequest> addCryptoRequestEntityValidation;
     EntityValidation<UpdateCryptoRequest> updateCryptoRequestEntityValidation;
 
     @BeforeEach
     void setUp() {
-        addCryptoRequestEntityValidation = new CryptoPlatformValidator<>(coingeckoServiceMock, platformRepositoryMock, userCryptoRepositoryMock);
-        updateCryptoRequestEntityValidation = new CryptoPlatformValidator<>(coingeckoServiceMock, platformRepositoryMock, userCryptoRepositoryMock);
+        addCryptoRequestEntityValidation = new CryptoPlatformValidator<>(coingeckoServiceMock, platformServiceMock, userCryptoServiceMock);
+        updateCryptoRequestEntityValidation = new CryptoPlatformValidator<>(coingeckoServiceMock, platformServiceMock, userCryptoServiceMock);
     }
 
     @Test
@@ -58,7 +58,7 @@ class CryptoPlatformValidatorTest {
         var coin = new Coin("ethereum", "ETH", "Ethereum");
 
         when(coingeckoServiceMock.retrieveAllCoins()).thenReturn(Collections.singletonList(coin));
-        when(platformRepositoryMock.findByName(addCryptoRequest.getPlatform().toUpperCase()))
+        when(platformServiceMock.findByName(addCryptoRequest.getPlatform().toUpperCase()))
                 .thenReturn(Optional.of(platform));
 
         addCryptoRequestEntityValidation.validate(addCryptoRequest);
@@ -70,7 +70,7 @@ class CryptoPlatformValidatorTest {
         var platform = MockData.getPlatform("Ledger");
         var expectedMessage = String.format(CRYPTO_NAME_NOT_FOUND, "Ethereum");
 
-        when(platformRepositoryMock.findByName("LEDGER")).thenReturn(Optional.of(platform));
+        when(platformServiceMock.findByName("LEDGER")).thenReturn(Optional.of(platform));
 
         var cryptoNotFoundException = assertThrows(CryptoNotFoundException.class,
                 () -> addCryptoRequestEntityValidation.validate(addCryptoRequest));
@@ -82,7 +82,7 @@ class CryptoPlatformValidatorTest {
     void shouldThrowPlatformNotFoundExceptionWhenValidatingForAdd() {
         var addCryptoRequest = MockData.getAddCryptoRequest();
 
-        when(platformRepositoryMock.findByName(addCryptoRequest.getPlatform().toUpperCase()))
+        when(platformServiceMock.findByName(addCryptoRequest.getPlatform().toUpperCase()))
                 .thenReturn(Optional.empty());
 
         var platformNotFoundException = assertThrows(PlatformNotFoundException.class,
@@ -102,9 +102,9 @@ class CryptoPlatformValidatorTest {
         var userCrypto = MockData.getUserCrypto();
 
         when(coingeckoServiceMock.retrieveAllCoins()).thenReturn(Collections.singletonList(coin));
-        when(platformRepositoryMock.findByName(addCryptoRequest.getPlatform().toUpperCase()))
+        when(platformServiceMock.findByName(addCryptoRequest.getPlatform().toUpperCase()))
                 .thenReturn(Optional.of(platform));
-        when(userCryptoRepositoryMock.findByCryptoIdAndPlatformId(coin.getId(), platform.getId()))
+        when(userCryptoServiceMock.findByCryptoIdAndPlatformId(coin.getId(), platform.getId()))
                 .thenReturn(Optional.of(userCrypto));
 
         var apiValidationException = assertThrows(ApiValidationException.class,
@@ -122,8 +122,8 @@ class CryptoPlatformValidatorTest {
         var platform = MockData.getPlatform("Safepal");
         var crypto = MockData.getUserCrypto("1234");
 
-        when(platformRepositoryMock.findByName("SAFEPAL")).thenReturn(Optional.of(platform));
-        when(userCryptoRepositoryMock.findById("ABC1234")).thenReturn(Optional.of(crypto));
+        when(platformServiceMock.findByName("SAFEPAL")).thenReturn(Optional.of(platform));
+        when(userCryptoServiceMock.findById("ABC1234")).thenReturn(Optional.of(crypto));
 
         updateCryptoRequestEntityValidation.validate(updateCryptoRequest);
     }
@@ -134,8 +134,8 @@ class CryptoPlatformValidatorTest {
         var platform = MockData.getPlatform("Trezor");
         var crypto = MockData.getUserCrypto("5678");
 
-        when(platformRepositoryMock.findByName("TREZOR")).thenReturn(Optional.of(platform));
-        when(userCryptoRepositoryMock.findById("ABC1234")).thenReturn(Optional.of(crypto));
+        when(platformServiceMock.findByName("TREZOR")).thenReturn(Optional.of(platform));
+        when(userCryptoServiceMock.findById("ABC1234")).thenReturn(Optional.of(crypto));
 
         updateCryptoRequestEntityValidation.validate(updateCryptoRequest);
     }
@@ -146,8 +146,8 @@ class CryptoPlatformValidatorTest {
         var platform = MockData.getPlatform("Safepal");
         var expectedMessage = String.format(CRYPTO_ID_NOT_FOUND, "ABC1234");
 
-        when(platformRepositoryMock.findByName("SAFEPAL")).thenReturn(Optional.of(platform));
-        when(userCryptoRepositoryMock.findById("ABC1234")).thenReturn(Optional.empty());
+        when(platformServiceMock.findByName("SAFEPAL")).thenReturn(Optional.of(platform));
+        when(userCryptoServiceMock.findById("ABC1234")).thenReturn(Optional.empty());
 
         var cryptoNotFoundException = assertThrows(CryptoNotFoundException.class,
                 () -> updateCryptoRequestEntityValidation.validate(updateCryptoRequest));
@@ -165,11 +165,11 @@ class CryptoPlatformValidatorTest {
                 .build();
         var expectedMessage = String.format(DUPLICATED_PLATFORM_CRYPTO, platform.getName());
 
-        when(platformRepositoryMock.findByName("TREZOR"))
+        when(platformServiceMock.findByName("TREZOR"))
                 .thenReturn(Optional.of(platform));
-        when(userCryptoRepositoryMock.findById(updateCryptoRequest.getCryptoId()))
+        when(userCryptoServiceMock.findById(updateCryptoRequest.getCryptoId()))
                 .thenReturn(Optional.of(userCrypto));
-        when(userCryptoRepositoryMock.findByCryptoIdAndPlatformId(userCrypto.getCryptoId(), platform.getId()))
+        when(userCryptoServiceMock.findByCryptoIdAndPlatformId(userCrypto.getCryptoId(), platform.getId()))
                 .thenReturn(Optional.of(userCrypto));
 
         var apiValidationException = assertThrows(ApiValidationException.class,

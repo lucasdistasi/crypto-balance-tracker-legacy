@@ -10,9 +10,9 @@ import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.UpdateCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.UserCryptoResponse;
-import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
 import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
-import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
+import com.distasilucas.cryptobalancetracker.service.CryptoService;
+import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
 import com.distasilucas.cryptobalancetracker.validation.UtilValidations;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
@@ -52,7 +52,7 @@ class UserCryptoServiceImplTest {
     UtilValidations utilValidationsMock;
 
     @Mock
-    CryptoServiceImpl cryptoServiceMock;
+    CryptoService cryptoServiceMock;
 
     @Mock
     EntityMapper<UserCrypto, AddCryptoRequest> cryptoMapperImplMock;
@@ -61,13 +61,10 @@ class UserCryptoServiceImplTest {
     EntityMapper<UserCryptoResponse, UserCrypto> cryptoResponseMapperImplMock;
 
     @Mock
-    CryptoRepository cryptoRepositoryMock;
-
-    @Mock
     UserCryptoRepository userCryptoRepositoryMock;
 
     @Mock
-    PlatformRepository platformRepository;
+    PlatformService platformServiceMock;
 
     @Mock
     Validation<AddCryptoRequest> addCryptoValidationMock;
@@ -80,8 +77,8 @@ class UserCryptoServiceImplTest {
     @BeforeEach
     void setUp() {
         userCryptoService = new UserCryptoServiceImpl(utilValidationsMock, cryptoServiceMock, cryptoMapperImplMock,
-                cryptoResponseMapperImplMock, cryptoRepositoryMock, userCryptoRepositoryMock, platformRepository,
-                addCryptoValidationMock, updateCryptoValidationMock);
+                cryptoResponseMapperImplMock, userCryptoRepositoryMock, platformServiceMock, addCryptoValidationMock,
+                updateCryptoValidationMock);
     }
 
     @Test
@@ -93,10 +90,10 @@ class UserCryptoServiceImplTest {
         var platform = MockData.getPlatform();
 
         when(userCryptoRepositoryMock.findById("ABC1234")).thenReturn(Optional.of(userCrypto));
-        when(platformRepository.findById("1234")).thenReturn(Optional.of(platform));
-        when(cryptoRepositoryMock.findById(userCrypto.getCryptoId())).thenReturn(Optional.of(crypto));
+        when(platformServiceMock.findById("1234")).thenReturn(Optional.of(platform));
+        when(cryptoServiceMock.findById(userCrypto.getCryptoId())).thenReturn(Optional.of(crypto));
 
-        var cryptoResponse = userCryptoService.getCrypto(userCrypto.getId());
+        var cryptoResponse = userCryptoService.getUserCryptoResponse(userCrypto.getId());
 
         assertAll(
                 () -> assertEquals("Bitcoin", cryptoResponse.getCryptoName()),
@@ -114,10 +111,10 @@ class UserCryptoServiceImplTest {
                 .build();
 
         when(userCryptoRepositoryMock.findById("1234")).thenReturn(Optional.of(userCrypto));
-        when(platformRepository.findById("1234")).thenReturn(Optional.empty());
-        when(cryptoRepositoryMock.findById(userCrypto.getCryptoId())).thenReturn(Optional.of(crypto));
+        when(platformServiceMock.findById("1234")).thenReturn(Optional.empty());
+        when(cryptoServiceMock.findById(userCrypto.getCryptoId())).thenReturn(Optional.of(crypto));
 
-        var cryptoResponse = userCryptoService.getCrypto("1234");
+        var cryptoResponse = userCryptoService.getUserCryptoResponse("1234");
 
         assertAll(
                 () -> assertEquals("Bitcoin", cryptoResponse.getCryptoName()),
@@ -132,7 +129,7 @@ class UserCryptoServiceImplTest {
         when(userCryptoRepositoryMock.findById("1234")).thenReturn(Optional.empty());
 
         var cryptoNotFoundException = assertThrows(CryptoNotFoundException.class,
-                () -> userCryptoService.getCrypto("1234"));
+                () -> userCryptoService.getUserCryptoResponse("1234"));
 
         assertAll(
                 () -> assertEquals(String.format(CRYPTO_ID_NOT_FOUND, "1234"), cryptoNotFoundException.getErrorMessage()),
@@ -220,10 +217,10 @@ class UserCryptoServiceImplTest {
 
         doNothing().when(updateCryptoValidationMock).validate(newCryptoRequest);
         when(userCryptoRepositoryMock.findById("ABC123")).thenReturn(Optional.of(existingCrypto));
-        when(platformRepository.findByName(newCryptoRequest.getPlatform())).thenReturn(Optional.of(platform));
+        when(platformServiceMock.findByName(newCryptoRequest.getPlatform())).thenReturn(Optional.of(platform));
         when(cryptoResponseMapperImplMock.mapFrom(existingCrypto)).thenReturn(newCryptoResponse);
 
-        var cryptoResponse = userCryptoService.updateCrypto(newCryptoRequest, "ABC123");
+        var cryptoResponse = userCryptoService.updateUserCrypto(newCryptoRequest, "ABC123");
 
         assertAll(
                 () -> verify(updateCryptoValidationMock, times(1)).validate(newCryptoRequest),
@@ -241,7 +238,7 @@ class UserCryptoServiceImplTest {
         when(userCryptoRepositoryMock.findById("ABC123")).thenReturn(Optional.empty());
 
         var cryptoNotFoundException = assertThrows(CryptoNotFoundException.class,
-                () -> userCryptoService.updateCrypto(cryptoRequest, "ABC123"));
+                () -> userCryptoService.updateUserCrypto(cryptoRequest, "ABC123"));
 
         assertAll(
                 () -> assertEquals(CRYPTO_NOT_FOUND, cryptoNotFoundException.getErrorMessage())
@@ -257,10 +254,10 @@ class UserCryptoServiceImplTest {
 
         doNothing().when(updateCryptoValidationMock).validate(newCryptoRequest);
         when(userCryptoRepositoryMock.findById("ABC123")).thenReturn(Optional.of(existingCrypto));
-        when(platformRepository.findByName(newCryptoRequest.getPlatform())).thenReturn(Optional.empty());
+        when(platformServiceMock.findByName(newCryptoRequest.getPlatform())).thenReturn(Optional.empty());
 
         var platformNotFoundException = assertThrows(PlatformNotFoundException.class,
-                () -> userCryptoService.updateCrypto(newCryptoRequest, "ABC123"));
+                () -> userCryptoService.updateUserCrypto(newCryptoRequest, "ABC123"));
 
         var message = String.format(PLATFORM_NOT_FOUND, newCryptoRequest.getPlatform());
 
@@ -277,7 +274,7 @@ class UserCryptoServiceImplTest {
 
         when(userCryptoRepositoryMock.findById("ABC123")).thenReturn(Optional.of(existingCrypto));
 
-        userCryptoService.deleteCrypto("ABC123");
+        userCryptoService.deleteUserCrypto("ABC123");
 
         verify(userCryptoRepositoryMock, times(1)).delete(existingCrypto);
     }
@@ -287,7 +284,7 @@ class UserCryptoServiceImplTest {
         when(userCryptoRepositoryMock.findById("ABC123")).thenReturn(Optional.empty());
 
         var cryptoNotFoundException = assertThrows(CryptoNotFoundException.class,
-                () -> userCryptoService.deleteCrypto("ABC123"));
+                () -> userCryptoService.deleteUserCrypto("ABC123"));
 
         assertAll(
                 () -> assertEquals(CRYPTO_NOT_FOUND, cryptoNotFoundException.getErrorMessage())

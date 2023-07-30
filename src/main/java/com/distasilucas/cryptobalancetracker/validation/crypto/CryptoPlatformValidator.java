@@ -1,7 +1,7 @@
 package com.distasilucas.cryptobalancetracker.validation.crypto;
 
-import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
 import com.distasilucas.cryptobalancetracker.exception.CryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
@@ -9,8 +9,8 @@ import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.CryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.UpdateCryptoRequest;
-import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
-import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
+import com.distasilucas.cryptobalancetracker.service.PlatformService;
+import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import com.distasilucas.cryptobalancetracker.validation.EntityValidation;
 import lombok.RequiredArgsConstructor;
@@ -30,13 +30,13 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 public class CryptoPlatformValidator<T extends CryptoRequest> implements EntityValidation<T> {
 
     private final CoingeckoService coingeckoService;
-    private final PlatformRepository platformRepository;
-    private final UserCryptoRepository userCryptoRepository;
+    private final PlatformService platformService;
+    private final UserCryptoService userCryptoService;
 
     @Override
     public void validate(T cryptoRequest) {
         String platformName = cryptoRequest.getPlatform().toUpperCase();
-        Optional<Platform> optionalPlatform = platformRepository.findByName(platformName);
+        Optional<Platform> optionalPlatform = platformService.findByName(platformName);
 
         if (optionalPlatform.isEmpty()) {
             log.info("Platform {} does not exists", cryptoRequest.getPlatform());
@@ -58,7 +58,7 @@ public class CryptoPlatformValidator<T extends CryptoRequest> implements EntityV
                         return new CryptoNotFoundException(message);
                     });
 
-            Optional<UserCrypto> optionalCrypto = userCryptoRepository.findByCryptoIdAndPlatformId(coin.getId(), platform.getId());
+            Optional<UserCrypto> optionalCrypto = userCryptoService.findByCryptoIdAndPlatformId(coin.getId(), platform.getId());
 
             optionalCrypto.ifPresent(crypto -> {
                 String message = String.format(DUPLICATED_PLATFORM_CRYPTO, platform.getName());
@@ -69,7 +69,7 @@ public class CryptoPlatformValidator<T extends CryptoRequest> implements EntityV
 
         if (cryptoRequest instanceof UpdateCryptoRequest updateCryptoRequest) {
             String cryptoId = updateCryptoRequest.getCryptoId();
-            Optional<UserCrypto> currentCrypto = userCryptoRepository.findById(cryptoId);
+            Optional<UserCrypto> currentCrypto = userCryptoService.findById(cryptoId);
 
             if (currentCrypto.isEmpty()) {
                 String message = String.format(CRYPTO_ID_NOT_FOUND, cryptoId);
@@ -78,7 +78,7 @@ public class CryptoPlatformValidator<T extends CryptoRequest> implements EntityV
             }
 
             if (!isSamePlatform(currentCrypto.get(), updateCryptoRequest, platform)) {
-                Optional<UserCrypto> optionalUserCrypto = userCryptoRepository.findByCryptoIdAndPlatformId(currentCrypto.get().getCryptoId(), platform.getId());
+                Optional<UserCrypto> optionalUserCrypto = userCryptoService.findByCryptoIdAndPlatformId(currentCrypto.get().getCryptoId(), platform.getId());
 
                 if (optionalUserCrypto.isPresent()) {
                     String message = String.format(DUPLICATED_PLATFORM_CRYPTO, platform.getName());

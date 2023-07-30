@@ -38,7 +38,7 @@ class GoalControllerTest {
     void shouldRetrieveGoalWith200StatusCode() {
         var goalResponse = MockData.getGoalResponse();
 
-        when(goalServiceMock.getGoal("ABC123")).thenReturn(goalResponse);
+        when(goalServiceMock.getGoalResponse("ABC123")).thenReturn(goalResponse);
 
         var responseEntity = goalController.getGoal("ABC123");
 
@@ -58,7 +58,7 @@ class GoalControllerTest {
     void shouldRetrieveAllGoals() {
         var goalResponse = Collections.singletonList(MockData.getGoalResponse());
 
-        when(goalServiceMock.getAllGoals()).thenReturn(goalResponse);
+        when(goalServiceMock.getAllGoalsResponse()).thenReturn(goalResponse);
 
         var responseEntity = goalController.getAllGoals();
 
@@ -71,7 +71,7 @@ class GoalControllerTest {
 
     @Test
     void shouldReturnNoContentWhenNoGoalsFound() {
-        when(goalServiceMock.getAllGoals()).thenReturn(Collections.emptyList());
+        when(goalServiceMock.getAllGoalsResponse()).thenReturn(Collections.emptyList());
 
         var responseEntity = goalController.getAllGoals();
 

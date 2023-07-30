@@ -3,7 +3,7 @@ package com.distasilucas.cryptobalancetracker.scheduler;
 import com.distasilucas.cryptobalancetracker.MockData;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
-import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
+import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +27,7 @@ class UpdateCryptoPriceSchedulerTest {
     Clock clock;
 
     @Mock
-    CryptoRepository cryptoRepositoryMock;
+    CryptoService cryptoServiceMock;
 
     @Mock
     EntityMapper<Crypto, Crypto> updateCryptoSchedulerMapperImplMock;
@@ -36,7 +36,7 @@ class UpdateCryptoPriceSchedulerTest {
 
     @BeforeEach
     void setUp() {
-        updateCryptoPriceScheduler = new UpdateCryptoPriceScheduler(9, clock, cryptoRepositoryMock, updateCryptoSchedulerMapperImplMock);
+        updateCryptoPriceScheduler = new UpdateCryptoPriceScheduler(9, clock, cryptoServiceMock, updateCryptoSchedulerMapperImplMock);
     }
 
     @Test
@@ -47,13 +47,13 @@ class UpdateCryptoPriceSchedulerTest {
 
         when(clock.getZone()).thenReturn(zonedDateTime.getZone());
         when(clock.instant()).thenReturn(zonedDateTime.toInstant());
-        when(cryptoRepositoryMock.findTopNCryptosOrderByLastPriceUpdatedAtAsc(localDateMinusFiveMinutes, 9))
+        when(cryptoServiceMock.findTopNCryptosOrderByLastPriceUpdatedAtAsc(localDateMinusFiveMinutes, 9))
                 .thenReturn(cryptos);
-        when(cryptoRepositoryMock.findAllById(Collections.singletonList("bitcoin"))).thenReturn(cryptos);
+        when(cryptoServiceMock.findAllById(Collections.singletonList("bitcoin"))).thenReturn(cryptos);
         when(updateCryptoSchedulerMapperImplMock.mapFrom(cryptos.get(0))).thenReturn(cryptos.get(0));
 
         updateCryptoPriceScheduler.updateCryptosMarketData();
 
-        verify(cryptoRepositoryMock, times(1)).saveAll(cryptos);
+        verify(cryptoServiceMock, times(1)).saveAllCryptos(cryptos);
     }
 }

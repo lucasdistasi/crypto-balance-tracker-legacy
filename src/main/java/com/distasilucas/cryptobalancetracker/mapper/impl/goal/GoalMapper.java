@@ -9,7 +9,7 @@ import com.distasilucas.cryptobalancetracker.model.coingecko.Coin;
 import com.distasilucas.cryptobalancetracker.model.request.goal.AddGoalRequest;
 import com.distasilucas.cryptobalancetracker.model.request.goal.GoalRequest;
 import com.distasilucas.cryptobalancetracker.model.request.goal.UpdateGoalRequest;
-import com.distasilucas.cryptobalancetracker.repository.GoalRepository;
+import com.distasilucas.cryptobalancetracker.service.GoalService;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 @RequiredArgsConstructor
 public class GoalMapper<T extends GoalRequest> implements EntityMapper<Goal, T> {
 
-    private final GoalRepository goalRepository;
+    private final GoalService goalService;
     private final CoingeckoService coingeckoService;
 
     @Override
@@ -39,7 +39,7 @@ public class GoalMapper<T extends GoalRequest> implements EntityMapper<Goal, T> 
                     .filter(crypto -> crypto.getName().equalsIgnoreCase(requestCryptoName))
                     .findFirst()
                     .orElseThrow(() -> new CryptoNotFoundException(String.format(CRYPTO_NAME_NOT_FOUND, requestCryptoName)));
-            Optional<Goal> existingGoal = goalRepository.findByCryptoId(coingeckoCrypto.getId());
+            Optional<Goal> existingGoal = goalService.findByCryptoId(coingeckoCrypto.getId());
 
             if (existingGoal.isPresent())
                 throw new GoalDuplicatedException(String.format(DUPLICATED_GOAL, addGoalRequest.cryptoName()));
@@ -50,7 +50,7 @@ public class GoalMapper<T extends GoalRequest> implements EntityMapper<Goal, T> 
 
         if (input instanceof UpdateGoalRequest updateGoalRequest) {
             String goalId = updateGoalRequest.getGoalId();
-            Goal existingGoal = goalRepository.findById(goalId)
+            Goal existingGoal = goalService.findById(goalId)
                     .orElseThrow(() -> new GoalNotFoundException(String.format(GOAL_ID_NOT_FOUND, goalId)));
 
             goal.setId(existingGoal.getId());

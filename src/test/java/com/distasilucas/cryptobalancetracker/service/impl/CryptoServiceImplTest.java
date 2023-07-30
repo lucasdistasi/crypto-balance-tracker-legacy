@@ -3,6 +3,8 @@ package com.distasilucas.cryptobalancetracker.service.impl;
 import com.distasilucas.cryptobalancetracker.MockData;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
+import com.distasilucas.cryptobalancetracker.service.GoalService;
+import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,13 +38,20 @@ class CryptoServiceImplTest {
     CryptoRepository cryptoRepositoryMock;
 
     @Mock
+    GoalService goalServiceMock;
+
+    @Mock
+    UserCryptoService userCryptoServiceMock;
+
+    @Mock
     CoingeckoService coingeckoServiceMock;
 
     CryptoServiceImpl cryptoService;
 
     @BeforeEach
     void setUp() {
-        cryptoService = new CryptoServiceImpl(clockMock, cryptoRepositoryMock, coingeckoServiceMock);
+        cryptoService = new CryptoServiceImpl(clockMock, cryptoRepositoryMock, goalServiceMock,
+                userCryptoServiceMock, coingeckoServiceMock);
     }
 
     @Test

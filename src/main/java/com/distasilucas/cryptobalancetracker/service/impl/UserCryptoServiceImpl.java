@@ -1,18 +1,18 @@
 package com.distasilucas.cryptobalancetracker.service.impl;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
-import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.CryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.AddCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.UpdateCryptoRequest;
-import com.distasilucas.cryptobalancetracker.model.response.crypto.UserCryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.PageCryptoResponse;
-import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
+import com.distasilucas.cryptobalancetracker.model.response.crypto.UserCryptoResponse;
 import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
-import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
+import com.distasilucas.cryptobalancetracker.service.CryptoService;
+import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
 import com.distasilucas.cryptobalancetracker.validation.UtilValidations;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
@@ -23,6 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,17 +38,56 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 public class UserCryptoServiceImpl implements UserCryptoService {
 
     private final UtilValidations utilValidations;
-    private final CryptoServiceImpl cryptoServiceImpl;
+    private final CryptoService cryptoService;
     private final EntityMapper<UserCrypto, AddCryptoRequest> cryptoMapperImpl;
     private final EntityMapper<UserCryptoResponse, UserCrypto> userCryptoResponseMapperImpl;
-    private final CryptoRepository cryptoRepository;
     private final UserCryptoRepository userCryptoRepository;
-    private final PlatformRepository platformRepository;
+    private final PlatformService platformService;
     private final Validation<AddCryptoRequest> addCryptoValidation;
     private final Validation<UpdateCryptoRequest> updateCryptoValidation;
 
     @Override
-    public UserCryptoResponse getCrypto(String id) {
+    public Optional<UserCrypto> findFirstByCryptoId(String cryptoId) {
+        return userCryptoRepository.findFirstByCryptoId(cryptoId);
+    }
+
+    @Override
+    public Optional<List<UserCrypto>> findAllByCryptoId(String cryptoId) {
+        return userCryptoRepository.findAllByCryptoId(cryptoId);
+    }
+
+    @Override
+    public Optional<UserCrypto> findById(String id) {
+        return userCryptoRepository.findById(id);
+    }
+
+    @Override
+    public Optional<UserCrypto> findByCryptoIdAndPlatformId(String cryptoId, String platformId) {
+        return userCryptoRepository.findByCryptoIdAndPlatformId(cryptoId, platformId);
+    }
+
+    @Override
+    public List<UserCrypto> findAll() {
+        return userCryptoRepository.findAll();
+    }
+
+    @Override
+    public Optional<List<UserCrypto>> findAllByPlatformId(String platformId) {
+        return userCryptoRepository.findAllByPlatformId(platformId);
+    }
+
+    @Override
+    public void saveUserCrypto(UserCrypto userCrypto) {
+        userCryptoRepository.save(userCrypto);
+    }
+
+    @Override
+    public void saveAll(List<UserCrypto> userCryptos) {
+        userCryptoRepository.saveAll(userCryptos);
+    }
+
+    @Override
+    public UserCryptoResponse getUserCryptoResponse(String id) {
         utilValidations.validateIdMongoEntityFormat(id);
         Optional<UserCrypto> optionalUserCrypto = userCryptoRepository.findById(id);
 
@@ -55,9 +95,9 @@ public class UserCryptoServiceImpl implements UserCryptoService {
             throw new CryptoNotFoundException(String.format(CRYPTO_ID_NOT_FOUND, id));
 
         UserCrypto userCrypto = optionalUserCrypto.get();
-        Optional<Platform> platform = platformRepository.findById(userCrypto.getPlatformId());
+        Optional<Platform> platform = platformService.findById(userCrypto.getPlatformId());
         String platformName = platform.isPresent() ? platform.get().getName() : UNKNOWN;
-        Crypto crypto = cryptoRepository.findById(userCrypto.getCryptoId())
+        Crypto crypto = cryptoService.findById(userCrypto.getCryptoId())
                 .orElseThrow(() -> new CryptoNotFoundException(CRYPTO_NOT_FOUND));
 
         return UserCryptoResponse.builder()
@@ -89,7 +129,7 @@ public class UserCryptoServiceImpl implements UserCryptoService {
         addCryptoValidation.validate(addCryptoRequest);
         UserCrypto userCrypto = cryptoMapperImpl.mapFrom(addCryptoRequest);
         userCryptoRepository.save(userCrypto);
-        cryptoServiceImpl.saveCryptoIfNotExists(userCrypto.getCryptoId());
+        cryptoService.saveCryptoIfNotExists(userCrypto.getCryptoId());
 
         UserCryptoResponse userCryptoResponse = userCryptoResponseMapperImpl.mapFrom(userCrypto);
         log.info("Saved Crypto {}", userCryptoResponse);
@@ -98,14 +138,14 @@ public class UserCryptoServiceImpl implements UserCryptoService {
     }
 
     @Override
-    public UserCryptoResponse updateCrypto(UpdateCryptoRequest updateCryptoRequest, String id) {
+    public UserCryptoResponse updateUserCrypto(UpdateCryptoRequest updateCryptoRequest, String id) {
         updateCryptoRequest.setCryptoId(id);
         updateCryptoValidation.validate(updateCryptoRequest);
 
         UserCrypto crypto = userCryptoRepository.findById(id)
                 .orElseThrow(() -> new CryptoNotFoundException(CRYPTO_NOT_FOUND));
 
-        Platform platform = platformRepository.findByName(updateCryptoRequest.getPlatform().toUpperCase())
+        Platform platform = platformService.findByName(updateCryptoRequest.getPlatform().toUpperCase())
                 .orElseThrow(() -> {
                     String message = String.format(PLATFORM_NOT_FOUND, updateCryptoRequest.getPlatform());
 
@@ -123,15 +163,27 @@ public class UserCryptoServiceImpl implements UserCryptoService {
     }
 
     @Override
-    public void deleteCrypto(String id) {
+    public void deleteUserCrypto(String id) {
         utilValidations.validateIdMongoEntityFormat(id);
         userCryptoRepository.findById(id)
                 .ifPresentOrElse(userCrypto -> {
                     log.info("Deleted cryptoId [{}] in platform id [{}]", userCrypto.getCryptoId(), userCrypto.getPlatformId());
 
                     userCryptoRepository.delete(userCrypto);
+                    cryptoService.deleteCryptoIfNotUsed(userCrypto.getCryptoId());
                 }, () -> {
                     throw new CryptoNotFoundException(CRYPTO_NOT_FOUND);
                 });
+    }
+
+    @Override
+    public void deleteUserCrypto(UserCrypto userCrypto) {
+        userCryptoRepository.delete(userCrypto);
+        cryptoService.deleteCryptoIfNotUsed(userCrypto.getCryptoId());
+    }
+
+    @Override
+    public void deleteAllUserCryptosById(Collection<String> ids) {
+        userCryptoRepository.deleteAllById(ids);
     }
 }

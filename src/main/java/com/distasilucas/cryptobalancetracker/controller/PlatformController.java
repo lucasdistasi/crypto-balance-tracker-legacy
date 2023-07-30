@@ -35,7 +35,7 @@ public class PlatformController implements PlatformControllerApi, ControllerHelp
     @Override
     @GetMapping
     public ResponseEntity<List<PlatformResponse>> getAllPlatforms() {
-        List<PlatformResponse> platforms = platformService.getAllPlatforms();
+        List<PlatformResponse> platforms = platformService.getAllPlatformsResponse();
         HttpStatus httpStatus = CollectionUtils.isNotEmpty(platforms) ? HttpStatus.OK : HttpStatus.NO_CONTENT;
 
         return ResponseEntity.status(httpStatus)

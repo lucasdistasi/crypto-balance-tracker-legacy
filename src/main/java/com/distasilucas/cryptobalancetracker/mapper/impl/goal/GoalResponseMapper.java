@@ -1,13 +1,13 @@
 package com.distasilucas.cryptobalancetracker.mapper.impl.goal;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
-import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.entity.Goal;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.CryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
-import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
-import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
+import com.distasilucas.cryptobalancetracker.service.CryptoService;
+import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,14 +24,14 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 @RequiredArgsConstructor
 public class GoalResponseMapper implements EntityMapper<GoalResponse, Goal> {
 
-    private final CryptoRepository cryptoRepository;
-    private final UserCryptoRepository userCryptoRepository;
+    private final CryptoService cryptoService;
+    private final UserCryptoService userCryptoService;
 
     @Override
     public GoalResponse mapFrom(Goal input) {
         String cryptoId = input.getCryptoId();
         log.info("Mapping {}", cryptoId);
-        Crypto crypto = cryptoRepository.findById(cryptoId)
+        Crypto crypto = cryptoService.findById(cryptoId)
                 .orElseThrow(() -> new CryptoNotFoundException(CRYPTO_NOT_FOUND));
 
         BigDecimal priceInUsd = crypto.getLastKnownPrice();
@@ -46,7 +46,7 @@ public class GoalResponseMapper implements EntityMapper<GoalResponse, Goal> {
     }
 
     private BigDecimal getActualQuantity(String cryptoId) {
-        Optional<List<UserCrypto>> optionalCryptos = userCryptoRepository.findAllByCryptoId(cryptoId);
+        Optional<List<UserCrypto>> optionalCryptos = userCryptoService.findAllByCryptoId(cryptoId);
         BigDecimal totalQuantity = BigDecimal.ZERO;
 
         if (optionalCryptos.isPresent()) {

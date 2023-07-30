@@ -5,8 +5,8 @@ import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.mapper.impl.crypto.UserCryptoResponseMapperImpl;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.UserCryptoResponse;
-import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
-import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
+import com.distasilucas.cryptobalancetracker.service.CryptoService;
+import com.distasilucas.cryptobalancetracker.service.PlatformService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,16 +25,16 @@ import static org.mockito.Mockito.when;
 class UserUserCryptoResponseMapperImplTest {
 
     @Mock
-    private PlatformRepository platformRepositoryMock;
+    private CryptoService cryptoServiceMock;
 
     @Mock
-    private CryptoRepository cryptoRepositoryMock;
+    private PlatformService platformServiceMock;
 
     EntityMapper<UserCryptoResponse, UserCrypto> cryptoResponseMapperImpl;
 
     @BeforeEach
     void setUp() {
-        cryptoResponseMapperImpl = new UserCryptoResponseMapperImpl(cryptoRepositoryMock, platformRepositoryMock);
+        cryptoResponseMapperImpl = new UserCryptoResponseMapperImpl(cryptoServiceMock, platformServiceMock);
     }
 
     @Test
@@ -43,8 +43,8 @@ class UserUserCryptoResponseMapperImplTest {
         var crypto = MockData.getCrypto();
         var platform = MockData.getPlatform("Ledger");
 
-        when(platformRepositoryMock.findById("1234")).thenReturn(Optional.of(platform));
-        when(cryptoRepositoryMock.findById(userCrypto.getCryptoId())).thenReturn(Optional.of(crypto));
+        when(platformServiceMock.findById("1234")).thenReturn(Optional.of(platform));
+        when(cryptoServiceMock.findById(userCrypto.getCryptoId())).thenReturn(Optional.of(crypto));
 
         var cryptoResponse = cryptoResponseMapperImpl.mapFrom(userCrypto);
 
@@ -60,8 +60,8 @@ class UserUserCryptoResponseMapperImplTest {
         var userCrypto = MockData.getUserCrypto("1234");
         var crypto = MockData.getCrypto();
 
-        when(platformRepositoryMock.findById("1234")).thenReturn(Optional.empty());
-        when(cryptoRepositoryMock.findById(userCrypto.getCryptoId())).thenReturn(Optional.of(crypto));
+        when(platformServiceMock.findById("1234")).thenReturn(Optional.empty());
+        when(cryptoServiceMock.findById(userCrypto.getCryptoId())).thenReturn(Optional.of(crypto));
 
         var cryptoResponse = cryptoResponseMapperImpl.mapFrom(userCrypto);
 
