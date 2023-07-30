@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UpdateCryptoPriceScheduler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">crypto-balance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.distasilucas.cryptobalancetracker.scheduler</a> &gt; <span class="el_source">UpdateCryptoPriceScheduler.java</span></div><h1>UpdateCryptoPriceScheduler.java</h1><pre class="source lang-java linenums">package com.distasilucas.cryptobalancetracker.scheduler;
+
+import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
+import com.distasilucas.cryptobalancetracker.service.CryptoService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.util.List;
+
+<span class="fc" id="L15">@Slf4j</span>
+@Component
+public class UpdateCryptoPriceScheduler {
+
+    private final int maxLimit;
+    private final Clock clock;
+    private final CryptoService cryptoService;
+    private final EntityMapper&lt;Crypto, Crypto&gt; updateCryptoSchedulerMapperImpl;
+
+    public UpdateCryptoPriceScheduler(@Value(&quot;${max-limit-crypto}&quot;) int maxLimit,
+                                      Clock clock,
+                                      CryptoService cryptoService,
+<span class="fc" id="L27">                                      EntityMapper&lt;Crypto, Crypto&gt; updateCryptoSchedulerMapperImpl) {</span>
+<span class="fc" id="L28">        this.maxLimit = maxLimit;</span>
+<span class="fc" id="L29">        this.clock = clock;</span>
+<span class="fc" id="L30">        this.cryptoService = cryptoService;</span>
+<span class="fc" id="L31">        this.updateCryptoSchedulerMapperImpl = updateCryptoSchedulerMapperImpl;</span>
+<span class="fc" id="L32">    }</span>
+
+    @Scheduled(cron = &quot;0 */3 * ? * *&quot;)
+    public void updateCryptosMarketData() {
+<span class="fc" id="L36">        log.info(&quot;Running cron to update cryptos data...&quot;);</span>
+
+<span class="fc" id="L38">        List&lt;Crypto&gt; cryptosToUpdate = getCryptosToUpdate()</span>
+<span class="fc" id="L39">                .stream()</span>
+<span class="fc" id="L40">                .map(updateCryptoSchedulerMapperImpl::mapFrom)</span>
+<span class="fc" id="L41">                .toList();</span>
+
+<span class="fc" id="L43">        cryptoService.saveAllCryptos(cryptosToUpdate);</span>
+<span class="fc" id="L44">    }</span>
+
+    private List&lt;Crypto&gt; getCryptosToUpdate() {
+<span class="fc" id="L47">        LocalDateTime lastUpdatedPrice = LocalDateTime.now(clock).minusMinutes(5);</span>
+
+<span class="fc" id="L49">        List&lt;String&gt; cryptosIdToUpdate = cryptoService.findTopNCryptosOrderByLastPriceUpdatedAtAsc(lastUpdatedPrice, maxLimit)</span>
+<span class="fc" id="L50">                .stream()</span>
+<span class="fc" id="L51">                .map(Crypto::getId)</span>
+<span class="fc" id="L52">                .toList();</span>
+
+<span class="fc" id="L54">        return cryptoService.findAllById(cryptosIdToUpdate);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

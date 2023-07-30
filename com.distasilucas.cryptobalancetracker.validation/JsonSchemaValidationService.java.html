@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JsonSchemaValidationService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">crypto-balance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.distasilucas.cryptobalancetracker.validation</a> &gt; <span class="el_source">JsonSchemaValidationService.java</span></div><h1>JsonSchemaValidationService.java</h1><pre class="source lang-java linenums">package com.distasilucas.cryptobalancetracker.validation;
+
+import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
+import com.google.gson.Gson;
+import lombok.RequiredArgsConstructor;
+import org.everit.json.schema.Schema;
+import org.everit.json.schema.ValidationException;
+import org.json.JSONObject;
+
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.ERROR_VALIDATING_JSON_SCHEMA;
+
+<span class="fc" id="L12">@RequiredArgsConstructor</span>
+public class JsonSchemaValidationService&lt;T&gt; implements EntityValidation&lt;T&gt; {
+
+    private final Schema schema;
+
+    @Override
+    public void validate(T objectToValidate) {
+        try {
+<span class="fc" id="L20">            Gson gson = new Gson();</span>
+<span class="fc" id="L21">            String toJson = gson.toJson(objectToValidate);</span>
+<span class="fc" id="L22">            JSONObject jsonObject = new JSONObject(toJson);</span>
+
+<span class="fc" id="L24">            schema.validate(jsonObject);</span>
+<span class="fc" id="L25">        } catch (ValidationException ex) {</span>
+<span class="fc" id="L26">            String message = String.format(ERROR_VALIDATING_JSON_SCHEMA, ex.getMessage());</span>
+
+<span class="fc" id="L28">            throw new ApiValidationException(ex.getCausingExceptions(), ex.getErrorMessage(), message);</span>
+<span class="fc" id="L29">        }</span>
+<span class="fc" id="L30">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

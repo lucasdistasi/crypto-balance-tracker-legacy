@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GoalMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">crypto-balance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.distasilucas.cryptobalancetracker.mapper.impl.goal</a> &gt; <span class="el_source">GoalMapper.java</span></div><h1>GoalMapper.java</h1><pre class="source lang-java linenums">package com.distasilucas.cryptobalancetracker.mapper.impl.goal;
+
+import com.distasilucas.cryptobalancetracker.entity.Goal;
+import com.distasilucas.cryptobalancetracker.exception.CryptoNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.GoalDuplicatedException;
+import com.distasilucas.cryptobalancetracker.exception.GoalNotFoundException;
+import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
+import com.distasilucas.cryptobalancetracker.model.coingecko.CoingeckoCrypto;
+import com.distasilucas.cryptobalancetracker.model.request.goal.AddGoalRequest;
+import com.distasilucas.cryptobalancetracker.model.request.goal.GoalRequest;
+import com.distasilucas.cryptobalancetracker.model.request.goal.UpdateGoalRequest;
+import com.distasilucas.cryptobalancetracker.repository.GoalRepository;
+import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.CRYPTO_NAME_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.DUPLICATED_GOAL;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.GOAL_ID_NOT_FOUND;
+
+@Service
+<span class="fc" id="L25">@RequiredArgsConstructor</span>
+public class GoalMapper&lt;T extends GoalRequest&gt; implements EntityMapper&lt;Goal, T&gt; {
+
+    private final GoalRepository goalRepository;
+    private final CoingeckoService coingeckoService;
+
+    @Override
+    public Goal mapFrom(T input) {
+<span class="fc" id="L33">        Goal goal = new Goal();</span>
+
+<span class="fc bfc" id="L35" title="All 2 branches covered.">        if (input instanceof AddGoalRequest addGoalRequest) {</span>
+<span class="fc" id="L36">            List&lt;CoingeckoCrypto&gt; coingeckoCryptos = coingeckoService.retrieveAllCoingeckoCryptos();</span>
+<span class="fc" id="L37">            String requestCryptoName = addGoalRequest.cryptoName();</span>
+<span class="fc" id="L38">            CoingeckoCrypto coingeckoCrypto = coingeckoCryptos.stream()</span>
+<span class="fc" id="L39">                    .filter(crypto -&gt; crypto.getName().equalsIgnoreCase(requestCryptoName))</span>
+<span class="fc" id="L40">                    .findFirst()</span>
+<span class="fc" id="L41">                    .orElseThrow(() -&gt; new CryptoNotFoundException(String.format(CRYPTO_NAME_NOT_FOUND, requestCryptoName)));</span>
+<span class="fc" id="L42">            Optional&lt;Goal&gt; existingGoal = goalRepository.findByCryptoId(coingeckoCrypto.getId());</span>
+
+<span class="fc bfc" id="L44" title="All 2 branches covered.">            if (existingGoal.isPresent())</span>
+<span class="fc" id="L45">                throw new GoalDuplicatedException(String.format(DUPLICATED_GOAL, addGoalRequest.cryptoName()));</span>
+
+<span class="fc" id="L47">            goal.setCryptoId(coingeckoCrypto.getId());</span>
+<span class="fc" id="L48">            goal.setQuantityGoal(input.quantityGoal());</span>
+        }
+
+<span class="fc bfc" id="L51" title="All 2 branches covered.">        if (input instanceof UpdateGoalRequest updateGoalRequest) {</span>
+<span class="fc" id="L52">            String goalId = updateGoalRequest.getGoalId();</span>
+<span class="fc" id="L53">            Goal existingGoal = goalRepository.findById(goalId)</span>
+<span class="fc" id="L54">                    .orElseThrow(() -&gt; new GoalNotFoundException(String.format(GOAL_ID_NOT_FOUND, goalId)));</span>
+
+<span class="fc" id="L56">            goal.setId(existingGoal.getId());</span>
+<span class="fc" id="L57">            goal.setCryptoId(existingGoal.getCryptoId());</span>
+<span class="fc" id="L58">            goal.setQuantityGoal(updateGoalRequest.quantityGoal());</span>
+        }
+
+<span class="fc" id="L61">        return goal;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

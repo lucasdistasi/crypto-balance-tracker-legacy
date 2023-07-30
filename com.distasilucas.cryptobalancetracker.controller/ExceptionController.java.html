@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExceptionController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">crypto-balance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.distasilucas.cryptobalancetracker.controller</a> &gt; <span class="el_source">ExceptionController.java</span></div><h1>ExceptionController.java</h1><pre class="source lang-java linenums">package com.distasilucas.cryptobalancetracker.controller;
+
+import com.distasilucas.cryptobalancetracker.exception.ApiException;
+import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
+import com.distasilucas.cryptobalancetracker.exception.CryptoNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.GoalDuplicatedException;
+import com.distasilucas.cryptobalancetracker.exception.GoalNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.InsufficientBalanceException;
+import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
+import com.distasilucas.cryptobalancetracker.model.error.Error;
+import com.distasilucas.cryptobalancetracker.model.error.ErrorResponse;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.everit.json.schema.ValidationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.Collections;
+import java.util.List;
+
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.UNKNOWN_ERROR;
+
+<span class="fc" id="L30">@Slf4j</span>
+@RestControllerAdvice
+<span class="fc" id="L32">public class ExceptionController {</span>
+
+    @ExceptionHandler(value = CryptoNotFoundException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleCryptoNotFoundException(CryptoNotFoundException cryptoNotFoundException) {
+<span class="fc" id="L36">        log.warn(&quot;A CryptoNotFoundException has occurred: &quot;, cryptoNotFoundException);</span>
+
+<span class="fc" id="L38">        Error error = new Error(cryptoNotFoundException.getErrorMessage());</span>
+<span class="fc" id="L39">        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), Collections.singletonList(error));</span>
+
+<span class="fc" id="L41">        return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="fc" id="L42">                .body(errorResponse);</span>
+    }
+
+    @ExceptionHandler(value = PlatformNotFoundException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handlePlatformNotFoundException(PlatformNotFoundException platformNotFoundException) {
+<span class="fc" id="L47">        log.warn(&quot;A PlatformNotFoundException has occurred: &quot;, platformNotFoundException);</span>
+
+<span class="fc" id="L49">        Error error = new Error(platformNotFoundException.getErrorMessage());</span>
+
+<span class="fc" id="L51">        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), Collections.singletonList(error));</span>
+
+<span class="fc" id="L53">        return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="fc" id="L54">                .body(errorResponse);</span>
+    }
+
+    @ExceptionHandler(value = GoalNotFoundException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleGoalNotFoundException(GoalNotFoundException goalNotFoundException) {
+<span class="fc" id="L59">        log.warn(&quot;A GoalNotFoundException has occurred: &quot;, goalNotFoundException);</span>
+
+<span class="fc" id="L61">        Error error = new Error(goalNotFoundException.getErrorMessage());</span>
+
+<span class="fc" id="L63">        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), Collections.singletonList(error));</span>
+
+<span class="fc" id="L65">        return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="fc" id="L66">                .body(errorResponse);</span>
+    }
+
+    @ExceptionHandler(value = InsufficientBalanceException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleInsufficientBalanceException(InsufficientBalanceException insufficientBalanceException) {
+<span class="fc" id="L71">        log.warn(&quot;A InsufficientBalanceException has occurred: &quot;, insufficientBalanceException);</span>
+
+<span class="fc" id="L73">        Error error = new Error(insufficientBalanceException.getErrorMessage());</span>
+
+<span class="fc" id="L75">        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), Collections.singletonList(error));</span>
+
+<span class="fc" id="L77">        return ResponseEntity.status(HttpStatus.BAD_REQUEST)</span>
+<span class="fc" id="L78">                .body(errorResponse);</span>
+    }
+
+    @ExceptionHandler(value = GoalDuplicatedException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleGoalDuplicatedException(GoalDuplicatedException goalDuplicatedException) {
+<span class="fc" id="L83">        log.warn(&quot;A GoalDuplicatedException has occurred: &quot;, goalDuplicatedException);</span>
+
+<span class="fc" id="L85">        Error error = new Error(goalDuplicatedException.getErrorMessage());</span>
+
+<span class="fc" id="L87">        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), Collections.singletonList(error));</span>
+
+<span class="fc" id="L89">        return ResponseEntity.status(HttpStatus.BAD_REQUEST)</span>
+<span class="fc" id="L90">                .body(errorResponse);</span>
+    }
+
+    @ExceptionHandler(value = ApiValidationException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleApiValidationException(ApiValidationException apiValidationException) {
+<span class="fc" id="L95">        log.warn(&quot;An ApiValidationException has occurred: &quot;, apiValidationException);</span>
+
+<span class="fc" id="L97">        String apiValidationExceptionMessage = apiValidationException.getMessage();</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">        String message = apiValidationExceptionMessage != null ?</span>
+<span class="fc" id="L99">                apiValidationExceptionMessage :</span>
+<span class="pc" id="L100">                apiValidationException.getErrorMessage();</span>
+<span class="fc" id="L101">        List&lt;ValidationException&gt; causingExceptions = apiValidationException.getCausingExceptions();</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        List&lt;Error&gt; errors = CollectionUtils.isNotEmpty(causingExceptions) ?</span>
+<span class="fc" id="L103">                causingExceptions.stream()</span>
+<span class="fc" id="L104">                        .map(validationException -&gt; new Error(validationException.getErrorMessage()))</span>
+<span class="fc" id="L105">                        .toList() :</span>
+<span class="fc" id="L106">                Collections.singletonList(new Error(message));</span>
+
+<span class="fc" id="L108">        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), errors);</span>
+
+<span class="fc" id="L110">        return ResponseEntity.badRequest()</span>
+<span class="fc" id="L111">                .body(errorResponse);</span>
+    }
+
+    @ExceptionHandler(value = HttpMessageNotReadableException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleHttpMessageNotReadableException(HttpMessageNotReadableException httpMessageNotReadableException) {
+<span class="fc" id="L116">        log.warn(&quot;A HttpMessageNotReadableException has occurred: &quot;, httpMessageNotReadableException);</span>
+
+<span class="fc" id="L118">        String originalMessage = UNKNOWN_ERROR;</span>
+
+<span class="fc" id="L120">        Throwable rootCause = httpMessageNotReadableException.getRootCause();</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        if (rootCause instanceof InvalidFormatException invalidFormatException) {</span>
+<span class="fc" id="L122">            originalMessage = invalidFormatException.getOriginalMessage();</span>
+        }
+
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        if (rootCause instanceof JsonParseException jsonParseException) {</span>
+<span class="fc" id="L126">            originalMessage = jsonParseException.getOriginalMessage();</span>
+        }
+
+<span class="fc" id="L129">        Error error = new Error(originalMessage);</span>
+<span class="fc" id="L130">        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), Collections.singletonList(error));</span>
+
+<span class="fc" id="L132">        return ResponseEntity.badRequest()</span>
+<span class="fc" id="L133">                .body(errorResponse);</span>
+    }
+
+    @ExceptionHandler(value = ApiException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleApiException(ApiException apiException) {
+<span class="fc" id="L138">        log.warn(&quot;An ApiException has occurred: &quot;, apiException);</span>
+
+<span class="fc" id="L140">        HttpStatusCode httpStatusCode = apiException.getHttpStatusCode();</span>
+
+<span class="fc" id="L142">        Error error = new Error(apiException.getErrorMessage());</span>
+<span class="fc" id="L143">        ErrorResponse errorResponse = new ErrorResponse(httpStatusCode.value(), Collections.singletonList(error));</span>
+
+<span class="fc" id="L145">        return ResponseEntity.status(httpStatusCode)</span>
+<span class="fc" id="L146">                .body(errorResponse);</span>
+    }
+
+    @ExceptionHandler(value = MissingServletRequestParameterException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleMissingServletRequestParameterException(MissingServletRequestParameterException exception) {
+<span class="fc" id="L151">        log.warn(&quot;A MissingServletRequestParameterException has occurred: &quot;, exception);</span>
+
+<span class="fc" id="L153">        Error error = new Error(exception.getBody().getDetail());</span>
+<span class="fc" id="L154">        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), Collections.singletonList(error));</span>
+
+<span class="fc" id="L156">        return ResponseEntity.badRequest()</span>
+<span class="fc" id="L157">                .body(errorResponse);</span>
+    }
+
+    @ExceptionHandler(value = IllegalArgumentException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleIllegalArgumentException(IllegalArgumentException exception) {
+<span class="fc" id="L162">        log.warn(&quot;An IllegalArgumentException has occurred: &quot;, exception);</span>
+
+<span class="fc" id="L164">        Error error = new Error(exception.getMessage());</span>
+<span class="fc" id="L165">        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), Collections.singletonList(error));</span>
+
+<span class="fc" id="L167">        return ResponseEntity.badRequest()</span>
+<span class="fc" id="L168">                .body(errorResponse);</span>
+    }
+
+    @ExceptionHandler(value = Exception.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleException(Exception exception) {
+<span class="fc" id="L173">        log.warn(&quot;An Unhandled Exception has occurred: &quot;, exception);</span>
+
+<span class="fc" id="L175">        HttpStatus internalServerError = HttpStatus.INTERNAL_SERVER_ERROR;</span>
+<span class="fc" id="L176">        Error error = new Error(UNKNOWN_ERROR);</span>
+<span class="fc" id="L177">        ErrorResponse errorResponse = new ErrorResponse(internalServerError.value(), Collections.singletonList(error));</span>
+
+<span class="fc" id="L179">        return ResponseEntity.status(internalServerError)</span>
+<span class="fc" id="L180">                .body(errorResponse);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

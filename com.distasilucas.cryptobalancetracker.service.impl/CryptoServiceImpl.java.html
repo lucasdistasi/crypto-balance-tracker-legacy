@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CryptoServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">crypto-balance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.distasilucas.cryptobalancetracker.service.impl</a> &gt; <span class="el_source">CryptoServiceImpl.java</span></div><h1>CryptoServiceImpl.java</h1><pre class="source lang-java linenums">package com.distasilucas.cryptobalancetracker.service.impl;
+
+import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.Goal;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
+import com.distasilucas.cryptobalancetracker.model.coingecko.CoingeckoCryptoInfo;
+import com.distasilucas.cryptobalancetracker.model.coingecko.MarketData;
+import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
+import com.distasilucas.cryptobalancetracker.repository.GoalRepository;
+import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
+import com.distasilucas.cryptobalancetracker.service.CryptoService;
+import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+@Service
+<span class="fc" id="L22">@RequiredArgsConstructor</span>
+public class CryptoServiceImpl implements CryptoService {
+
+    private final Clock clock;
+    private final CryptoRepository cryptoRepository;
+    private final GoalRepository goalRepository;
+    private final UserCryptoRepository userCryptoRepository;
+    private final CoingeckoService coingeckoService;
+
+    @Override
+    public Optional&lt;Crypto&gt; findById(String cryptoId) {
+<span class="nc" id="L33">        return cryptoRepository.findById(cryptoId);</span>
+    }
+
+    @Override
+    public List&lt;Crypto&gt; findAllById(List&lt;String&gt; cryptoIds) {
+<span class="nc" id="L38">        return cryptoRepository.findAllById(cryptoIds);</span>
+    }
+
+    @Override
+    public void saveAllCryptos(List&lt;Crypto&gt; cryptosToSave) {
+<span class="nc" id="L43">        cryptoRepository.saveAll(cryptosToSave);</span>
+<span class="nc" id="L44">    }</span>
+
+    @Override
+    public void saveCryptoIfNotExists(String cryptoId) {
+<span class="fc" id="L48">        Optional&lt;Crypto&gt; optionalCrypto = cryptoRepository.findById(cryptoId);</span>
+
+<span class="fc bfc" id="L50" title="All 2 branches covered.">        if (optionalCrypto.isEmpty()) {</span>
+<span class="fc" id="L51">            CoingeckoCryptoInfo coingeckoCryptoInfo = coingeckoService.retrieveCoingeckoCryptoInfo(cryptoId);</span>
+<span class="fc" id="L52">            MarketData marketData = coingeckoCryptoInfo.getMarketData();</span>
+
+<span class="fc" id="L54">            Crypto crypto = Crypto.builder()</span>
+<span class="fc" id="L55">                    .id(coingeckoCryptoInfo.getId())</span>
+<span class="fc" id="L56">                    .name(coingeckoCryptoInfo.getName())</span>
+<span class="fc" id="L57">                    .ticker(coingeckoCryptoInfo.getSymbol())</span>
+<span class="fc" id="L58">                    .lastKnownPrice(marketData.currentPrice().usd())</span>
+<span class="fc" id="L59">                    .lastKnownPriceInEUR(marketData.currentPrice().eur())</span>
+<span class="fc" id="L60">                    .lastKnownPriceInBTC(marketData.currentPrice().btc())</span>
+<span class="fc" id="L61">                    .circulatingSupply(marketData.circulatingSupply())</span>
+<span class="fc" id="L62">                    .maxSupply(marketData.maxSupply())</span>
+<span class="fc" id="L63">                    .lastPriceUpdatedAt(LocalDateTime.now(clock))</span>
+<span class="fc" id="L64">                    .build();</span>
+
+<span class="fc" id="L66">            cryptoRepository.save(crypto);</span>
+        }
+<span class="fc" id="L68">    }</span>
+
+    @Override
+    public void deleteCryptoIfNotUsed(String cryptoId) {
+<span class="nc" id="L72">        Optional&lt;Goal&gt; optionalGoal = goalRepository.findByCryptoId(cryptoId);</span>
+<span class="nc" id="L73">        Optional&lt;UserCrypto&gt; optionalUserCrypto = userCryptoRepository.findFirstByCryptoId(cryptoId);</span>
+
+<span class="nc bnc" id="L75" title="All 4 branches missed.">        if (optionalGoal.isEmpty() &amp;&amp; optionalUserCrypto.isEmpty()) {</span>
+<span class="nc" id="L76">            findById(cryptoId).ifPresent(cryptoRepository::delete);</span>
+        }
+<span class="nc" id="L78">    }</span>
+
+    @Override
+    public List&lt;Crypto&gt; findTopNCryptosOrderByLastPriceUpdatedAtAsc(LocalDateTime dateFilter, int limit) {
+<span class="nc" id="L82">        return cryptoRepository.findTopNCryptosOrderByLastPriceUpdatedAtAsc(dateFilter, limit);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

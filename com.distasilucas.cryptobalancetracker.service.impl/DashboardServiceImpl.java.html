@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DashboardServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">crypto-balance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.distasilucas.cryptobalancetracker.service.impl</a> &gt; <span class="el_source">DashboardServiceImpl.java</span></div><h1>DashboardServiceImpl.java</h1><pre class="source lang-java linenums">package com.distasilucas.cryptobalancetracker.service.impl;
+
+import com.distasilucas.cryptobalancetracker.entity.Platform;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
+import com.distasilucas.cryptobalancetracker.mapper.BiFunctionMapper;
+import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoInfoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoPlatformBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.CryptosPlatformDistributionResponse;
+import com.distasilucas.cryptobalancetracker.model.response.dashboard.PlatformsCryptoDistributionResponse;
+import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformInfo;
+import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
+import com.distasilucas.cryptobalancetracker.service.DashboardService;
+import com.distasilucas.cryptobalancetracker.service.PlatformService;
+import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
+import com.distasilucas.cryptobalancetracker.validation.UtilValidations;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+<span class="fc" id="L35">@Slf4j</span>
+@Service
+<span class="fc" id="L37">@RequiredArgsConstructor</span>
+public class DashboardServiceImpl implements DashboardService {
+
+    private final UtilValidations utilValidations;
+    private final UserCryptoService userCryptoService;
+    private final PlatformService platformService;
+    private final EntityMapper&lt;CryptoBalanceResponse, List&lt;UserCrypto&gt;&gt; cryptoBalanceResponseMapperImpl;
+    private final BiFunctionMapper&lt;Map&lt;String, BigDecimal&gt;, CryptoBalanceResponse, List&lt;CryptoInfoResponse&gt;&gt; cryptoInfoResponseMapperImpl;
+
+    @Override
+    public Optional&lt;CryptoBalanceResponse&gt; retrieveCryptosBalances() {
+<span class="fc" id="L48">        log.info(&quot;Retrieving cryptos balances&quot;);</span>
+<span class="fc" id="L49">        List&lt;UserCrypto&gt; userCryptos = userCryptoService.findAll();</span>
+
+<span class="fc bfc" id="L51" title="All 2 branches covered.">        return CollectionUtils.isEmpty(userCryptos) ?</span>
+<span class="fc" id="L52">                Optional.empty() :</span>
+<span class="fc" id="L53">                Optional.of(cryptoBalanceResponseMapperImpl.mapFrom(userCryptos));</span>
+    }
+
+    @Override
+    public Optional&lt;CryptoBalanceResponse&gt; retrieveCryptoBalance(String cryptoId) {
+<span class="fc" id="L58">        log.info(&quot;Retrieving balances for crypto [{}]&quot;, cryptoId);</span>
+<span class="fc" id="L59">        Optional&lt;List&lt;UserCrypto&gt;&gt; userCryptos = userCryptoService.findAllByCryptoId(cryptoId);</span>
+
+<span class="pc bpc" id="L61" title="1 of 4 branches missed.">        return userCryptos.isEmpty() || CollectionUtils.isEmpty(userCryptos.get()) ?</span>
+<span class="fc" id="L62">                Optional.empty() :</span>
+<span class="fc" id="L63">                Optional.of(cryptoBalanceResponseMapperImpl.mapFrom(userCryptos.get()));</span>
+    }
+
+    @Override
+    public Optional&lt;CryptoPlatformBalanceResponse&gt; retrieveCryptosBalanceByPlatform() {
+<span class="fc" id="L68">        log.info(&quot;Retrieving cryptos by platform&quot;);</span>
+<span class="fc" id="L69">        List&lt;UserCrypto&gt; userCryptos = userCryptoService.findAll();</span>
+
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        if (CollectionUtils.isNotEmpty(userCryptos)) {</span>
+<span class="fc" id="L72">            CryptoBalanceResponse cryptoBalanceResponse = cryptoBalanceResponseMapperImpl.mapFrom(userCryptos);</span>
+<span class="fc" id="L73">            Map&lt;String, BigDecimal&gt; cryptosByPlatform = new HashMap&lt;&gt;();</span>
+
+<span class="fc" id="L75">            cryptoBalanceResponse.cryptos()</span>
+<span class="fc" id="L76">                    .forEach(crypto -&gt; {</span>
+<span class="fc" id="L77">                        String cryptoName = crypto.getCryptoInfo().getName();</span>
+<span class="fc" id="L78">                        BigDecimal balance = crypto.getBalance();</span>
+
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">                        cryptosByPlatform.compute(cryptoName, (k, v) -&gt; (v == null) ? balance : v.add(balance));</span>
+<span class="fc" id="L81">                    });</span>
+
+<span class="fc" id="L83">            List&lt;CryptoInfoResponse&gt; cryptosInfoResponse = cryptoInfoResponseMapperImpl.map()</span>
+<span class="fc" id="L84">                    .apply(cryptosByPlatform, cryptoBalanceResponse);</span>
+
+<span class="fc" id="L86">            CryptoPlatformBalanceResponse cryptoPlatformBalanceResponse = new CryptoPlatformBalanceResponse(</span>
+<span class="fc" id="L87">                    cryptoBalanceResponse.totalBalance(), cryptosInfoResponse</span>
+            );
+
+<span class="fc" id="L90">            return Optional.of(cryptoPlatformBalanceResponse);</span>
+        }
+
+<span class="fc" id="L93">        return Optional.empty();</span>
+    }
+
+    @Override
+    public Optional&lt;PlatformBalanceResponse&gt; getPlatformsBalances() {
+<span class="fc" id="L98">        List&lt;UserCrypto&gt; userCryptos = userCryptoService.findAll();</span>
+<span class="fc" id="L99">        CryptoBalanceResponse cryptoBalanceResponse = cryptoBalanceResponseMapperImpl.mapFrom(userCryptos);</span>
+<span class="fc" id="L100">        List&lt;CryptoResponse&gt; cryptos = cryptoBalanceResponse.cryptos();</span>
+
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        if (CollectionUtils.isNotEmpty(cryptos)) {</span>
+<span class="fc" id="L103">            Map&lt;String, BigDecimal&gt; balancePerPlatform = new HashMap&lt;&gt;();</span>
+
+<span class="fc" id="L105">            cryptos.forEach(crypto -&gt; {</span>
+<span class="fc" id="L106">                String platform = crypto.getPlatform();</span>
+<span class="fc" id="L107">                BigDecimal balance = crypto.getBalance();</span>
+
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">                balancePerPlatform.compute(platform, (k, v) -&gt; (v == null) ? balance : v.add(balance));</span>
+<span class="fc" id="L110">            });</span>
+
+<span class="fc" id="L112">            BigDecimal totalBalance = cryptoBalanceResponse.totalBalance();</span>
+<span class="fc" id="L113">            List&lt;PlatformInfo&gt; platforms = getPlatformInfo(balancePerPlatform, totalBalance);</span>
+<span class="fc" id="L114">            PlatformBalanceResponse platformBalanceResponse = new PlatformBalanceResponse(totalBalance, platforms);</span>
+<span class="fc" id="L115">            return Optional.of(platformBalanceResponse);</span>
+        }
+
+<span class="fc" id="L118">        return Optional.empty();</span>
+    }
+
+    @Override
+    public Optional&lt;CryptoBalanceResponse&gt; getAllCryptos(String platformName) {
+<span class="fc" id="L123">        utilValidations.validatePlatformNameFormat(platformName);</span>
+<span class="fc" id="L124">        log.info(&quot;Retrieving cryptos in platform {}&quot;, platformName);</span>
+<span class="fc" id="L125">        Platform platform = platformService.findPlatformByName(platformName);</span>
+<span class="fc" id="L126">        Optional&lt;List&lt;UserCrypto&gt;&gt; cryptos = userCryptoService.findAllByPlatformId(platform.getId());</span>
+
+<span class="fc" id="L128">        Optional&lt;CryptoBalanceResponse&gt; cryptoBalanceResponse = Optional.empty();</span>
+
+<span class="pc bpc" id="L130" title="1 of 4 branches missed.">        if (cryptos.isPresent() &amp;&amp; CollectionUtils.isNotEmpty(cryptos.get())) {</span>
+<span class="fc" id="L131">            cryptoBalanceResponse = Optional.of(cryptoBalanceResponseMapperImpl.mapFrom(cryptos.get()));</span>
+        }
+
+<span class="fc" id="L134">        return cryptoBalanceResponse;</span>
+    }
+
+    @Override
+    public Optional&lt;List&lt;PlatformsCryptoDistributionResponse&gt;&gt; getPlatformsCryptoDistributionResponse() {
+<span class="fc" id="L139">        List&lt;String&gt; platformNames = platformService.getAllPlatformsResponse()</span>
+<span class="fc" id="L140">                .stream()</span>
+<span class="fc" id="L141">                .map(PlatformResponse::getName)</span>
+<span class="fc" id="L142">                .toList();</span>
+<span class="fc" id="L143">        List&lt;PlatformsCryptoDistributionResponse&gt; platformsCryptoDistributionResponse = new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L145" title="All 2 branches covered.">        if (CollectionUtils.isNotEmpty(platformNames)) {</span>
+<span class="fc" id="L146">            platformNames.forEach(platform -&gt; {</span>
+<span class="fc" id="L147">                Optional&lt;CryptoBalanceResponse&gt; cryptoBalanceResponse = getAllCryptos(platform);</span>
+<span class="fc" id="L148">                cryptoBalanceResponse.ifPresent(response -&gt; platformsCryptoDistributionResponse.add(new PlatformsCryptoDistributionResponse(platform, response.cryptos())));</span>
+<span class="fc" id="L149">            });</span>
+        }
+
+<span class="fc bfc" id="L152" title="All 2 branches covered.">        return CollectionUtils.isNotEmpty(platformsCryptoDistributionResponse) ?</span>
+<span class="fc" id="L153">                Optional.of(platformsCryptoDistributionResponse) :</span>
+<span class="fc" id="L154">                Optional.empty();</span>
+    }
+
+    @Override
+    public Optional&lt;List&lt;CryptosPlatformDistributionResponse&gt;&gt; getCryptosPlatformDistribution() {
+<span class="fc" id="L159">        Set&lt;String&gt; cryptosIds = userCryptoService.findAll()</span>
+<span class="fc" id="L160">                .stream()</span>
+<span class="fc" id="L161">                .map(UserCrypto::getCryptoId)</span>
+<span class="fc" id="L162">                .collect(Collectors.toSet());</span>
+<span class="fc" id="L163">        List&lt;CryptosPlatformDistributionResponse&gt; cryptosPlatformDistribution = new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L165" title="All 2 branches covered.">        if (CollectionUtils.isNotEmpty(cryptosIds)) {</span>
+<span class="fc" id="L166">            cryptosIds.forEach(cryptoId -&gt; {</span>
+<span class="fc" id="L167">                Optional&lt;CryptoBalanceResponse&gt; cryptoBalanceResponse = retrieveCryptoBalance(cryptoId);</span>
+
+<span class="fc" id="L169">                cryptoBalanceResponse.ifPresent(cryptos -&gt; cryptosPlatformDistribution.add(new CryptosPlatformDistributionResponse(cryptoId, cryptos.cryptos())));</span>
+<span class="fc" id="L170">            });</span>
+        }
+
+<span class="fc bfc" id="L173" title="All 2 branches covered.">        return CollectionUtils.isNotEmpty(cryptosPlatformDistribution) ?</span>
+<span class="fc" id="L174">                Optional.of(cryptosPlatformDistribution) :</span>
+<span class="fc" id="L175">                Optional.empty();</span>
+    }
+
+    private List&lt;PlatformInfo&gt; getPlatformInfo(Map&lt;String, BigDecimal&gt; balancePerPlatform, BigDecimal totalBalance) {
+<span class="fc" id="L179">        List&lt;PlatformInfo&gt; platformsInfo = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L181">        balancePerPlatform.forEach((platform, platformBalance) -&gt; {</span>
+<span class="fc" id="L182">            PlatformInfo platformInfo = new PlatformInfo(platform, getPercentage(platformBalance, totalBalance), platformBalance);</span>
+<span class="fc" id="L183">            platformsInfo.add(platformInfo);</span>
+<span class="fc" id="L184">        });</span>
+
+<span class="fc" id="L186">        return platformsInfo;</span>
+    }
+
+    private double getPercentage(BigDecimal platformBalance, BigDecimal totalBalance) {
+<span class="fc" id="L190">        return platformBalance</span>
+<span class="fc" id="L191">                .setScale(2, RoundingMode.HALF_UP)</span>
+<span class="fc" id="L192">                .multiply(BigDecimal.valueOf(100))</span>
+<span class="fc" id="L193">                .divide(totalBalance, RoundingMode.HALF_UP)</span>
+<span class="fc" id="L194">                .doubleValue();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

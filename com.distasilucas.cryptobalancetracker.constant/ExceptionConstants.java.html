@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExceptionConstants.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">crypto-balance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.distasilucas.cryptobalancetracker.constant</a> &gt; <span class="el_source">ExceptionConstants.java</span></div><h1>ExceptionConstants.java</h1><pre class="source lang-java linenums">package com.distasilucas.cryptobalancetracker.constant;
+
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+import static com.distasilucas.cryptobalancetracker.constant.Constants.MAX_CRYPTO_QUANTITY;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class ExceptionConstants {
+
+    public static final String PLATFORM_NOT_FOUND = &quot;Platform %s does not exists&quot;;
+    public static final String UNKNOWN_ERROR = &quot;Unknown Error&quot;;
+    public static final String TOKEN_EXPIRED = &quot;Token is expired&quot;;
+    public static final String MAX_RATE_LIMIT_REACHED = &quot;You've exceeded the Rate Limit. Please visit https://www.coingecko.com/en/api/pricing to subscribe to Coingecko API plans for higher rate limits or try again later&quot;;
+    public static final String DUPLICATED_PLATFORM = &quot;Platform %s already exists&quot;;
+    public static final String DUPLICATED_PLATFORM_CRYPTO = &quot;You already have the specified crypto in %s&quot;;
+    public static final String CRYPTO_NAME_NOT_FOUND = &quot;Crypto with name %s not found&quot;;
+    public static final String CRYPTO_ID_NOT_FOUND = &quot;Crypto with ID %s not found&quot;;
+    public static final String CRYPTO_NOT_FOUND = &quot;Crypto not found&quot;;
+    public static final String INVALID_CRYPTO_NAME = &quot;Invalid crypto name&quot;;
+    public static final String INVALID_PLATFORM_FORMAT = &quot;Platform name must be 1-24 characters long, no numbers, special characters or whitespace allowed.&quot;;
+    public static final String ERROR_VALIDATING_JSON_SCHEMA = &quot;Error validating Json Schema %s&quot;;
+<span class="fc" id="L23">    public static final String INVALID_CRYPTO_QUANTITY = String.format(&quot;Quantity must be greater than 0 and less than %s&quot;, MAX_CRYPTO_QUANTITY);</span>
+    public static final String USERNAME_NOT_FOUND = &quot;Username not found&quot;;
+    public static final String INVALID_ID_MONGO_FORMAT = &quot;Invalid ID format&quot;;
+    public static final String GOAL_ID_NOT_FOUND = &quot;Goal with ID %s not found&quot;;
+    public static final String DUPLICATED_GOAL = &quot;Goal for %s already exists&quot;;
+    public static final String NETWORK_FEE_HIGHER = &quot;Network fee can't be higher than quantity to send&quot;;
+    public static final String NOT_ENOUGH_BALANCE = &quot;You don't have enough balance to perform this action&quot;;
+    public static final String TARGET_PLATFORM_NOT_EXISTS = &quot;Target platform does not exists&quot;;
+    public static final String SAME_FROM_TO_PLATFORM = &quot;From platform and to platform cannot be the same&quot;;
+    public static final String INVALID_FEE_QUANTITY = &quot;Invalid network fee quantity&quot;;
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>QuantityValueValidator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">crypto-balance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.distasilucas.cryptobalancetracker.validation</a> &gt; <span class="el_source">QuantityValueValidator.java</span></div><h1>QuantityValueValidator.java</h1><pre class="source lang-java linenums">package com.distasilucas.cryptobalancetracker.validation;
+
+import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+
+import static com.distasilucas.cryptobalancetracker.constant.Constants.MAX_CRYPTO_QUANTITY;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.INVALID_CRYPTO_QUANTITY;
+
+@Service
+<span class="fc" id="L12">public class QuantityValueValidator {</span>
+
+    public void validateCryptoQuantity(BigDecimal quantity) {
+<span class="fc bfc" id="L15" title="All 2 branches covered.">        if (!isValid(quantity)) {</span>
+<span class="fc" id="L16">            throw new ApiValidationException(INVALID_CRYPTO_QUANTITY);</span>
+        }
+<span class="fc" id="L18">    }</span>
+
+    private boolean isValid(BigDecimal quantity) {
+<span class="fc bfc" id="L21" title="All 2 branches covered.">        return isGreaterThanZero(quantity) &amp;&amp;</span>
+<span class="fc bfc" id="L22" title="All 2 branches covered.">                isLessThanMaxAllowed(quantity) &amp;&amp;</span>
+<span class="fc bfc" id="L23" title="All 2 branches covered.">                isValidLength(quantity);</span>
+    }
+
+    private boolean isGreaterThanZero(BigDecimal quantity) {
+<span class="fc bfc" id="L27" title="All 2 branches covered.">        return quantity.compareTo(BigDecimal.valueOf(0)) &gt; 0;</span>
+    }
+
+    private boolean isLessThanMaxAllowed(BigDecimal quantity) {
+<span class="fc bfc" id="L31" title="All 2 branches covered.">        return quantity.compareTo(MAX_CRYPTO_QUANTITY) &lt; 0;</span>
+    }
+
+    private boolean isValidLength(BigDecimal quantity) {
+<span class="fc" id="L35">        String[] quantityValue = String.valueOf(quantity).split(&quot;\\.&quot;);</span>
+
+<span class="fc bfc" id="L37" title="All 4 branches covered.">        return quantityValue.length == 1 || isValidNumberWithDecimals(quantityValue);</span>
+    }
+
+    private static boolean isValidNumberWithDecimals(String[] quantityValue) {
+<span class="pc bpc" id="L41" title="1 of 4 branches missed.">        return quantityValue[0].length() &lt;= 16 &amp;&amp; quantityValue[1].length() &lt;= 12;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JwtServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">crypto-balance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.distasilucas.cryptobalancetracker.service.impl</a> &gt; <span class="el_source">JwtServiceImpl.java</span></div><h1>JwtServiceImpl.java</h1><pre class="source lang-java linenums">package com.distasilucas.cryptobalancetracker.service.impl;
+
+import com.distasilucas.cryptobalancetracker.exception.ApiException;
+import com.distasilucas.cryptobalancetracker.service.JwtService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
+import java.security.Key;
+import java.util.Date;
+import java.util.function.Function;
+
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.TOKEN_EXPIRED;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.UNKNOWN_ERROR;
+
+<span class="fc" id="L23">@Slf4j</span>
+@Service
+public class JwtServiceImpl implements JwtService {
+
+    private final String jwtSigningKey;
+
+<span class="fc" id="L29">    public JwtServiceImpl(@Value(&quot;${jwt.signing-key}&quot;) String jwtSigningKey) {</span>
+<span class="fc" id="L30">        this.jwtSigningKey = jwtSigningKey;</span>
+<span class="fc" id="L31">    }</span>
+
+    @Override
+    public Boolean isTokenValid(String token, UserDetails userDetails) {
+<span class="fc" id="L35">        log.info(&quot;Validating JWT token for {}&quot;, userDetails.getUsername());</span>
+
+<span class="pc bpc" id="L37" title="1 of 4 branches missed.">        return isTokenNonExpired(token) &amp;&amp; extractUsername(token).equals(userDetails.getUsername());</span>
+    }
+
+    @Override
+    public String extractUsername(String token) {
+<span class="fc" id="L42">        return extractClaim(token, Claims::getSubject);</span>
+    }
+
+    private boolean isTokenNonExpired(String token) {
+<span class="fc" id="L46">        Date date = extractClaim(token, Claims::getExpiration);</span>
+
+<span class="fc" id="L48">        return date.after(new Date());</span>
+    }
+
+    private &lt;T&gt; T extractClaim(String token, Function&lt;Claims, T&gt; claims) {
+<span class="fc" id="L52">        Claims claim = extractClaims(token);</span>
+
+<span class="fc" id="L54">        return claims.apply(claim);</span>
+    }
+
+    private Claims extractClaims(String token) {
+        try {
+<span class="fc" id="L59">            return Jwts.parserBuilder()</span>
+<span class="fc" id="L60">                    .setSigningKey(getSigningKey())</span>
+<span class="fc" id="L61">                    .build()</span>
+<span class="fc" id="L62">                    .parseClaimsJws(token)</span>
+<span class="fc" id="L63">                    .getBody();</span>
+<span class="fc" id="L64">        } catch (ExpiredJwtException ex) {</span>
+<span class="fc" id="L65">            throw new ApiException(TOKEN_EXPIRED, HttpStatus.BAD_REQUEST);</span>
+<span class="fc" id="L66">        } catch (Exception ex) {</span>
+<span class="fc" id="L67">            log.warn(&quot;Exception when parsing JWT Token: {}&quot;, ex.getMessage());</span>
+<span class="fc" id="L68">            throw new ApiException(UNKNOWN_ERROR);</span>
+        }
+    }
+
+    private Key getSigningKey() {
+<span class="fc" id="L73">        byte[] decoders = Decoders.BASE64.decode(jwtSigningKey);</span>
+
+<span class="fc" id="L75">        return Keys.hmacShaKeyFor(decoders);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
