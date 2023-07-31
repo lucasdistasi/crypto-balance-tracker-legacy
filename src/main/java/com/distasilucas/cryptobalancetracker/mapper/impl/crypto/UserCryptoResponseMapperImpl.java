@@ -4,6 +4,7 @@ import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.CryptoNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.UserCryptoResponse;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
@@ -12,11 +13,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.function.Function;
 
-import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.CRYPTO_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.PLATFORM_NOT_FOUND;
 
 @Slf4j
 @Service
@@ -35,8 +35,8 @@ public class UserCryptoResponseMapperImpl implements EntityMapper<UserCryptoResp
     }
 
     private UserCryptoResponse getCryptoResponse(UserCrypto userCrypto) {
-        Optional<Platform> platform = platformService.findById(userCrypto.getPlatformId());
-        String platformName = platform.isPresent() ? platform.get().getName() : UNKNOWN;
+        Platform platform = platformService.findById(userCrypto.getPlatformId())
+                .orElseThrow(() -> new PlatformNotFoundException(PLATFORM_NOT_FOUND));
         Crypto crypto = cryptoService.findById(userCrypto.getCryptoId())
                 .orElseThrow(() -> new CryptoNotFoundException(CRYPTO_NOT_FOUND));
 
@@ -44,7 +44,7 @@ public class UserCryptoResponseMapperImpl implements EntityMapper<UserCryptoResp
                 .id(userCrypto.getId())
                 .cryptoName(crypto.getName())
                 .quantity(userCrypto.getQuantity())
-                .platform(platformName)
+                .platform(platform.getName())
                 .build();
     }
 }

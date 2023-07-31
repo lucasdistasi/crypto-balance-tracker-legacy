@@ -26,7 +26,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.CRYPTO_ID_NOT_FOUND;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.CRYPTO_NOT_FOUND;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.PLATFORM_NOT_FOUND;
@@ -89,15 +88,15 @@ public class UserCryptoServiceImpl implements UserCryptoService {
             throw new CryptoNotFoundException(String.format(CRYPTO_ID_NOT_FOUND, id));
 
         UserCrypto userCrypto = optionalUserCrypto.get();
-        Optional<Platform> platform = platformService.findById(userCrypto.getPlatformId());
-        String platformName = platform.isPresent() ? platform.get().getName() : UNKNOWN;
+        Platform platform = platformService.findById(userCrypto.getPlatformId())
+                .orElseThrow(() -> new PlatformNotFoundException(PLATFORM_NOT_FOUND));
         Crypto crypto = cryptoService.findById(userCrypto.getCryptoId())
                 .orElseThrow(() -> new CryptoNotFoundException(CRYPTO_NOT_FOUND));
 
         return UserCryptoResponse.builder()
                 .id(userCrypto.getId())
                 .cryptoName(crypto.getName())
-                .platform(platformName)
+                .platform(platform.getName())
                 .quantity(userCrypto.getQuantity())
                 .build();
     }

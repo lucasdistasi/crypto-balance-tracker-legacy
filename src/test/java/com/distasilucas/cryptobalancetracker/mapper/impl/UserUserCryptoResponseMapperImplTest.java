@@ -3,6 +3,7 @@ package com.distasilucas.cryptobalancetracker.mapper.impl;
 import com.distasilucas.cryptobalancetracker.MockData;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.CryptoNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.mapper.impl.crypto.UserCryptoResponseMapperImpl;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.UserCryptoResponse;
@@ -18,6 +19,7 @@ import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.CRYPTO_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.PLATFORM_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -59,20 +61,15 @@ class UserUserCryptoResponseMapperImplTest {
     }
 
     @Test
-    void shouldMapSuccessfullyWithUnknownPlatform() {
+    void shouldThrowPlatformNotFoundExceptionWhenMapping() {
         var userCrypto = MockData.getUserCrypto("1234");
-        var crypto = MockData.getCrypto();
 
         when(platformServiceMock.findById("1234")).thenReturn(Optional.empty());
-        when(cryptoServiceMock.findById(userCrypto.getCryptoId())).thenReturn(Optional.of(crypto));
 
-        var cryptoResponse = cryptoResponseMapperImpl.mapFrom(userCrypto);
+        var exception = assertThrows(PlatformNotFoundException.class,
+                () -> cryptoResponseMapperImpl.mapFrom(userCrypto));
 
-        assertAll(
-                () -> assertEquals(userCrypto.getQuantity(), cryptoResponse.getQuantity()),
-                () -> assertNotNull(cryptoResponse.getId()),
-                () -> assertEquals(UNKNOWN, cryptoResponse.getPlatform())
-        );
+        assertEquals(PLATFORM_NOT_FOUND, exception.getErrorMessage());
     }
 
     @Test
