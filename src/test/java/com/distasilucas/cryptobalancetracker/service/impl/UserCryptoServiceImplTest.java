@@ -204,22 +204,14 @@ class UserCryptoServiceImplTest {
     @Test
     void shouldReturnCryptoWithUnknownPlatform() {
         var userCrypto = MockData.getUserCrypto("1234");
-        var crypto = Crypto.builder()
-                .name("Bitcoin")
-                .build();
 
         when(userCryptoRepositoryMock.findById("1234")).thenReturn(Optional.of(userCrypto));
         when(platformServiceMock.findById("1234")).thenReturn(Optional.empty());
-        when(cryptoServiceMock.findById(userCrypto.getCryptoId())).thenReturn(Optional.of(crypto));
 
-        var cryptoResponse = userCryptoService.getUserCryptoResponse("1234");
+        var exception = assertThrows(PlatformNotFoundException.class,
+                () -> userCryptoService.getUserCryptoResponse("1234"));
 
-        assertAll(
-                () -> assertEquals("Bitcoin", cryptoResponse.getCryptoName()),
-                () -> assertEquals(userCrypto.getQuantity(), cryptoResponse.getQuantity()),
-                () -> assertEquals(UNKNOWN, cryptoResponse.getPlatform()),
-                () -> assertEquals(userCrypto.getId(), cryptoResponse.getId())
-        );
+        assertEquals(PLATFORM_NOT_FOUND, exception.getErrorMessage());
     }
 
     @Test

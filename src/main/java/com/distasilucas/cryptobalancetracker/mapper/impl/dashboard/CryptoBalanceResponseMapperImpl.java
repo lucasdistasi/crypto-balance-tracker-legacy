@@ -5,6 +5,7 @@ import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.CryptoNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CoingeckoCryptoInfo;
 import com.distasilucas.cryptobalancetracker.model.coingecko.CurrentPrice;
@@ -20,12 +21,11 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.CRYPTO_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.PLATFORM_NOT_FOUND;
 
 @Slf4j
 @Service
@@ -103,10 +103,10 @@ public class CryptoBalanceResponseMapperImpl implements EntityMapper<CryptoBalan
                 .btc()
                 .multiply(quantity)
                 .setScale(10, RoundingMode.HALF_UP);
-        Optional<Platform> platform = platformService.findById(userCrypto.getPlatformId());
-        String platformName = platform.isPresent() ? platform.get().getName() : UNKNOWN;
+        Platform platform = platformService.findById(userCrypto.getPlatformId())
+                .orElseThrow(() -> new PlatformNotFoundException(PLATFORM_NOT_FOUND));
 
-        return new CryptoResponse(userCrypto.getId(), coingeckoCryptoInfo, quantity, balanceInUSD, balanceInEUR, balanceInBTC, platformName);
+        return new CryptoResponse(userCrypto.getId(), coingeckoCryptoInfo, quantity, balanceInUSD, balanceInEUR, balanceInBTC, platform.getName());
     }
 
     private Function<Crypto, CoingeckoCryptoInfo> mapCoingeckoCryptoInfo() {
