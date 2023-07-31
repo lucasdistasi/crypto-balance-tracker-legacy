@@ -54,7 +54,7 @@ public class CoingeckoServiceImpl implements CoingeckoService {
     @Cacheable(cacheNames = CRYPTO_PRICE_CACHE, key = "#coinId")
     @Retryable(retryFor = { WebClientException.class }, backoff = @Backoff(delay = 1500))
     public CoingeckoCryptoInfo retrieveCoingeckoCryptoInfo(String coinId) {
-        log.info("Hitting Coingecko API... Retrieving information for [{}]", coinId);
+        log.info("Hitting Coingecko API... Retrieving information for {}", coinId);
         String uri = String.format("/coins/%s", coinId);
 
         return coingeckoWebClient.get()

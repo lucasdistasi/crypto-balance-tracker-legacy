@@ -15,6 +15,7 @@ import com.distasilucas.cryptobalancetracker.service.TransferCryptoService;
 import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
 import com.distasilucas.cryptobalancetracker.validation.Validation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -27,6 +28,7 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.SAME_FROM_TO_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.TARGET_PLATFORM_NOT_EXISTS;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TransferCryptoServiceImpl implements TransferCryptoService {
@@ -105,6 +107,8 @@ public class TransferCryptoServiceImpl implements TransferCryptoService {
             to = new ToPlatform(quantityToSendReceive);
             from = new FromPlatform(networkFee, quantityToTransfer, totalToSubtract, quantityToSendReceive, remainingCryptoQuantity);
         }
+
+        log.info("Transferred {} {} from to {}", quantityToSendReceive, cryptoToTransfer.getCryptoId(), toPlatform.getName());
 
         return new TransferCryptoResponse(from, to);
     }

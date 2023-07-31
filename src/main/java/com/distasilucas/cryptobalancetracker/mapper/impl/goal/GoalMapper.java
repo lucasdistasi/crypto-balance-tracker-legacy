@@ -12,6 +12,7 @@ import com.distasilucas.cryptobalancetracker.model.request.goal.UpdateGoalReques
 import com.distasilucas.cryptobalancetracker.repository.GoalRepository;
 import com.distasilucas.cryptobalancetracker.service.coingecko.CoingeckoService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +22,7 @@ import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.DUPLICATED_GOAL;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.GOAL_ID_NOT_FOUND;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GoalMapper<T extends GoalRequest> implements EntityMapper<Goal, T> {
@@ -46,6 +48,7 @@ public class GoalMapper<T extends GoalRequest> implements EntityMapper<Goal, T> 
 
             goal.setCryptoId(coingeckoCrypto.getId());
             goal.setQuantityGoal(input.quantityGoal());
+            log.info("Adding goal for {}", coingeckoCrypto.getId());
         }
 
         if (input instanceof UpdateGoalRequest updateGoalRequest) {
@@ -56,6 +59,7 @@ public class GoalMapper<T extends GoalRequest> implements EntityMapper<Goal, T> 
             goal.setId(existingGoal.getId());
             goal.setCryptoId(existingGoal.getCryptoId());
             goal.setQuantityGoal(updateGoalRequest.quantityGoal());
+            log.info("Updating goal for {}", existingGoal.getCryptoId());
         }
 
         return goal;
