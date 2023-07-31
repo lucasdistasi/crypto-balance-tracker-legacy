@@ -4,6 +4,7 @@ import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.CryptoNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.mapper.EntityMapper;
 import com.distasilucas.cryptobalancetracker.model.response.crypto.UserCryptoResponse;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
@@ -12,11 +13,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.function.Function;
 
-import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.CRYPTO_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.PLATFORM_NOT_FOUND;
 
 <span class="fc" id="L21">@Slf4j</span>
 @Service
@@ -35,8 +35,8 @@ public class UserCryptoResponseMapperImpl implements EntityMapper&lt;UserCryptoR
     }
 
     private UserCryptoResponse getCryptoResponse(UserCrypto userCrypto) {
-<span class="fc" id="L38">        Optional&lt;Platform&gt; platform = platformService.findById(userCrypto.getPlatformId());</span>
-<span class="fc bfc" id="L39" title="All 2 branches covered.">        String platformName = platform.isPresent() ? platform.get().getName() : UNKNOWN;</span>
+<span class="fc" id="L38">        Platform platform = platformService.findById(userCrypto.getPlatformId())</span>
+<span class="fc" id="L39">                .orElseThrow(() -&gt; new PlatformNotFoundException(PLATFORM_NOT_FOUND));</span>
 <span class="fc" id="L40">        Crypto crypto = cryptoService.findById(userCrypto.getCryptoId())</span>
 <span class="fc" id="L41">                .orElseThrow(() -&gt; new CryptoNotFoundException(CRYPTO_NOT_FOUND));</span>
 
@@ -44,7 +44,7 @@ public class UserCryptoResponseMapperImpl implements EntityMapper&lt;UserCryptoR
 <span class="fc" id="L44">                .id(userCrypto.getId())</span>
 <span class="fc" id="L45">                .cryptoName(crypto.getName())</span>
 <span class="fc" id="L46">                .quantity(userCrypto.getQuantity())</span>
-<span class="fc" id="L47">                .platform(platformName)</span>
+<span class="fc" id="L47">                .platform(platform.getName())</span>
 <span class="fc" id="L48">                .build();</span>
     }
 }
