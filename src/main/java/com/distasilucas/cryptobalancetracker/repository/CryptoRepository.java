@@ -10,10 +10,8 @@ import java.util.List;
 public interface CryptoRepository extends MongoRepository<Crypto, String> {
 
     @Aggregation(pipeline = {
-            "{ $match: { lastPriceUpdatedAt: { $lte: :#{#dateFilter} } } }",
-            "{ $group: { _id: '$id', doc: { $first: '$$ROOT' } } }",
-            "{ $replaceWith: '$doc' }",
-            "{ $sort: { lastPriceUpdatedAt: 1 } }",
+            "{ $match: { last_price_updated_at: { $lte: :#{#dateFilter} } } }",
+            "{ $sort: { last_price_updated_at: 1 } }",
             "{ $limit: :#{#limit} }"
     })
     List<Crypto> findTopNCryptosOrderByLastPriceUpdatedAtAsc(LocalDateTime dateFilter, int limit);
