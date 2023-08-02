@@ -48,7 +48,7 @@ class GoalControllerTest {
         assertAll(
                 () -> assertNotNull(responseEntity.getBody()),
                 () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
-                () -> assertEquals(goalResponse.goalId(), responseEntity.getBody().goalId()),
+                () -> assertEquals(goalResponse.id(), responseEntity.getBody().id()),
                 () -> assertEquals(goalResponse.cryptoName(), responseEntity.getBody().cryptoName()),
                 () -> assertEquals(goalResponse.actualQuantity(), responseEntity.getBody().actualQuantity()),
                 () -> assertEquals(goalResponse.progress(), responseEntity.getBody().progress()),
@@ -101,7 +101,7 @@ class GoalControllerTest {
         assertAll(
                 () -> assertNotNull(responseEntity.getBody()),
                 () -> assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode()),
-                () -> assertEquals(goalResponse.goalId(), responseEntity.getBody().goalId()),
+                () -> assertEquals(goalResponse.id(), responseEntity.getBody().id()),
                 () -> assertEquals(goalResponse.cryptoName(), responseEntity.getBody().cryptoName()),
                 () -> assertEquals(goalResponse.actualQuantity(), responseEntity.getBody().actualQuantity()),
                 () -> assertEquals(goalResponse.progress(), responseEntity.getBody().progress()),
@@ -122,7 +122,7 @@ class GoalControllerTest {
         assertAll(
                 () -> assertNotNull(responseEntity.getBody()),
                 () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
-                () -> assertEquals(goalResponse.goalId(), responseEntity.getBody().goalId()),
+                () -> assertEquals(goalResponse.id(), responseEntity.getBody().id()),
                 () -> assertEquals(goalResponse.cryptoName(), responseEntity.getBody().cryptoName()),
                 () -> assertEquals(goalResponse.actualQuantity(), responseEntity.getBody().actualQuantity()),
                 () -> assertEquals(goalResponse.progress(), responseEntity.getBody().progress()),

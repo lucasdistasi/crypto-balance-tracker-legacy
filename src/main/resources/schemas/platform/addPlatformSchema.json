@@ -3,7 +3,7 @@
   "title": "Platform",
   "type": "object",
   "properties": {
-    "coinName": {
+    "name": {
       "type": "string",
       "minLength": 1,
       "maxLength": 24

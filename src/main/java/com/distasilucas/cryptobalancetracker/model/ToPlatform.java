@@ -1,4 +1,4 @@
-package com.distasilucas.cryptobalancetracker.model.request.crypto;
+package com.distasilucas.cryptobalancetracker.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
