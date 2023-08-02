@@ -10,7 +10,7 @@ coingecko:
   url: "https://api.coingecko.com/api/v3"
   pro:
     url: "https://pro-api.coingecko.com/api/v3"
-    api-key: ${COINGEKO_API_KEY}
+    api-key: ${COINGECKO_API_KEY}
 
 springdoc:
   swagger-ui:
