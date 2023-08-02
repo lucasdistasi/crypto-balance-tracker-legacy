@@ -1,10 +1,13 @@
 package com.distasilucas.cryptobalancetracker.model.response.crypto;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Getter;
 
 import java.util.List;
 
 @Getter
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class PageCryptoResponse {
 
     private final int page;

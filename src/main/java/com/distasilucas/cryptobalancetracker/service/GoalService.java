@@ -6,7 +6,6 @@ import com.distasilucas.cryptobalancetracker.model.request.goal.UpdateGoalReques
 import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
 import com.distasilucas.cryptobalancetracker.model.response.goal.PageGoalResponse;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface GoalService {

@@ -27,10 +27,8 @@ import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
-import static com.distasilucas.cryptobalancetracker.constant.Constants.UNKNOWN;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.CRYPTO_ID_NOT_FOUND;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.CRYPTO_NOT_FOUND;
 import static com.distasilucas.cryptobalancetracker.constant.ExceptionConstants.PLATFORM_NOT_FOUND;

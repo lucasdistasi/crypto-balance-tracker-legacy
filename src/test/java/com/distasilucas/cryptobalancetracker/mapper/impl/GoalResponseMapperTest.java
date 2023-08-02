@@ -62,7 +62,7 @@ class GoalResponseMapperTest {
         var goalResponse = goalResponseMapper.mapFrom(goal);
 
         assertAll(
-                () -> assertEquals(goal.getId(), goalResponse.goalId()),
+                () -> assertEquals(goal.getId(), goalResponse.id()),
                 () -> assertEquals(BigDecimal.valueOf(1.15), goalResponse.actualQuantity()),
                 () -> assertEquals(BigDecimal.valueOf(57.50).setScale(2, RoundingMode.HALF_UP), goalResponse.progress()),
                 () -> assertEquals(BigDecimal.valueOf(0.85), goalResponse.remainingQuantity()),
@@ -90,7 +90,7 @@ class GoalResponseMapperTest {
         var goalResponse = goalResponseMapper.mapFrom(goal);
 
         assertAll(
-                () -> assertEquals(goal.getId(), goalResponse.goalId()),
+                () -> assertEquals(goal.getId(), goalResponse.id()),
                 () -> assertEquals(BigDecimal.valueOf(1.15), goalResponse.actualQuantity()),
                 () -> assertEquals(BigDecimal.valueOf(100), goalResponse.progress()),
                 () -> assertEquals(BigDecimal.ZERO, goalResponse.remainingQuantity()),

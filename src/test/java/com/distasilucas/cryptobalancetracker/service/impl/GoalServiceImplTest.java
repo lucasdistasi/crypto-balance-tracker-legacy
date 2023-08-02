@@ -89,7 +89,7 @@ class GoalServiceImplTest {
         var goalResponse = goalService.getGoalResponse("ABC123");
 
         assertAll(
-                () -> assertEquals(mockGoalResponse.goalId(), goalResponse.goalId()),
+                () -> assertEquals(mockGoalResponse.id(), goalResponse.id()),
                 () -> assertEquals(mockGoalResponse.cryptoName(), goalResponse.cryptoName()),
                 () -> assertEquals(mockGoalResponse.actualQuantity(), goalResponse.actualQuantity()),
                 () -> assertEquals(mockGoalResponse.progress(), goalResponse.progress()),
@@ -139,7 +139,7 @@ class GoalServiceImplTest {
         var allGoals = goalsResponse.get().goals();
         assertAll(
                 () -> assertEquals(1, allGoals.size()),
-                () -> assertEquals(goalResponse.goalId(), allGoals.get(0).goalId()),
+                () -> assertEquals(goalResponse.id(), allGoals.get(0).id()),
                 () -> assertEquals(goalResponse.cryptoName(), allGoals.get(0).cryptoName()),
                 () -> assertEquals(goalResponse.actualQuantity(), allGoals.get(0).actualQuantity()),
                 () -> assertEquals(goalResponse.progress(), allGoals.get(0).progress()),
@@ -199,7 +199,7 @@ class GoalServiceImplTest {
         var goalResponse = goalService.updateGoalQuantity(updateGoalRequest, "ABC123");
 
         assertAll(
-                () -> assertEquals(mockGoalResponse.goalId(), goalResponse.goalId()),
+                () -> assertEquals(mockGoalResponse.id(), goalResponse.id()),
                 () -> assertEquals(mockGoalResponse.cryptoName(), goalResponse.cryptoName()),
                 () -> assertEquals(mockGoalResponse.actualQuantity(), goalResponse.actualQuantity()),
                 () -> assertEquals(mockGoalResponse.progress(), goalResponse.progress()),

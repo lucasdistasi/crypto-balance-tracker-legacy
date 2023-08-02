@@ -48,7 +48,7 @@ public class GoalServiceImpl implements GoalService {
     @Override
     public GoalResponse getGoalResponse(String goalId) {
         utilValidations.validateIdMongoEntityFormat(goalId);
-        log.info("Trying to retrieve info for goalId {}", goalId);
+        log.info("Trying to retrieve info for id {}", goalId);
         Goal goal = findById(goalId)
                 .orElseThrow(() -> {
                     String message = String.format(GOAL_ID_NOT_FOUND, goalId);

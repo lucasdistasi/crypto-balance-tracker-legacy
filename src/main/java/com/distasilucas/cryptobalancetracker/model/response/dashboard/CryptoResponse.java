@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CryptoResponse {
 
-    private String cryptoId;
+    private String id;
     private CoingeckoCryptoInfo cryptoInfo;
     private BigDecimal quantity;
     private BigDecimal balance;
@@ -20,9 +20,9 @@ public class CryptoResponse {
     private BigDecimal percentage;
     private String platform;
 
-    public CryptoResponse(String cryptoId, CoingeckoCryptoInfo cryptoInfo, BigDecimal quantity,
+    public CryptoResponse(String id, CoingeckoCryptoInfo cryptoInfo, BigDecimal quantity,
                           BigDecimal balance, BigDecimal balanceInEUR, BigDecimal balanceInBTC, String platform) {
-        this.cryptoId = cryptoId;
+        this.id = id;
         this.cryptoInfo = cryptoInfo;
         this.quantity = quantity;
         this.balance = balance;

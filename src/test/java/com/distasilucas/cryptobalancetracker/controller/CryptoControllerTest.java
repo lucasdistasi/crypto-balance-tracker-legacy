@@ -1,8 +1,8 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.MockData;
-import com.distasilucas.cryptobalancetracker.model.request.crypto.FromPlatform;
-import com.distasilucas.cryptobalancetracker.model.request.crypto.ToPlatform;
+import com.distasilucas.cryptobalancetracker.model.FromPlatform;
+import com.distasilucas.cryptobalancetracker.model.ToPlatform;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.TransferCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.TransferCryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.request.crypto.UpdateCryptoRequest;
