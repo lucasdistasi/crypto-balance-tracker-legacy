@@ -16,15 +16,33 @@ services:
     volumes:
       - crypto-db-volume:/data/db
 
-  crypto-balance-tracker:
-    image: 'crypto-balance-tracker:latest'
-    container_name: 'crypto-balance-tracker'
+  cbt-mongo-seed:
+    image: 'cbt-mongo-seed'
+    container_name: 'cbt-mongo-seed'
+    depends_on:
+      - mongo-crypto-db
+
+  crypto-balance-tracker-login:
+    image: 'crypto-balance-tracker-login:latest'
+    container_name: 'crypto-balance-tracker-login'
     depends_on:
       - mongo-crypto-db
     environment:
       - MONGODB_DATABASE=${MONGODB_DATABASE}
       - JWT_SIGNING_KEY=${JWT_SIGNING_KEY}
-      - COINGEKO_API_KEY=${COINGEKO_API_KEY}
+    ports:
+      - '8081:8081'
+
+  crypto-balance-tracker:
+    image: 'crypto-balance-tracker:latest'
+    container_name: 'crypto-balance-tracker'
+    depends_on:
+      - mongo-crypto-db
+      - crypto-balance-tracker-login
+    environment:
+      - MONGODB_DATABASE=${MONGODB_DATABASE}
+      - JWT_SIGNING_KEY=${JWT_SIGNING_KEY}
+      - COINGECKO_API_KEY=${COINGECKO_API_KEY}
     ports:
       - '8080:8080'
 

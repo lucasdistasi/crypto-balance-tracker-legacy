@@ -12,14 +12,15 @@
 
 Crypto Balance Tracker is a Java-Spring application that acts as a portfolio tracker for monitoring your crypto assets. 
 It allows you to retrieve data such as the percentage of each crypto owned, the total value of your assets, 
-the current price of each crypto, and the balance per platform. The application makes use of the 
-[Coingecko](https://www.coingecko.com) API to fetch all the required information about the crypto.
+the current price of each crypto, the balance per platform, and many more data! The application makes use of the 
+[Coingecko](https://www.coingecko.com) API to fetch all the required information about the cryptos.
 
 :warning: Please note that the Coingecko API has [rate limits for the Free Plan](https://www.coingecko.com/en/api/pricing). 
-To avoid hitting the rate limit, a scheduler periodically retrieves the price of the saved cryptos every 180 seconds. 
-This ensures that the end-users do not exceed the rate limit by making multiple API calls. Also, keep in mind 
-that the balances displayed in the  app might not be 100% accurate due to variations in price data from different exchanges. 
-However, any discrepancies should be minimal.
+To avoid hitting the rate limit, a scheduler retrieves and updates the price of the saved cryptos every 180 seconds. 
+This ensures that the end-users do not exceed the rate limit by making multiple API calls. 
+
+Keep in mind  that the balances displayed in the  app might not be 100% accurate due to variations in price data 
+from different exchanges. However, any discrepancies should be minimal.
 <br>
 
 ## Approach and Challenges
@@ -30,10 +31,17 @@ Instead, the current approach was adopted to provide a more reliable and feasibl
 <br>
 
 ## IMPORTANT :fire:
-This API uses ***Spring Security*** and ***Docker Compose***. If you want to fully test or play with it you must have
-knowledge with Docker, an ADMIN user in the database and [crypto-balance-tracker-login](https://github.com/lucasdistasi/crypto-balance-tracker-login),
+Investing in cryptocurrencies comes with high risk and volatility. This app was made only for educational purposes.
+Do your own research before investing money you are not willing to loss.
+
+<hr>
+
+This API uses ***Spring Security*** and ***Docker Compose***. If you want to fully test or play with it you will need an 
+ADMIN user in the database and [crypto-balance-tracker-login](https://github.com/lucasdistasi/crypto-balance-tracker-login),
 a Kotlin-Spring project to generate a JWT and consume the endpoints from this project.
-If you don't want Authentication-Authorization make sure to disable the security in application.yml file.
+
+If you don't want Authentication-Authorization, you are lucky :) There is a property in application.yml to disable
+the security. Default value is false (no security).
 
 <br>
 
@@ -63,20 +71,20 @@ Before starting, you must know that this application can be used with security, 
 require a JWT token from an user with ADMIN role. That being said, below you can find the instructions to run the application
 with or without security.
 
-1. Have Docker installed and running.
-2. Set up environment variables in _.env_ file.
+1. Have Docker and Docker Compose installed and running.
+2. If you want to secure the app, set the security.enabled property in application.yml from this project to true. Default value is false.
+3. Set up environment variables in _.env_ file.
    1. MONGODB_DATABASE. The name of the database.
    2. JWT_SIGNING_KEY. The signing key. Leave empty if security is disabled.
-   3. COINGEKO_API_KEY. API Key from PRO Account. If you don't have one, leave it empty.
-3. Download [cbt-mongo-seed](https://github.com/lucasdistasi/cbt-mongo.seed) and set your desired values (not needed if security is disabled).
-4. If you want to secure the app, set the security.enabled property in application.yml from this project to true. Default value is false.
-5. Run `./gradlew bootJar` on the root of this project to create the executable jar that's going to be used by Docker.
+   3. COINGECKO_API_KEY. API Key from PRO Account. If you don't have one, leave it empty.
+4. Download [cbt-mongo-seed](https://github.com/lucasdistasi/cbt-mongo.seed) and set your desired values **(not needed if security is disabled)**.
+5. Run `./gradlew bootJar` on the root of this project to create the executable jar that's going to be used by Docker to build the image.
 6. Create docker images (`docker build`) for 
    - [cbt-mongo-seed](https://github.com/lucasdistasi/cbt-mongo.seed) (not needed if security is disabled)
    - [crypto-balance-tracker](https://github.com/lucasdistasi/crypto-balance-tracker)
    - [crypto-balance-tracker-ui](https://github.com/lucasdistasi/crypto-balance-tracker-ui)
    - [crypto-balance-tracker-login](https://github.com/lucasdistasi/crypto-balance-tracker-login) (not needed if security is disabled)
-7. On crypto-balance-tracker folder run `docker-compose -f docker-compose-no-security.yml up` if you don't want to use it with security or `docker compose up` if you want to use it with security.
+7. On crypto-balance-tracker folder run `docker ompose up` if you don't want to use it with security or `docker-compose -f docker-compose-security.yml` if you want to use it with security.
 
 <br>
 
@@ -111,7 +119,7 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
 <details>
   <summary>Response examples</summary>
 
-### `/api/v1/cryptos?page=0`
+### `/api/v1/cryptos?page={pageNumber}`
 
 #### Retrieve cryptos by page
 
@@ -122,50 +130,50 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
   "hasNextPage": false,
   "cryptos": [
     {
-      "coinId": "64bd318372a86834e9b400b1",
-      "coinName": "Bitcoin",
+      "id": "64bd318372a86834e9b400b1",
+      "cryptoName": "Bitcoin",
       "platform": "COINBASE",
       "quantity": 0.1
     },
     {
-      "coinId": "64bd319172a86834e9b400b2",
-      "coinName": "Ethereum",
+      "id": "64bd319172a86834e9b400b2",
+      "cryptoName": "Ethereum",
       "platform": "COINBASE",
       "quantity": 0.5
     },
     {
-      "coinId": "64bd319b72a86834e9b400b3",
-      "coinName": "Cardano",
+      "id": "64bd319b72a86834e9b400b3",
+      "cryptoName": "Cardano",
       "platform": "BINANCE",
       "quantity": 500
     },
     {
-      "coinId": "64bd31ad72a86834e9b400b4",
-      "coinName": "Tether",
+      "id": "64bd31ad72a86834e9b400b4",
+      "cryptoName": "Tether",
       "platform": "OKX",
       "quantity": 750
     },
     {
-      "coinId": "64bd31c772a86834e9b400b5",
-      "coinName": "XRP",
+      "id": "64bd31c772a86834e9b400b5",
+      "cryptoName": "XRP",
       "platform": "BYBIT",
       "quantity": 500
     },
     {
-      "coinId": "64bd31e072a86834e9b400b6",
-      "coinName": "Solana",
+      "id": "64bd31e072a86834e9b400b6",
+      "cryptoName": "Solana",
       "platform": "KRAKEN",
       "quantity": 30
     },
     {
-      "coinId": "64bd31eb72a86834e9b400b7",
-      "coinName": "Polygon",
+      "id": "64bd31eb72a86834e9b400b7",
+      "cryptoName": "Polygon",
       "platform": "KRAKEN",
       "quantity": 100
     },
     {
-      "coinId": "64bd322572a86834e9b400b8",
-      "coinName": "Bitcoin",
+      "id": "64bd322572a86834e9b400b8",
+      "cryptoName": "Bitcoin",
       "platform": "BINANCE",
       "quantity": 0.015
     }
@@ -173,16 +181,16 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
 }
 ```
 
-### `/api/v1/crypto/{id}`
+### `/api/v1/cryptos/{id}`
 
-#### Retrieves information from the crypto with the given mongo database id
+#### Retrieves information from the crypto with the given mongo database id. i.e 64c3b17cbd56703f00c7e4d5
 
 ```json
 {
-  "coinId": "64bd318372a86834e9b400b1",
-  "coinName": "Bitcoin",
-  "platform": "COINBASE",
-  "quantity": 0.1
+  "id": "64c3b17cbd56703f00c7e4d5",
+  "cryptoName": "Bitcoin",
+  "platform": "TREZOR",
+  "quantity": 0.31533785
 }
 ```
 
@@ -210,40 +218,45 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
 ]
 ```
 
-### `/api/v1/goals`
+### `/api/v1/goals?page={pageNumber}`
 
 #### Retrieves all goals
 
 ```json
-[
-  {
-    "goalId": "64bd326072a86834e9b400bb",
-    "cryptoName": "XRP",
-    "actualQuantity": 500,
-    "progress": 100,
-    "remainingQuantity": 0,
-    "goalQuantity": 500,
-    "moneyNeeded": 0
-  },
-  {
-    "goalId": "64bd324472a86834e9b400ba",
-    "cryptoName": "Ethereum",
-    "actualQuantity": 0.5,
-    "progress": 50.00,
-    "remainingQuantity": 0.5,
-    "goalQuantity": 1,
-    "moneyNeeded": 937.04
-  },
-  {
-    "goalId": "64bd323972a86834e9b400b9",
-    "cryptoName": "Bitcoin",
-    "actualQuantity": 0.115,
-    "progress": 23.00,
-    "remainingQuantity": 0.385,
-    "goalQuantity": 0.5,
-    "moneyNeeded": 11510.73
-  }
-]
+{
+  "page": 1,
+  "totalPages": 1,
+  "hasNextPage": false,
+  "goals": [
+    {
+      "goalId": "64bd326072a86834e9b400bb",
+      "cryptoName": "XRP",
+      "actualQuantity": 500,
+      "progress": 100,
+      "remainingQuantity": 0,
+      "goalQuantity": 500,
+      "moneyNeeded": 0
+    },
+    {
+      "goalId": "64bd324472a86834e9b400ba",
+      "cryptoName": "Ethereum",
+      "actualQuantity": 0.5,
+      "progress": 50.00,
+      "remainingQuantity": 0.5,
+      "goalQuantity": 1,
+      "moneyNeeded": 937.04
+    },
+    {
+      "goalId": "64bd323972a86834e9b400b9",
+      "cryptoName": "Bitcoin",
+      "actualQuantity": 0.115,
+      "progress": 23.00,
+      "remainingQuantity": 0.385,
+      "goalQuantity": 0.5,
+      "moneyNeeded": 11510.73
+    }
+  ]
+}
 ```
 
 ### `/api/v1/dashboards/crypto/balances`
@@ -255,10 +268,10 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
   "totalBalance": 6464.53,
   "totalEURBalance": 5808.95,
   "totalBTCBalance": 0.2162795750,
-  "coins": [
+  "cryptos": [
     {
-      "coin_id": "64bd318372a86834e9b400b1",
-      "coin_info": {
+      "crypto_id": "64bd318372a86834e9b400b1",
+      "crypto_info": {
         "id": "bitcoin",
         "symbol": "btc",
         "name": "Bitcoin",
@@ -280,8 +293,8 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
       "platform": "COINBASE"
     },
     {
-      "coin_id": "64bd319172a86834e9b400b2",
-      "coin_info": {
+      "crypto_id": "64bd319172a86834e9b400b2",
+      "crypto_info": {
         "id": "ethereum",
         "symbol": "eth",
         "name": "Ethereum",
@@ -303,8 +316,8 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
       "platform": "COINBASE"
     },
     {
-      "coin_id": "64bd31ad72a86834e9b400b4",
-      "coin_info": {
+      "crypto_id": "64bd31ad72a86834e9b400b4",
+      "crypto_info": {
         "id": "tether",
         "symbol": "usdt",
         "name": "Tether",
@@ -326,8 +339,8 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
       "platform": "OKX"
     },
     {
-      "coin_id": "64bd31e072a86834e9b400b6",
-      "coin_info": {
+      "crypto_id": "64bd31e072a86834e9b400b6",
+      "crypto_info": {
         "id": "solana",
         "symbol": "sol",
         "name": "Solana",
@@ -349,8 +362,8 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
       "platform": "KRAKEN"
     },
     {
-      "coin_id": "64bd322572a86834e9b400b8",
-      "coin_info": {
+      "crypto_id": "64bd322572a86834e9b400b8",
+      "crypto_info": {
         "id": "bitcoin",
         "symbol": "btc",
         "name": "Bitcoin",
@@ -372,8 +385,8 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
       "platform": "BINANCE"
     },
     {
-      "coin_id": "64bd31c772a86834e9b400b5",
-      "coin_info": {
+      "crypto_id": "64bd31c772a86834e9b400b5",
+      "crypto_info": {
         "id": "ripple",
         "symbol": "xrp",
         "name": "XRP",
@@ -395,8 +408,8 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
       "platform": "BYBIT"
     },
     {
-      "coin_id": "64bd319b72a86834e9b400b3",
-      "coin_info": {
+      "crypto_id": "64bd319b72a86834e9b400b3",
+      "crypto_info": {
         "id": "cardano",
         "symbol": "ada",
         "name": "Cardano",
@@ -418,8 +431,8 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
       "platform": "BINANCE"
     },
     {
-      "coin_id": "64bd31eb72a86834e9b400b7",
-      "coin_info": {
+      "crypto_id": "64bd31eb72a86834e9b400b7",
+      "crypto_info": {
         "id": "matic-network",
         "symbol": "matic",
         "name": "Polygon",
@@ -444,19 +457,19 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
 }
 ```
 
-### `/api/v1/dashboards/crypto/{coinId}`
+### `/api/v1/dashboards/crypto/{cryptoId}`
 
-#### Retrieves information from the crypto with the given coinId
+#### Retrieves information from the crypto with the given cryptoId i.e bitcoin
 
 ```json
 {
   "totalBalance": 3437.24,
   "totalEURBalance": 3088.67,
   "totalBTCBalance": 0.1150000000,
-  "coins": [
+  "cryptos": [
     {
-      "coin_id": "64bd318372a86834e9b400b1",
-      "coin_info": {
+      "crypto_id": "64bd318372a86834e9b400b1",
+      "crypto_info": {
         "id": "bitcoin",
         "symbol": "btc",
         "name": "Bitcoin",
@@ -478,8 +491,8 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
       "platform": "COINBASE"
     },
     {
-      "coin_id": "64bd322572a86834e9b400b8",
-      "coin_info": {
+      "crypto_id": "64bd322572a86834e9b400b8",
+      "crypto_info": {
         "id": "bitcoin",
         "symbol": "btc",
         "name": "Bitcoin",
@@ -511,11 +524,11 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
 ```json
 [
   {
-    "crypto": "ethereum",
-    "coins": [
+    "cryptoId": "ethereum",
+    "cryptos": [
       {
-        "coin_id": "64bd319172a86834e9b400b2",
-        "coin_info": {
+        "crypto_id": "64bd319172a86834e9b400b2",
+        "crypto_info": {
           "id": "ethereum",
           "symbol": "eth",
           "name": "Ethereum",
@@ -539,11 +552,11 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
     ]
   },
   {
-    "crypto": "ripple",
-    "coins": [
+    "cryptoId": "ripple",
+    "cryptos": [
       {
-        "coin_id": "64bd31c772a86834e9b400b5",
-        "coin_info": {
+        "crypto_id": "64bd31c772a86834e9b400b5",
+        "crypto_info": {
           "id": "ripple",
           "symbol": "xrp",
           "name": "XRP",
@@ -567,11 +580,11 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
     ]
   },
   {
-    "crypto": "tether",
-    "coins": [
+    "cryptoId": "tether",
+    "cryptos": [
       {
-        "coin_id": "64bd31ad72a86834e9b400b4",
-        "coin_info": {
+        "crypto_id": "64bd31ad72a86834e9b400b4",
+        "crypto_info": {
           "id": "tether",
           "symbol": "usdt",
           "name": "Tether",
@@ -595,11 +608,11 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
     ]
   },
   {
-    "crypto": "cardano",
-    "coins": [
+    "cryptoId": "cardano",
+    "cryptos": [
       {
-        "coin_id": "64bd319b72a86834e9b400b3",
-        "coin_info": {
+        "crypto_id": "64bd319b72a86834e9b400b3",
+        "crypto_info": {
           "id": "cardano",
           "symbol": "ada",
           "name": "Cardano",
@@ -623,11 +636,11 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
     ]
   },
   {
-    "crypto": "solana",
-    "coins": [
+    "cryptoId": "solana",
+    "cryptos": [
       {
-        "coin_id": "64bd31e072a86834e9b400b6",
-        "coin_info": {
+        "crypto_id": "64bd31e072a86834e9b400b6",
+        "crypto_info": {
           "id": "solana",
           "symbol": "sol",
           "name": "Solana",
@@ -651,11 +664,11 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
     ]
   },
   {
-    "crypto": "matic-network",
-    "coins": [
+    "cryptoId": "matic-network",
+    "cryptos": [
       {
-        "coin_id": "64bd31eb72a86834e9b400b7",
-        "coin_info": {
+        "crypto_id": "64bd31eb72a86834e9b400b7",
+        "crypto_info": {
           "id": "matic-network",
           "symbol": "matic",
           "name": "Polygon",
@@ -679,11 +692,11 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
     ]
   },
   {
-    "crypto": "bitcoin",
-    "coins": [
+    "cryptoId": "bitcoin",
+    "cryptos": [
       {
-        "coin_id": "64bd318372a86834e9b400b1",
-        "coin_info": {
+        "crypto_id": "64bd318372a86834e9b400b1",
+        "crypto_info": {
           "id": "bitcoin",
           "symbol": "btc",
           "name": "Bitcoin",
@@ -705,8 +718,8 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
         "platform": "COINBASE"
       },
       {
-        "coin_id": "64bd322572a86834e9b400b8",
-        "coin_info": {
+        "crypto_id": "64bd322572a86834e9b400b8",
+        "crypto_info": {
           "id": "bitcoin",
           "symbol": "btc",
           "name": "Bitcoin",
@@ -739,7 +752,7 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
 ```json
 {
   "totalBalance": 6466.29,
-  "coinInfoResponse": [
+  "cryptoInfoResponse": [
     {
       "name": "Bitcoin",
       "quantity": 0.115,
@@ -808,19 +821,19 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
 }
 ```
 
-### `/api/v1/dashboards/platform/{platformName}/coins`
+### `/api/v1/dashboards/platform/{platformName}/cryptos`
 
-#### Retrieves information for all cryptos stored in the given platform
+#### Retrieves information for all cryptos stored in the given platform i.e binance
 
 ```json
 {
   "totalBalance": 605.75,
   "totalEURBalance": 544.32,
   "totalBTCBalance": 0.0202600000,
-  "coins": [
+  "cryptos": [
     {
-      "coin_id": "64bd322572a86834e9b400b8",
-      "coin_info": {
+      "crypto_id": "64bd322572a86834e9b400b8",
+      "crypto_info": {
         "id": "bitcoin",
         "symbol": "btc",
         "name": "Bitcoin",
@@ -842,8 +855,8 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
       "platform": "BINANCE"
     },
     {
-      "coin_id": "64bd319b72a86834e9b400b3",
-      "coin_info": {
+      "crypto_id": "64bd319b72a86834e9b400b3",
+      "crypto_info": {
         "id": "cardano",
         "symbol": "ada",
         "name": "Cardano",
@@ -868,7 +881,7 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
 }
 ```
 
-### `/api/v1/dashboards/platforms/coins`
+### `/api/v1/dashboards/platforms/cryptos`
 
 #### Retrieves information for all cryptos stored in each platform
 
@@ -876,10 +889,10 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
 [
   {
     "platform": "BINANCE",
-    "coins": [
+    "cryptos": [
       {
-        "coin_id": "64bd322572a86834e9b400b8",
-        "coin_info": {
+        "crypto_id": "64bd322572a86834e9b400b8",
+        "crypto_info": {
           "id": "bitcoin",
           "symbol": "btc",
           "name": "Bitcoin",
@@ -901,8 +914,8 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
         "platform": "BINANCE"
       },
       {
-        "coin_id": "64bd319b72a86834e9b400b3",
-        "coin_info": {
+        "crypto_id": "64bd319b72a86834e9b400b3",
+        "crypto_info": {
           "id": "cardano",
           "symbol": "ada",
           "name": "Cardano",
@@ -927,10 +940,10 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
   },
   {
     "platform": "COINBASE",
-    "coins": [
+    "cryptos": [
       {
-        "coin_id": "64bd318372a86834e9b400b1",
-        "coin_info": {
+        "crypto_id": "64bd318372a86834e9b400b1",
+        "crypto_info": {
           "id": "bitcoin",
           "symbol": "btc",
           "name": "Bitcoin",
@@ -952,8 +965,8 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
         "platform": "COINBASE"
       },
       {
-        "coin_id": "64bd319172a86834e9b400b2",
-        "coin_info": {
+        "crypto_id": "64bd319172a86834e9b400b2",
+        "crypto_info": {
           "id": "ethereum",
           "symbol": "eth",
           "name": "Ethereum",
@@ -978,10 +991,10 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
   },
   {
     "platform": "BYBIT",
-    "coins": [
+    "cryptos": [
       {
-        "coin_id": "64bd31c772a86834e9b400b5",
-        "coin_info": {
+        "crypto_id": "64bd31c772a86834e9b400b5",
+        "crypto_info": {
           "id": "ripple",
           "symbol": "xrp",
           "name": "XRP",
@@ -1006,10 +1019,10 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
   },
   {
     "platform": "OKX",
-    "coins": [
+    "cryptos": [
       {
-        "coin_id": "64bd31ad72a86834e9b400b4",
-        "coin_info": {
+        "crypto_id": "64bd31ad72a86834e9b400b4",
+        "crypto_info": {
           "id": "tether",
           "symbol": "usdt",
           "name": "Tether",
@@ -1034,10 +1047,10 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
   },
   {
     "platform": "KRAKEN",
-    "coins": [
+    "cryptos": [
       {
-        "coin_id": "64bd31e072a86834e9b400b6",
-        "coin_info": {
+        "crypto_id": "64bd31e072a86834e9b400b6",
+        "crypto_info": {
           "id": "solana",
           "symbol": "sol",
           "name": "Solana",
@@ -1059,8 +1072,8 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
         "platform": "KRAKEN"
       },
       {
-        "coin_id": "64bd31eb72a86834e9b400b7",
-        "coin_info": {
+        "crypto_id": "64bd31eb72a86834e9b400b7",
+        "crypto_info": {
           "id": "matic-network",
           "symbol": "matic",
           "name": "Polygon",
