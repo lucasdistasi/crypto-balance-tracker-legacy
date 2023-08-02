@@ -84,7 +84,7 @@ with or without security.
    - [crypto-balance-tracker](https://github.com/lucasdistasi/crypto-balance-tracker)
    - [crypto-balance-tracker-ui](https://github.com/lucasdistasi/crypto-balance-tracker-ui)
    - [crypto-balance-tracker-login](https://github.com/lucasdistasi/crypto-balance-tracker-login) (not needed if security is disabled)
-7. On crypto-balance-tracker folder run `docker ompose up` if you don't want to use it with security or `docker-compose -f docker-compose-security.yml` if you want to use it with security.
+7. On crypto-balance-tracker folder run `docker ompose up` if you don't want to use it with security or `docker-compose -f docker-compose-security.yml up` if you want to use it with security.
 
 <br>
 
@@ -126,54 +126,54 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
 ```json
 {
   "page": 1,
-  "totalPages": 1,
-  "hasNextPage": false,
+  "total_pages": 1,
+  "has_next_page": false,
   "cryptos": [
     {
       "id": "64bd318372a86834e9b400b1",
-      "cryptoName": "Bitcoin",
+      "crypto_name": "Bitcoin",
       "platform": "COINBASE",
       "quantity": 0.1
     },
     {
       "id": "64bd319172a86834e9b400b2",
-      "cryptoName": "Ethereum",
+      "crypto_name": "Ethereum",
       "platform": "COINBASE",
       "quantity": 0.5
     },
     {
       "id": "64bd319b72a86834e9b400b3",
-      "cryptoName": "Cardano",
+      "crypto_name": "Cardano",
       "platform": "BINANCE",
       "quantity": 500
     },
     {
       "id": "64bd31ad72a86834e9b400b4",
-      "cryptoName": "Tether",
+      "crypto_name": "Tether",
       "platform": "OKX",
       "quantity": 750
     },
     {
       "id": "64bd31c772a86834e9b400b5",
-      "cryptoName": "XRP",
+      "crypto_name": "XRP",
       "platform": "BYBIT",
       "quantity": 500
     },
     {
       "id": "64bd31e072a86834e9b400b6",
-      "cryptoName": "Solana",
+      "crypto_name": "Solana",
       "platform": "KRAKEN",
       "quantity": 30
     },
     {
       "id": "64bd31eb72a86834e9b400b7",
-      "cryptoName": "Polygon",
+      "crypto_name": "Polygon",
       "platform": "KRAKEN",
       "quantity": 100
     },
     {
       "id": "64bd322572a86834e9b400b8",
-      "cryptoName": "Bitcoin",
+      "crypto_name": "Bitcoin",
       "platform": "BINANCE",
       "quantity": 0.015
     }
@@ -188,7 +188,7 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
 ```json
 {
   "id": "64c3b17cbd56703f00c7e4d5",
-  "cryptoName": "Bitcoin",
+  "crypto_name": "Bitcoin",
   "platform": "TREZOR",
   "quantity": 0.31533785
 }
@@ -225,35 +225,35 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
 ```json
 {
   "page": 1,
-  "totalPages": 1,
-  "hasNextPage": false,
+  "total_pages": 1,
+  "has_next_page": false,
   "goals": [
     {
-      "goalId": "64bd326072a86834e9b400bb",
-      "cryptoName": "XRP",
-      "actualQuantity": 500,
+      "id": "64bd326072a86834e9b400bb",
+      "crypto_name": "XRP",
+      "actual_quantity": 500,
       "progress": 100,
-      "remainingQuantity": 0,
-      "goalQuantity": 500,
-      "moneyNeeded": 0
+      "remaining_quantity": 0,
+      "goal_quantity": 500,
+      "money_needed": 0
     },
     {
-      "goalId": "64bd324472a86834e9b400ba",
-      "cryptoName": "Ethereum",
-      "actualQuantity": 0.5,
+      "id": "64bd324472a86834e9b400ba",
+      "crypto_name": "Ethereum",
+      "actual_quantity": 0.5,
       "progress": 50.00,
-      "remainingQuantity": 0.5,
-      "goalQuantity": 1,
-      "moneyNeeded": 937.04
+      "remaining_quantity": 0.5,
+      "goal_quantity": 1,
+      "money_needed": 937.04
     },
     {
-      "goalId": "64bd323972a86834e9b400b9",
-      "cryptoName": "Bitcoin",
-      "actualQuantity": 0.115,
+      "id": "64bd323972a86834e9b400b9",
+      "crypto_name": "Bitcoin",
+      "actual_quantity": 0.115,
       "progress": 23.00,
-      "remainingQuantity": 0.385,
-      "goalQuantity": 0.5,
-      "moneyNeeded": 11510.73
+      "remaining_quantity": 0.385,
+      "goal_quantity": 0.5,
+      "money_needed": 11510.73
     }
   ]
 }
@@ -265,12 +265,12 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
 
 ```json
 {
-  "totalBalance": 6464.53,
-  "totalEURBalance": 5808.95,
-  "totalBTCBalance": 0.2162795750,
+  "total_balance": 6464.53,
+  "total_EUR_balance": 5808.95,
+  "total_BTC_balance": 0.2162795750,
   "cryptos": [
     {
-      "crypto_id": "64bd318372a86834e9b400b1",
+      "id": "64bd318372a86834e9b400b1",
       "crypto_info": {
         "id": "bitcoin",
         "symbol": "btc",
@@ -293,7 +293,7 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
       "platform": "COINBASE"
     },
     {
-      "crypto_id": "64bd319172a86834e9b400b2",
+      "id": "64bd319172a86834e9b400b2",
       "crypto_info": {
         "id": "ethereum",
         "symbol": "eth",
@@ -316,7 +316,7 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
       "platform": "COINBASE"
     },
     {
-      "crypto_id": "64bd31ad72a86834e9b400b4",
+      "id": "64bd31ad72a86834e9b400b4",
       "crypto_info": {
         "id": "tether",
         "symbol": "usdt",
@@ -339,7 +339,7 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
       "platform": "OKX"
     },
     {
-      "crypto_id": "64bd31e072a86834e9b400b6",
+      "id": "64bd31e072a86834e9b400b6",
       "crypto_info": {
         "id": "solana",
         "symbol": "sol",
@@ -362,7 +362,7 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
       "platform": "KRAKEN"
     },
     {
-      "crypto_id": "64bd322572a86834e9b400b8",
+      "id": "64bd322572a86834e9b400b8",
       "crypto_info": {
         "id": "bitcoin",
         "symbol": "btc",
@@ -385,7 +385,7 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
       "platform": "BINANCE"
     },
     {
-      "crypto_id": "64bd31c772a86834e9b400b5",
+      "id": "64bd31c772a86834e9b400b5",
       "crypto_info": {
         "id": "ripple",
         "symbol": "xrp",
@@ -408,7 +408,7 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
       "platform": "BYBIT"
     },
     {
-      "crypto_id": "64bd319b72a86834e9b400b3",
+      "id": "64bd319b72a86834e9b400b3",
       "crypto_info": {
         "id": "cardano",
         "symbol": "ada",
@@ -431,7 +431,7 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
       "platform": "BINANCE"
     },
     {
-      "crypto_id": "64bd31eb72a86834e9b400b7",
+      "id": "64bd31eb72a86834e9b400b7",
       "crypto_info": {
         "id": "matic-network",
         "symbol": "matic",
@@ -463,12 +463,12 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
 
 ```json
 {
-  "totalBalance": 3437.24,
-  "totalEURBalance": 3088.67,
-  "totalBTCBalance": 0.1150000000,
+  "total_balance": 3437.24,
+  "total_EUR_balance": 3088.67,
+  "total_BTC_balance": 0.1150000000,
   "cryptos": [
     {
-      "crypto_id": "64bd318372a86834e9b400b1",
+      "id": "64bd318372a86834e9b400b1",
       "crypto_info": {
         "id": "bitcoin",
         "symbol": "btc",
@@ -491,7 +491,7 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
       "platform": "COINBASE"
     },
     {
-      "crypto_id": "64bd322572a86834e9b400b8",
+      "id": "64bd322572a86834e9b400b8",
       "crypto_info": {
         "id": "bitcoin",
         "symbol": "btc",
@@ -524,10 +524,10 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
 ```json
 [
   {
-    "cryptoId": "ethereum",
+    "crypto_id": "ethereum",
     "cryptos": [
       {
-        "crypto_id": "64bd319172a86834e9b400b2",
+        "id": "64bd319172a86834e9b400b2",
         "crypto_info": {
           "id": "ethereum",
           "symbol": "eth",
@@ -552,10 +552,10 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
     ]
   },
   {
-    "cryptoId": "ripple",
+    "crypto_id": "ripple",
     "cryptos": [
       {
-        "crypto_id": "64bd31c772a86834e9b400b5",
+        "id": "64bd31c772a86834e9b400b5",
         "crypto_info": {
           "id": "ripple",
           "symbol": "xrp",
@@ -580,10 +580,10 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
     ]
   },
   {
-    "cryptoId": "tether",
+    "crypto_id": "tether",
     "cryptos": [
       {
-        "crypto_id": "64bd31ad72a86834e9b400b4",
+        "id": "64bd31ad72a86834e9b400b4",
         "crypto_info": {
           "id": "tether",
           "symbol": "usdt",
@@ -608,10 +608,10 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
     ]
   },
   {
-    "cryptoId": "cardano",
+    "crypto_id": "cardano",
     "cryptos": [
       {
-        "crypto_id": "64bd319b72a86834e9b400b3",
+        "id": "64bd319b72a86834e9b400b3",
         "crypto_info": {
           "id": "cardano",
           "symbol": "ada",
@@ -636,10 +636,10 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
     ]
   },
   {
-    "cryptoId": "solana",
+    "crypto_id": "solana",
     "cryptos": [
       {
-        "crypto_id": "64bd31e072a86834e9b400b6",
+        "id": "64bd31e072a86834e9b400b6",
         "crypto_info": {
           "id": "solana",
           "symbol": "sol",
@@ -664,10 +664,10 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
     ]
   },
   {
-    "cryptoId": "matic-network",
+    "crypto_id": "matic-network",
     "cryptos": [
       {
-        "crypto_id": "64bd31eb72a86834e9b400b7",
+        "id": "64bd31eb72a86834e9b400b7",
         "crypto_info": {
           "id": "matic-network",
           "symbol": "matic",
@@ -692,10 +692,10 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
     ]
   },
   {
-    "cryptoId": "bitcoin",
+    "crypto_id": "bitcoin",
     "cryptos": [
       {
-        "crypto_id": "64bd318372a86834e9b400b1",
+        "id": "64bd318372a86834e9b400b1",
         "crypto_info": {
           "id": "bitcoin",
           "symbol": "btc",
@@ -718,7 +718,7 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
         "platform": "COINBASE"
       },
       {
-        "crypto_id": "64bd322572a86834e9b400b8",
+        "id": "64bd322572a86834e9b400b8",
         "crypto_info": {
           "id": "bitcoin",
           "symbol": "btc",
@@ -751,8 +751,8 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
 
 ```json
 {
-  "totalBalance": 6466.29,
-  "cryptoInfoResponse": [
+  "total_balance": 6466.29,
+  "crypto_info_response": [
     {
       "name": "Bitcoin",
       "quantity": 0.115,
@@ -827,12 +827,12 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
 
 ```json
 {
-  "totalBalance": 605.75,
-  "totalEURBalance": 544.32,
-  "totalBTCBalance": 0.0202600000,
+  "total_balance": 605.75,
+  "total_EUR_balance": 544.32,
+  "total_BTC_balance": 0.0202600000,
   "cryptos": [
     {
-      "crypto_id": "64bd322572a86834e9b400b8",
+      "id": "64bd322572a86834e9b400b8",
       "crypto_info": {
         "id": "bitcoin",
         "symbol": "btc",
@@ -855,7 +855,7 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
       "platform": "BINANCE"
     },
     {
-      "crypto_id": "64bd319b72a86834e9b400b3",
+      "id": "64bd319b72a86834e9b400b3",
       "crypto_info": {
         "id": "cardano",
         "symbol": "ada",
@@ -891,7 +891,7 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
     "platform": "BINANCE",
     "cryptos": [
       {
-        "crypto_id": "64bd322572a86834e9b400b8",
+        "id": "64bd322572a86834e9b400b8",
         "crypto_info": {
           "id": "bitcoin",
           "symbol": "btc",
@@ -914,7 +914,7 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
         "platform": "BINANCE"
       },
       {
-        "crypto_id": "64bd319b72a86834e9b400b3",
+        "id": "64bd319b72a86834e9b400b3",
         "crypto_info": {
           "id": "cardano",
           "symbol": "ada",
@@ -942,7 +942,7 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
     "platform": "COINBASE",
     "cryptos": [
       {
-        "crypto_id": "64bd318372a86834e9b400b1",
+        "id": "64bd318372a86834e9b400b1",
         "crypto_info": {
           "id": "bitcoin",
           "symbol": "btc",
@@ -965,7 +965,7 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
         "platform": "COINBASE"
       },
       {
-        "crypto_id": "64bd319172a86834e9b400b2",
+        "id": "64bd319172a86834e9b400b2",
         "crypto_info": {
           "id": "ethereum",
           "symbol": "eth",
@@ -993,7 +993,7 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
     "platform": "BYBIT",
     "cryptos": [
       {
-        "crypto_id": "64bd31c772a86834e9b400b5",
+        "id": "64bd31c772a86834e9b400b5",
         "crypto_info": {
           "id": "ripple",
           "symbol": "xrp",
@@ -1021,7 +1021,7 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
     "platform": "OKX",
     "cryptos": [
       {
-        "crypto_id": "64bd31ad72a86834e9b400b4",
+        "id": "64bd31ad72a86834e9b400b4",
         "crypto_info": {
           "id": "tether",
           "symbol": "usdt",
@@ -1049,7 +1049,7 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
     "platform": "KRAKEN",
     "cryptos": [
       {
-        "crypto_id": "64bd31e072a86834e9b400b6",
+        "id": "64bd31e072a86834e9b400b6",
         "crypto_info": {
           "id": "solana",
           "symbol": "sol",
@@ -1072,7 +1072,7 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
         "platform": "KRAKEN"
       },
       {
-        "crypto_id": "64bd31eb72a86834e9b400b7",
+        "id": "64bd31eb72a86834e9b400b7",
         "crypto_info": {
           "id": "matic-network",
           "symbol": "matic",
@@ -1105,30 +1105,30 @@ Bear in mind that the below ones aren't all the endpoints, but only the ones use
 
 ```json
 {
-  "totalBalance": 6466.25,
+  "total_balance": 6466.25,
   "platforms": [
     {
-      "platformName": "BINANCE",
+      "platform_name": "BINANCE",
       "percentage": 9.37,
       "balance": 605.75
     },
     {
-      "platformName": "COINBASE",
+      "platform_name": "COINBASE",
       "percentage": 60.73,
       "balance": 3926.86
     },
     {
-      "platformName": "KRAKEN",
+      "platform_name": "KRAKEN",
       "percentage": 12.59,
       "balance": 814.12
     },
     {
-      "platformName": "BYBIT",
+      "platform_name": "BYBIT",
       "percentage": 5.72,
       "balance": 369.56
     },
     {
-      "platformName": "OKX",
+      "platform_name": "OKX",
       "percentage": 11.6,
       "balance": 749.96
     }
