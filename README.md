@@ -1,14 +1,13 @@
 # Crypto Balance Tracker :rocket:
 
-<a href="https://github.com/lucasdistasi/crypto-balance-tracker/actions">
-    <img alt="Pipeline Status" src="https://github.com/lucasdistasi/crypto-balance-tracker/actions/workflows/main.yml/badge.svg"/>
-</a>
-<a href="https://lucasdistasi.github.io/crypto-balance-tracker/">
-    <img alt="Code Coverage" src="https://github.com/lucasdistasi/crypto-balance-tracker/blob/gh-pages/badges/jacoco.svg"/>
-</a>
-<a href="#">
-    <img alt="Pipeline Status" src="https://hits.dwyl.com/lucasdistasi/crypto-balance-tracker.svg"/>
-</a>
+| | |
+|---|---|
+| Pipeline | [![Pipeline Status](https://github.com/lucasdistasi/crypto-balance-tracker/actions/workflows/main.yml/badge.svg)](https://github.com/lucasdistasi/crypto-balance-tracker/actions) |
+| License | [![License](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) |
+| Code Coverage | [![Code Coverage](https://github.com/lucasdistasi/crypto-balance-tracker/blob/gh-pages/badges/jacoco.svg)](https://lucasdistasi.github.io/crypto-balance-tracker/) |
+| Project views | [![Project views](https://hits.dwyl.com/lucasdistasi/crypto-balance-tracker.svg)](#) |
+
+
 
 Crypto Balance Tracker is a Java-Spring application that acts as a portfolio tracker for monitoring your crypto assets. 
 It allows you to retrieve data such as the percentage of each crypto owned, the total value of your assets, 
@@ -62,6 +61,8 @@ the security. Default value is false (no security).
 - Lombok
 - JUnit 5 - Mockito
 - Docker - Docker Compose
+
+## Features
 
 ### I want to try this API on my local machine. What should I do? :tada:
 
