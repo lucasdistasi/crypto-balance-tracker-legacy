@@ -24,38 +24,37 @@ public class UpdateCryptoSchedulerMapperImpl implements EntityMapper&lt;Crypto, 
     
     @Override
     public Crypto mapFrom(Crypto input) {
-<span class="fc" id="L27">        log.info(&quot;Updating information for {}&quot;, input.getName());</span>
-<span class="fc" id="L28">        String id = input.getId();</span>
+<span class="fc" id="L27">        String id = input.getId();</span>
 
         try {
-<span class="fc" id="L31">            CoingeckoCryptoInfo coingeckoCryptoInfo = coingeckoService.retrieveCoingeckoCryptoInfo(id);</span>
-<span class="fc" id="L32">            MarketData marketData = coingeckoCryptoInfo.getMarketData();</span>
-<span class="fc" id="L33">            BigDecimal currentUSDPrice = marketData.currentPrice().usd();</span>
-<span class="fc" id="L34">            BigDecimal currentEURPrice = marketData.currentPrice().eur();</span>
-<span class="fc" id="L35">            BigDecimal currentBTCPrice = marketData.currentPrice().btc();</span>
-<span class="fc" id="L36">            BigDecimal maxSupply = marketData.maxSupply();</span>
-<span class="fc" id="L37">            BigDecimal circulatingSupply = marketData.circulatingSupply();</span>
+<span class="fc" id="L30">            CoingeckoCryptoInfo coingeckoCryptoInfo = coingeckoService.retrieveCoingeckoCryptoInfo(id);</span>
+<span class="fc" id="L31">            MarketData marketData = coingeckoCryptoInfo.getMarketData();</span>
+<span class="fc" id="L32">            BigDecimal currentUSDPrice = marketData.currentPrice().usd();</span>
+<span class="fc" id="L33">            BigDecimal currentEURPrice = marketData.currentPrice().eur();</span>
+<span class="fc" id="L34">            BigDecimal currentBTCPrice = marketData.currentPrice().btc();</span>
+<span class="fc" id="L35">            BigDecimal maxSupply = marketData.maxSupply();</span>
+<span class="fc" id="L36">            BigDecimal circulatingSupply = marketData.circulatingSupply();</span>
 
-<span class="fc" id="L39">            Crypto cryptoToUpdate = new Crypto();</span>
-<span class="fc" id="L40">            cryptoToUpdate.setId(input.getId());</span>
-<span class="fc" id="L41">            cryptoToUpdate.setName(input.getName());</span>
-<span class="fc" id="L42">            cryptoToUpdate.setTicker(input.getTicker());</span>
-<span class="fc" id="L43">            cryptoToUpdate.setLastKnownPrice(currentUSDPrice);</span>
-<span class="fc" id="L44">            cryptoToUpdate.setLastKnownPriceInEUR(currentEURPrice);</span>
-<span class="fc" id="L45">            cryptoToUpdate.setLastKnownPriceInBTC(currentBTCPrice);</span>
-<span class="fc" id="L46">            cryptoToUpdate.setCirculatingSupply(circulatingSupply);</span>
-<span class="fc" id="L47">            cryptoToUpdate.setMaxSupply(maxSupply);</span>
-<span class="fc" id="L48">            cryptoToUpdate.setLastPriceUpdatedAt(LocalDateTime.now(clock));</span>
+<span class="fc" id="L38">            Crypto cryptoToUpdate = new Crypto();</span>
+<span class="fc" id="L39">            cryptoToUpdate.setId(input.getId());</span>
+<span class="fc" id="L40">            cryptoToUpdate.setName(input.getName());</span>
+<span class="fc" id="L41">            cryptoToUpdate.setTicker(input.getTicker());</span>
+<span class="fc" id="L42">            cryptoToUpdate.setLastKnownPrice(currentUSDPrice);</span>
+<span class="fc" id="L43">            cryptoToUpdate.setLastKnownPriceInEUR(currentEURPrice);</span>
+<span class="fc" id="L44">            cryptoToUpdate.setLastKnownPriceInBTC(currentBTCPrice);</span>
+<span class="fc" id="L45">            cryptoToUpdate.setCirculatingSupply(circulatingSupply);</span>
+<span class="fc" id="L46">            cryptoToUpdate.setMaxSupply(maxSupply);</span>
+<span class="fc" id="L47">            cryptoToUpdate.setLastPriceUpdatedAt(LocalDateTime.now(clock));</span>
 
-<span class="fc" id="L50">            log.info(&quot;Updated information for {}&quot;, input.getName());</span>
+<span class="fc" id="L49">            log.info(&quot;Updated information for {}&quot;, input.getName());</span>
 
-<span class="fc" id="L52">            return cryptoToUpdate;</span>
-<span class="fc" id="L53">        } catch (WebClientResponseException ex) {</span>
-<span class="fc" id="L54">            log.warn(&quot;A WebClientResponseException occurred and {} price could not be updated {}&quot;, id, ex);</span>
-<span class="fc" id="L55">            return input;</span>
-<span class="fc" id="L56">        } catch (Exception ex) {</span>
-<span class="fc" id="L57">            log.warn(&quot;An uncaught exception occurred and {} price could not be updated {}&quot;, id, ex);</span>
-<span class="fc" id="L58">            return input;</span>
+<span class="fc" id="L51">            return cryptoToUpdate;</span>
+<span class="fc" id="L52">        } catch (WebClientResponseException ex) {</span>
+<span class="fc" id="L53">            log.warn(&quot;A WebClientResponseException occurred and {} price could not be updated {}&quot;, id, ex);</span>
+<span class="fc" id="L54">            return input;</span>
+<span class="fc" id="L55">        } catch (Exception ex) {</span>
+<span class="fc" id="L56">            log.warn(&quot;An uncaught exception occurred and {} price could not be updated {}&quot;, id, ex);</span>
+<span class="fc" id="L57">            return input;</span>
         }
     }
 }
