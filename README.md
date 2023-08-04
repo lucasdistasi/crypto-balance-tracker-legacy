@@ -1,42 +1,47 @@
 # Crypto Balance Tracker :rocket:
 
-| | |
-|---|---|
-| Pipeline | [![Pipeline Status](https://github.com/lucasdistasi/crypto-balance-tracker/actions/workflows/main.yml/badge.svg)](https://github.com/lucasdistasi/crypto-balance-tracker/actions) |
-| License | [![License](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) |
-| Code Coverage | [![Code Coverage](https://github.com/lucasdistasi/crypto-balance-tracker/blob/gh-pages/badges/jacoco.svg)](https://lucasdistasi.github.io/crypto-balance-tracker/) |
-| Project views | [![Project views](https://hits.dwyl.com/lucasdistasi/crypto-balance-tracker.svg)](#) |
+|               |                                                                                                                                                                                   |
+|---------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Pipeline      | [![Pipeline Status](https://github.com/lucasdistasi/crypto-balance-tracker/actions/workflows/main.yml/badge.svg)](https://github.com/lucasdistasi/crypto-balance-tracker/actions) |
+| License       | [![License](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)                                                                           |
+| Code Coverage | [![Code Coverage](https://github.com/lucasdistasi/crypto-balance-tracker/blob/gh-pages/badges/jacoco.svg)](https://lucasdistasi.github.io/crypto-balance-tracker/)                |
+| Project views | [![Project views](https://hits.dwyl.com/lucasdistasi/crypto-balance-tracker.svg)]()                                                                                               |
+| Snyk          | [![Known Vulnerabilities](https://snyk.io/test/github/lucasdistasi/crypto-balance-tracker/badge.svg)]()                                                                           |
 
-
-
-Crypto Balance Tracker is a Java-Spring application that acts as a portfolio tracker for monitoring your crypto assets. 
-It allows you to retrieve data such as the percentage of each crypto owned, the total value of your assets, 
-the current price of each crypto, the balance per platform, and many more data! The application makes use of the 
+Crypto Balance Tracker is a Java-Spring application that acts as a portfolio tracker for monitoring your crypto assets.
+It allows you to retrieve data such as the percentage of each crypto owned, the total value of your assets,
+the current price of each crypto, the balance per platform, and many more data! The application makes use of the
 [Coingecko](https://www.coingecko.com) API to fetch all the required information about the cryptos.
 
-:warning: Please note that the Coingecko API has [rate limits for the Free Plan](https://www.coingecko.com/en/api/pricing). 
-To avoid hitting the rate limit, a scheduler retrieves and updates the price of the saved cryptos every 180 seconds. 
-This ensures that the end-users do not exceed the rate limit by making multiple API calls. 
+:warning: Please note that the Coingecko API
+has [rate limits for the Free Plan](https://www.coingecko.com/en/api/pricing).
+To avoid hitting the rate limit, a scheduler retrieves and updates the price of the saved cryptos every 180 seconds.
+This ensures that the end-users do not exceed the rate limit by making multiple API calls.
 
-Keep in mind  that the balances displayed in the  app might not be 100% accurate due to variations in price data 
+Keep in mind that the balances displayed in the app might not be 100% accurate due to variations in price data
 from different exchanges. However, any discrepancies should be minimal.
 <br>
 
 ## Approach and Challenges
-Initially, the idea was to allow users to add their wallet addresses to track their cryptos. However, this approach posed 
-some challenges, such as specifying the network for the address and the difficulty of tracking cryptos held in exchange 
-addresses shared by multiple users. Due to these complexities, tracking cryptos based on non cold/hard-wallet addresses became unfeasible. 
+
+Initially, the idea was to allow users to add their wallet addresses to track their cryptos. However, this approach
+posed
+some challenges, such as specifying the network for the address and the difficulty of tracking cryptos held in exchange
+addresses shared by multiple users. Due to these complexities, tracking cryptos based on non cold/hard-wallet addresses
+became unfeasible.
 Instead, the current approach was adopted to provide a more reliable and feasible solution.
 <br>
 
 ## IMPORTANT :fire:
+
 Investing in cryptocurrencies comes with high risk and volatility. This app was made only for educational purposes.
 Do your own research before investing money you are not willing to loss.
 
 <hr>
 
-This API uses ***Spring Security*** and ***Docker Compose***. If you want to fully test or play with it you will need an 
-ADMIN user in the database and [crypto-balance-tracker-login](https://github.com/lucasdistasi/crypto-balance-tracker-login),
+This API uses ***Spring Security*** and ***Docker Compose***. If you want to fully test or play with it you will need an
+ADMIN user in the database
+and [crypto-balance-tracker-login](https://github.com/lucasdistasi/crypto-balance-tracker-login),
 a Kotlin-Spring project to generate a JWT and consume the endpoints from this project.
 
 If you don't want Authentication-Authorization, you are lucky :) There is a property in application.yml to disable
@@ -68,24 +73,30 @@ the security. Default value is false (no security).
 
 ---
 
-Before starting, you must know that this application can be used with security, so by enabling security, all endpoints will
-require a JWT token from an user with ADMIN role. That being said, below you can find the instructions to run the application
+Before starting, you must know that this application can be used with security, so by enabling security, all endpoints
+will
+require a JWT token from an user with ADMIN role. That being said, below you can find the instructions to run the
+application
 with or without security.
 
 1. Have Docker and Docker Compose installed and running.
-2. If you want to secure the app, set the security.enabled property in application.yml from this project to true. Default value is false.
+2. If you want to secure the app, set the security.enabled property in application.yml from this project to true.
+   Default value is false.
 3. Set up environment variables in _.env_ file.
-   1. MONGODB_DATABASE. The name of the database.
-   2. JWT_SIGNING_KEY. The signing key. Leave empty if security is disabled.
-   3. COINGECKO_API_KEY. API Key from PRO Account. If you don't have one, leave it empty.
+    1. MONGODB_DATABASE. The name of the database.
+    2. JWT_SIGNING_KEY. The signing key. Leave empty if security is disabled.
+    3. COINGECKO_API_KEY. API Key from PRO Account. If you don't have one, leave it empty.
 4. Download [cbt-mongo-seed](https://github.com/lucasdistasi/cbt-mongo.seed) and set your desired values **(not needed if security is disabled)**.
-5. Run `./gradlew bootJar` on the root of this project to create the executable jar that's going to be used by Docker to build the image.
-6. Create docker images (`docker build`) for 
-   - [cbt-mongo-seed](https://github.com/lucasdistasi/cbt-mongo.seed) (not needed if security is disabled)
-   - [crypto-balance-tracker](https://github.com/lucasdistasi/crypto-balance-tracker)
-   - [crypto-balance-tracker-ui](https://github.com/lucasdistasi/crypto-balance-tracker-ui)
-   - [crypto-balance-tracker-login](https://github.com/lucasdistasi/crypto-balance-tracker-login) (not needed if security is disabled)
-7. On crypto-balance-tracker folder run `docker ompose up` if you don't want to use it with security or `docker-compose -f docker-compose-security.yml up` if you want to use it with security.
+5. Run `./gradlew bootJar` on the root of this project to create the executable jar that's going to be used by Docker to
+   build the image.
+6. Create docker images (`docker build`) for
+    - [cbt-mongo-seed](https://github.com/lucasdistasi/cbt-mongo.seed) (not needed if security is disabled)
+    - [crypto-balance-tracker](https://github.com/lucasdistasi/crypto-balance-tracker)
+    - [crypto-balance-tracker-ui](https://github.com/lucasdistasi/crypto-balance-tracker-ui)
+    - [crypto-balance-tracker-login](https://github.com/lucasdistasi/crypto-balance-tracker-login) (not needed if
+      security is disabled)
+7. On crypto-balance-tracker folder run `docker ompose up` if you don't want to use it with security
+   or `docker-compose -f docker-compose-security.yml up` if you want to use it with security.
 
 <br>
 
@@ -115,7 +126,8 @@ Feel free to star, fork, or study from the code! If you'd like to contribute, yo
 
 ### Below you can find some examples with random data of the information that each endpoint retrieves :memo:
 
-Bear in mind that the below ones aren't all the endpoints, but only the ones used to display data in tables and charts, aka GET endpoints.
+Bear in mind that the below ones aren't all the endpoints, but only the ones used to display data in tables and charts,
+aka GET endpoints.
 
 <details>
   <summary>Response examples</summary>
