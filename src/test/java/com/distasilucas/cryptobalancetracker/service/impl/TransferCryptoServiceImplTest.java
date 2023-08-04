@@ -84,10 +84,11 @@ class TransferCryptoServiceImplTest {
 
     @Test
     // from has remaining   |   to has the cryptoId   ---> Update FROM and TO
-    void shouldTransferToPlatformWithExistingCryptoAndHaveRemaining() {
+    void shouldTransferToPlatformWithExistingCryptoAndRemainingAndFullQuantity() {
         var transferCryptoRequest = new TransferCryptoRequest(
                 "ABC123",
                 BigDecimal.valueOf(0.5),
+                true,
                 BigDecimal.valueOf(0.001),
                 "BINANCE"
         );
@@ -128,21 +129,77 @@ class TransferCryptoServiceImplTest {
         verify(userCryptoServiceMock, times(1))
                 .saveAll(Arrays.asList(toPlatformCrypto, cryptoToTransfer));
         assertAll(
-                () -> assertEquals(transferCryptoRequest.getNetworkFee(), transferCryptoResponse.getFromPlatform().getNetworkFee()),
-                () -> assertEquals(transferCryptoRequest.getQuantityToTransfer(), transferCryptoResponse.getFromPlatform().getQuantityToTransfer()),
+                () -> assertEquals(BigDecimal.valueOf(0.001), transferCryptoResponse.getFromPlatform().getNetworkFee()),
+                () -> assertEquals(BigDecimal.valueOf(0.5), transferCryptoResponse.getFromPlatform().getQuantityToTransfer()),
                 () -> assertEquals(BigDecimal.valueOf(0.501), transferCryptoResponse.getFromPlatform().getTotalToSubtract()),
-                () -> assertEquals(quantityToSendReceive, transferCryptoResponse.getFromPlatform().getQuantityToSendReceive()),
+                () -> assertEquals(BigDecimal.valueOf(0.5), transferCryptoResponse.getFromPlatform().getQuantityToSendReceive()),
                 () -> assertEquals(BigDecimal.valueOf(0.749), transferCryptoResponse.getFromPlatform().getRemainingCryptoQuantity()),
-                () -> assertEquals(BigDecimal.valueOf(0.649), transferCryptoResponse.getToPlatform().getNewQuantity())
+                () -> assertEquals(BigDecimal.valueOf(0.65), transferCryptoResponse.getToPlatform().getNewQuantity())
+        );
+    }
+
+    @Test
+    // from has remaining   |   to has the cryptoId   ---> Update FROM and TO
+    void shouldTransferToPlatformWithExistingCryptoAndRemainingAndNoFullQuantity() {
+        var transferCryptoRequest = new TransferCryptoRequest(
+                "ABC123",
+                BigDecimal.valueOf(100),
+                BigDecimal.valueOf(0.8),
+                "BINANCE"
+        );
+
+        var toPlatform = Platform.builder()
+                .id("PLTFRM456")
+                .name(transferCryptoRequest.getToPlatform())
+                .build();
+        var cryptoToTransfer = UserCrypto.builder()
+                .id("ABC456")
+                .cryptoId("cardano")
+                .quantity(BigDecimal.valueOf(277.351))
+                .build();
+        var toPlatformCrypto = UserCrypto.builder()
+                .cryptoId("cardano")
+                .quantity(BigDecimal.valueOf(100))
+                .build();
+
+        var networkFee = transferCryptoRequest.getNetworkFee();
+        var quantityToTransfer = transferCryptoRequest.getQuantityToTransfer();
+        var actualCryptoQuantity = cryptoToTransfer.getQuantity();
+        var totalToSubtract = networkFee.add(quantityToTransfer);
+        var remainingCryptoQuantity = actualCryptoQuantity.subtract(totalToSubtract);
+        var quantityToSendReceive = quantityToTransfer.subtract(networkFee);
+
+        when(platformServiceMock.findByName(transferCryptoRequest.getToPlatform()))
+                .thenReturn(Optional.of(toPlatform));
+        when(userCryptoServiceMock.findById(transferCryptoRequest.getCryptoId()))
+                .thenReturn(Optional.of(cryptoToTransfer));
+        when(userCryptoServiceMock.findByCryptoIdAndPlatformId(cryptoToTransfer.getCryptoId(), toPlatform.getId()))
+                .thenReturn(Optional.of(toPlatformCrypto));
+
+        var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
+
+        toPlatformCrypto.setQuantity(quantityToSendReceive);
+        cryptoToTransfer.setQuantity(remainingCryptoQuantity);
+
+        verify(userCryptoServiceMock, times(1))
+                .saveAll(Arrays.asList(toPlatformCrypto, cryptoToTransfer));
+        assertAll(
+                () -> assertEquals(BigDecimal.valueOf(0.8), transferCryptoResponse.getFromPlatform().getNetworkFee()),
+                () -> assertEquals(BigDecimal.valueOf(100), transferCryptoResponse.getFromPlatform().getQuantityToTransfer()),
+                () -> assertEquals(BigDecimal.valueOf(100), transferCryptoResponse.getFromPlatform().getTotalToSubtract()),
+                () -> assertEquals(BigDecimal.valueOf(99.2), transferCryptoResponse.getFromPlatform().getQuantityToSendReceive()),
+                () -> assertEquals(BigDecimal.valueOf(177.351), transferCryptoResponse.getFromPlatform().getRemainingCryptoQuantity()),
+                () -> assertEquals(BigDecimal.valueOf(199.2), transferCryptoResponse.getToPlatform().getNewQuantity())
         );
     }
 
     @Test
     // from has remaining   |   to hasn't the cryptoId   ---> Update FROM. Add TO
-    void shouldTransferToPlatformWithoutExistingCryptoAndHaveRemaining() {
+    void shouldTransferToPlatformWithoutExistingCryptoAndRemainingAndFullQuantity() {
         var transferCryptoRequest = new TransferCryptoRequest(
                 "ABC123",
                 BigDecimal.valueOf(0.5),
+                true,
                 BigDecimal.valueOf(0.001),
                 "BINANCE"
         );
@@ -156,9 +213,46 @@ class TransferCryptoServiceImplTest {
                 .quantity(BigDecimal.valueOf(1.25))
                 .build();
 
-        var networkFee = transferCryptoRequest.getNetworkFee();
-        var quantityToTransfer = transferCryptoRequest.getQuantityToTransfer();
-        var quantityToSendReceive = quantityToTransfer.subtract(networkFee);
+        when(platformServiceMock.findByName(transferCryptoRequest.getToPlatform()))
+                .thenReturn(Optional.of(toPlatform));
+        when(userCryptoServiceMock.findById(transferCryptoRequest.getCryptoId()))
+                .thenReturn(Optional.of(cryptoToTransfer));
+        when(userCryptoServiceMock.findByCryptoIdAndPlatformId(cryptoToTransfer.getCryptoId(), toPlatform.getId()))
+                .thenReturn(Optional.empty());
+
+        var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
+
+        verify(userCryptoServiceMock, times(1)).saveAll(any());
+
+        assertAll(
+                () -> assertEquals(BigDecimal.valueOf(0.001), transferCryptoResponse.getFromPlatform().getNetworkFee()),
+                () -> assertEquals(BigDecimal.valueOf(0.5), transferCryptoResponse.getFromPlatform().getQuantityToTransfer()),
+                () -> assertEquals(BigDecimal.valueOf(0.501), transferCryptoResponse.getFromPlatform().getTotalToSubtract()),
+                () -> assertEquals(BigDecimal.valueOf(0.5), transferCryptoResponse.getFromPlatform().getQuantityToSendReceive()),
+                () -> assertEquals(BigDecimal.valueOf(0.749), transferCryptoResponse.getFromPlatform().getRemainingCryptoQuantity()),
+                () -> assertEquals(BigDecimal.valueOf(0.5), transferCryptoResponse.getToPlatform().getNewQuantity())
+        );
+    }
+
+    @Test
+    // from has remaining   |   to hasn't the cryptoId   ---> Update FROM. Add TO
+    void shouldTransferToPlatformWithoutExistingCryptoAndRemainingAndNoFullQuantity() {
+        var transferCryptoRequest = new TransferCryptoRequest(
+                "ABC123",
+                BigDecimal.valueOf(100),
+                BigDecimal.valueOf(0.8),
+                "BINANCE"
+        );
+
+        var toPlatform = Platform.builder()
+                .id("PLTFRM456")
+                .name(transferCryptoRequest.getToPlatform())
+                .build();
+        var cryptoToTransfer = UserCrypto.builder()
+                .id("ABC456")
+                .cryptoId("cardano")
+                .quantity(BigDecimal.valueOf(277.351))
+                .build();
 
         when(platformServiceMock.findByName(transferCryptoRequest.getToPlatform()))
                 .thenReturn(Optional.of(toPlatform));
@@ -172,12 +266,12 @@ class TransferCryptoServiceImplTest {
         verify(userCryptoServiceMock, times(1)).saveAll(any());
 
         assertAll(
-                () -> assertEquals(transferCryptoRequest.getNetworkFee(), transferCryptoResponse.getFromPlatform().getNetworkFee()),
-                () -> assertEquals(transferCryptoRequest.getQuantityToTransfer(), transferCryptoResponse.getFromPlatform().getQuantityToTransfer()),
-                () -> assertEquals(BigDecimal.valueOf(0.501), transferCryptoResponse.getFromPlatform().getTotalToSubtract()),
-                () -> assertEquals(quantityToSendReceive, transferCryptoResponse.getFromPlatform().getQuantityToSendReceive()),
-                () -> assertEquals(BigDecimal.valueOf(0.749), transferCryptoResponse.getFromPlatform().getRemainingCryptoQuantity()),
-                () -> assertEquals(BigDecimal.valueOf(0.499), transferCryptoResponse.getToPlatform().getNewQuantity())
+                () -> assertEquals(BigDecimal.valueOf(0.8), transferCryptoResponse.getFromPlatform().getNetworkFee()),
+                () -> assertEquals(BigDecimal.valueOf(100), transferCryptoResponse.getFromPlatform().getQuantityToTransfer()),
+                () -> assertEquals(BigDecimal.valueOf(100), transferCryptoResponse.getFromPlatform().getTotalToSubtract()),
+                () -> assertEquals(BigDecimal.valueOf(99.2), transferCryptoResponse.getFromPlatform().getQuantityToSendReceive()),
+                () -> assertEquals(BigDecimal.valueOf(177.351), transferCryptoResponse.getFromPlatform().getRemainingCryptoQuantity()),
+                () -> assertEquals(BigDecimal.valueOf(99.2), transferCryptoResponse.getToPlatform().getNewQuantity())
         );
     }
 
@@ -204,9 +298,6 @@ class TransferCryptoServiceImplTest {
                 .quantity(BigDecimal.valueOf(0.15))
                 .build();
 
-        var networkFee = transferCryptoRequest.getNetworkFee();
-        var quantityToSendReceive = transferCryptoRequest.getQuantityToTransfer().subtract(networkFee);
-
         when(platformServiceMock.findByName(transferCryptoRequest.getToPlatform()))
                 .thenReturn(Optional.of(toPlatform));
         when(userCryptoServiceMock.findById(transferCryptoRequest.getCryptoId()))
@@ -222,10 +313,10 @@ class TransferCryptoServiceImplTest {
         verify(userCryptoServiceMock, times(1)).deleteUserCrypto(cryptoToTransfer);
         verify(userCryptoServiceMock, times(1)).saveUserCrypto(toPlatformCrypto);
         assertAll(
-                () -> assertEquals(transferCryptoRequest.getNetworkFee(), transferCryptoResponse.getFromPlatform().getNetworkFee()),
-                () -> assertEquals(transferCryptoRequest.getQuantityToTransfer(), transferCryptoResponse.getFromPlatform().getQuantityToTransfer()),
+                () -> assertEquals(BigDecimal.valueOf(0.001), transferCryptoResponse.getFromPlatform().getNetworkFee()),
+                () -> assertEquals(BigDecimal.valueOf(1.25), transferCryptoResponse.getFromPlatform().getQuantityToTransfer()),
                 () -> assertEquals(BigDecimal.valueOf(1.25), transferCryptoResponse.getFromPlatform().getTotalToSubtract()),
-                () -> assertEquals(quantityToSendReceive, transferCryptoResponse.getFromPlatform().getQuantityToSendReceive()),
+                () -> assertEquals(BigDecimal.valueOf(1.249), transferCryptoResponse.getFromPlatform().getQuantityToSendReceive()),
                 () -> assertEquals(BigDecimal.ZERO, transferCryptoResponse.getFromPlatform().getRemainingCryptoQuantity()),
                 () -> assertEquals(BigDecimal.valueOf(1.399), transferCryptoResponse.getToPlatform().getNewQuantity())
         );
@@ -252,11 +343,9 @@ class TransferCryptoServiceImplTest {
 
         var networkFee = transferCryptoRequest.getNetworkFee();
         var quantityToTransfer = transferCryptoRequest.getQuantityToTransfer();
-        var totalToAdd = quantityToTransfer.subtract(networkFee);
         var actualCryptoQuantity = cryptoToTransfer.getQuantity();
         var totalToSubtract = networkFee.add(quantityToTransfer);
         var remainingCryptoQuantity = actualCryptoQuantity.subtract(totalToSubtract);
-        var quantityToSendReceive = transferCryptoRequest.getQuantityToTransfer().subtract(networkFee);
 
         when(platformServiceMock.findByName(transferCryptoRequest.getToPlatform()))
                 .thenReturn(Optional.of(toPlatform));
@@ -274,12 +363,12 @@ class TransferCryptoServiceImplTest {
                 .saveUserCrypto(cryptoToTransfer);
 
         assertAll(
-                () -> assertEquals(transferCryptoRequest.getNetworkFee(), transferCryptoResponse.getFromPlatform().getNetworkFee()),
-                () -> assertEquals(transferCryptoRequest.getQuantityToTransfer(), transferCryptoResponse.getFromPlatform().getQuantityToTransfer()),
+                () -> assertEquals(BigDecimal.valueOf(0.001), transferCryptoResponse.getFromPlatform().getNetworkFee()),
+                () -> assertEquals(BigDecimal.valueOf(1.25), transferCryptoResponse.getFromPlatform().getQuantityToTransfer()),
                 () -> assertEquals(BigDecimal.valueOf(1.25), transferCryptoResponse.getFromPlatform().getTotalToSubtract()),
-                () -> assertEquals(quantityToSendReceive, transferCryptoResponse.getFromPlatform().getQuantityToSendReceive()),
+                () -> assertEquals(BigDecimal.valueOf(1.249), transferCryptoResponse.getFromPlatform().getQuantityToSendReceive()),
                 () -> assertEquals(BigDecimal.ZERO, transferCryptoResponse.getFromPlatform().getRemainingCryptoQuantity()),
-                () -> assertEquals(totalToAdd, transferCryptoResponse.getToPlatform().getNewQuantity())
+                () -> assertEquals(BigDecimal.valueOf(1.249), transferCryptoResponse.getToPlatform().getNewQuantity())
         );
     }
 
