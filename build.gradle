@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.1.1'
+    id 'org.springframework.boot' version '3.1.2'
     id 'io.spring.dependency-management' version '1.1.0'
     id "org.owasp.dependencycheck" version "8.2.1"
     id 'org.sonarqube' version '3.3'
@@ -15,7 +15,7 @@ ext {
     javaxCacheVersion = "1.1.1"
     orgEhcacheVersion = "3.10.8"
     springDocVersion = "2.1.0"
-    springBootVersion = '3.1.1'
+    springBootVersion = '3.1.2'
     jsonWebTokenVersion = "0.11.5"
     jacocoVersion = "0.8.8"
     jacocoExecPath = "${project.rootDir}/../target/jacoco.exec"
@@ -144,6 +144,11 @@ dependencies {
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "io.projectreactor:reactor-test"
     testImplementation "com.squareup.okhttp3:mockwebserver:${okHttp3Version}"
+
+    // dependencies to override the transitives one which currently have known vulnerabilities
+    implementation 'com.squareup.okio:okio:3.5.0'
+    implementation 'org.yaml:snakeyaml:2.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
 }
 
 tasks.named('test') {
