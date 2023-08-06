@@ -6,7 +6,7 @@
 | License       | [![License](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)                                                                           |
 | Code Coverage | [![Code Coverage](https://github.com/lucasdistasi/crypto-balance-tracker/blob/gh-pages/badges/jacoco.svg)](https://lucasdistasi.github.io/crypto-balance-tracker/)                |
 | Project views | [![Project views](https://hits.dwyl.com/lucasdistasi/crypto-balance-tracker.svg)]()                                                                                               |
-| Snyk          | [![Known Vulnerabilities](https://snyk.io/test/github/lucasdistasi/crypto-balance-tracker/badge.svg)]()                                                                           |
+| Snyk Analysis | [![Known Vulnerabilities](https://snyk.io/test/github/lucasdistasi/crypto-balance-tracker/badge.svg)](https://snyk.io/test/github/lucasdistasi/crypto-balance-tracker)            |
 
 Crypto Balance Tracker is a Java-Spring application that acts as a portfolio tracker for monitoring your crypto assets.
 It allows you to retrieve data such as the percentage of each crypto owned, the total value of your assets,
@@ -86,7 +86,8 @@ with or without security.
     1. MONGODB_DATABASE. The name of the database.
     2. JWT_SIGNING_KEY. The signing key. Leave empty if security is disabled.
     3. COINGECKO_API_KEY. API Key from PRO Account. If you don't have one, leave it empty.
-4. Download [cbt-mongo-seed](https://github.com/lucasdistasi/cbt-mongo.seed) and set your desired values **(not needed if security is disabled)**.
+4. Download [cbt-mongo-seed](https://github.com/lucasdistasi/cbt-mongo.seed) and set your desired values **(not needed
+   if security is disabled)**.
 5. Run `./gradlew bootJar` on the root of this project to create the executable jar that's going to be used by Docker to
    build the image.
 6. Create docker images (`docker build`) for
@@ -115,11 +116,17 @@ Feel free to star, fork, or study from the code! If you'd like to contribute, yo
 | USDT   | ERC20   | 0x304714FDA2060c570B1afb1BC231C0973abBEC23 | [USDT-erc20]  |
 
 [BTC-bitcoin]: https://imgur.com/Hs0DYDk
+
 [BTC-trc20]: https://imgur.com/kdROHrE
+
 [ETH-bep20]: https://imgur.com/DIOiJrL
+
 [ETH-erc20]: https://imgur.com/REXkDmu
+
 [USDT-trc20]: https://imgur.com/ubUWdpI
+
 [USDT-bep20]: https://imgur.com/rrrYd9j
+
 [USDT-erc20]: https://imgur.com/G9DPKvU
 
 <br>
