@@ -24,7 +24,6 @@ public class UpdateCryptoSchedulerMapperImpl implements EntityMapper<Crypto, Cry
     
     @Override
     public Crypto mapFrom(Crypto input) {
-        log.info("Updating information for {}", input.getName());
         String id = input.getId();
 
         try {

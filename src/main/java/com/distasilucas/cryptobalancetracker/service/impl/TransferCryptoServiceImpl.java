@@ -52,14 +52,14 @@ public class TransferCryptoServiceImpl implements TransferCryptoService {
         BigDecimal actualCryptoQuantity = cryptoToTransfer.getQuantity();
         BigDecimal networkFee = transferCryptoRequest.getNetworkFee();
         BigDecimal quantityToTransfer = transferCryptoRequest.getQuantityToTransfer();
-        BigDecimal totalToSubtract = getTotalToSubtract(actualCryptoQuantity, quantityToTransfer, networkFee);
-        BigDecimal quantityToSendReceive = quantityToTransfer.subtract(networkFee);
+        BigDecimal totalToSubtract = getTotalToSubtract(actualCryptoQuantity, transferCryptoRequest);
+        BigDecimal quantityToSendReceive = getQuantityToSendReceive(transferCryptoRequest);
 
         if (hasInsufficientBalance(actualCryptoQuantity, quantityToTransfer))
             throw new InsufficientBalanceException(NOT_ENOUGH_BALANCE);
 
         Optional<UserCrypto> toPlatformOptionalCrypto = getToPlatformOptionalCrypto(cryptoToTransfer.getCryptoId(), toPlatform);
-        BigDecimal remainingCryptoQuantity = getRemainingCryptoQuantity(actualCryptoQuantity, totalToSubtract);
+        BigDecimal remainingCryptoQuantity = getRemainingCryptoQuantity(transferCryptoRequest, actualCryptoQuantity);
         ToPlatform to = new ToPlatform();
         FromPlatform from = new FromPlatform();
 
@@ -113,6 +113,13 @@ public class TransferCryptoServiceImpl implements TransferCryptoService {
         return new TransferCryptoResponse(from, to);
     }
 
+    private BigDecimal getQuantityToSendReceive(TransferCryptoRequest transferCryptoRequest) {
+        BigDecimal quantityToTransfer = transferCryptoRequest.getQuantityToTransfer();
+        BigDecimal networkFee = transferCryptoRequest.getNetworkFee();
+
+        return transferCryptoRequest.isSendFullQuantity() ? quantityToTransfer : quantityToTransfer.subtract(networkFee);
+    }
+
     private Platform getToPlatform(String toPlatformName) {
         return platformService.findByName(toPlatformName)
                 .orElseThrow(() -> new PlatformNotFoundException(TARGET_PLATFORM_NOT_EXISTS));
@@ -131,16 +138,26 @@ public class TransferCryptoServiceImpl implements TransferCryptoService {
         return toPlatformId.equals(fromPlatformId);
     }
 
+    private BigDecimal getRemainingCryptoQuantity(TransferCryptoRequest transferCryptoRequest, BigDecimal actualCryptoQuantity) {
+        return transferCryptoRequest.isSendFullQuantity() ?
+                getRemainingCryptoQuantity(actualCryptoQuantity, getTotalToSubtract(actualCryptoQuantity, transferCryptoRequest)) :
+                getRemainingCryptoQuantity(actualCryptoQuantity, transferCryptoRequest.getQuantityToTransfer());
+    }
+
     private BigDecimal getRemainingCryptoQuantity(BigDecimal actualCryptoQuantity, BigDecimal totalToSubtract) {
         return actualCryptoQuantity.compareTo(totalToSubtract) > 0 ?
                 actualCryptoQuantity.subtract(totalToSubtract) :
                 BigDecimal.ZERO;
     }
 
-    private BigDecimal getTotalToSubtract(BigDecimal actualCryptoQuantity, BigDecimal quantityToTransfer, BigDecimal networkFee) {
+    private BigDecimal getTotalToSubtract(BigDecimal actualCryptoQuantity, TransferCryptoRequest transferCryptoRequest) {
+        BigDecimal quantityToTransfer = transferCryptoRequest.getQuantityToTransfer();
+        BigDecimal networkFee = transferCryptoRequest.getNetworkFee();
         BigDecimal totalToSpent = quantityToTransfer.add(networkFee);
 
-        return actualCryptoQuantity.compareTo(totalToSpent) > 0 ? totalToSpent : actualCryptoQuantity;
+        return transferCryptoRequest.isSendFullQuantity()  ?
+                actualCryptoQuantity.compareTo(totalToSpent) > 0 ? totalToSpent : actualCryptoQuantity :
+                quantityToTransfer;
     }
 
     private boolean hasInsufficientBalance(BigDecimal actualCryptoQuantity, BigDecimal totalToSubtract) {
